@@ -156,6 +156,7 @@ const Dashboard = () => {
               return (
                 <div
                   key={bp.id}
+                  onClick={() => navigate(`/bp/${bp.id}`)}
                   className="group relative bg-card border border-border rounded-2xl p-6 cursor-pointer transition-all duration-200 hover:border-primary/30 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.3)] overflow-hidden"
                 >
                   <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -219,13 +220,27 @@ const Dashboard = () => {
               </div>
               <div>
                 <label className="block text-xs font-bold text-secondary-foreground mb-1.5">Secteur d'activité</label>
-                <input
-                  type="text"
+                <select
                   value={newSecteur}
                   onChange={(e) => setNewSecteur(e.target.value)}
-                  placeholder="Ex : Agroalimentaire, Services, Commerce…"
-                  className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
-                />
+                  className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground outline-none focus:border-primary transition-colors"
+                >
+                  <option value="">— Sélectionner un secteur —</option>
+                  <option>Agroalimentaire</option>
+                  <option>Commerce</option>
+                  <option>Services</option>
+                  <option>Technologie / IT</option>
+                  <option>BTP / Construction</option>
+                  <option>Éducation / Formation</option>
+                  <option>Santé</option>
+                  <option>Transport / Logistique</option>
+                  <option>Tourisme / Hôtellerie</option>
+                  <option>Agriculture</option>
+                  <option>Industrie / Manufacture</option>
+                  <option>Énergie</option>
+                  <option>Immobilier</option>
+                  <option>Autre</option>
+                </select>
               </div>
               <div>
                 <label className="block text-xs font-bold text-secondary-foreground mb-1.5">Devise</label>

@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import Dashboard from "./pages/Dashboard";
+import BusinessPlanEditor from "./pages/BusinessPlanEditor";
 import CGUPage from "./pages/CGUPage";
 import NotFound from "./pages/NotFound";
 
@@ -26,6 +27,11 @@ const App = () => (
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/bp/:id" element={
+              <ProtectedRoute>
+                <BusinessPlanEditor />
               </ProtectedRoute>
             } />
             <Route path="/cgu" element={<CGUPage />} />
