@@ -1,0 +1,178 @@
+export type SectionType = "narrative" | "financial" | "swot";
+
+export interface SectionConfig {
+  id: string;
+  title: string;
+  icon: string;
+  type: SectionType;
+  placeholder?: string;
+  hint?: string;
+  fields?: FinancialField[];
+  rows?: string[];
+  columns?: string[];
+}
+
+export interface FinancialField {
+  id: string;
+  label: string;
+  type: "number" | "text";
+}
+
+export const BP_SECTIONS: SectionConfig[] = [
+  {
+    id: "resume",
+    title: "Résumé exécutif",
+    icon: "📝",
+    type: "narrative",
+    placeholder: "Décrivez votre projet en quelques paragraphes clés…",
+    hint: "C'est la section la plus lue par les investisseurs. Résumez votre projet, votre marché cible, votre avantage concurrentiel et vos besoins de financement.",
+  },
+  {
+    id: "presentation",
+    title: "Présentation du projet",
+    icon: "🎯",
+    type: "narrative",
+    placeholder: "Décrivez votre projet, sa vision, sa mission et ses objectifs…",
+    hint: "Incluez : nom du projet, forme juridique, localisation, date de création prévue, vision et mission.",
+  },
+  {
+    id: "promoteur",
+    title: "Présentation du promoteur",
+    icon: "👤",
+    type: "narrative",
+    placeholder: "Présentez le(s) porteur(s) de projet, leur parcours et motivations…",
+    hint: "Parcours professionnel, compétences clés, motivation, rôle dans le projet.",
+  },
+  {
+    id: "marche",
+    title: "Étude de marché",
+    icon: "📊",
+    type: "narrative",
+    placeholder: "Analysez votre marché : taille, tendances, segmentation, clients cibles…",
+    hint: "Taille du marché, tendances, segmentation clients, comportement d'achat, réglementation.",
+  },
+  {
+    id: "concurrence",
+    title: "Analyse de la concurrence",
+    icon: "⚔️",
+    type: "narrative",
+    placeholder: "Identifiez vos concurrents directs et indirects, leurs forces et faiblesses…",
+    hint: "Concurrents directs/indirects, parts de marché, positionnement, avantages concurrentiels.",
+  },
+  {
+    id: "strategie_commerciale",
+    title: "Stratégie commerciale",
+    icon: "💼",
+    type: "narrative",
+    placeholder: "Décrivez votre offre de produits/services, votre politique de prix…",
+    hint: "Offre produits/services, politique de prix, canaux de distribution, force de vente.",
+  },
+  {
+    id: "marketing",
+    title: "Stratégie marketing",
+    icon: "📣",
+    type: "narrative",
+    placeholder: "Détaillez votre plan marketing : communication, promotion, branding…",
+    hint: "Mix marketing (4P), stratégie de communication, budget marketing, actions prévues.",
+  },
+  {
+    id: "operations",
+    title: "Plan opérationnel",
+    icon: "⚙️",
+    type: "narrative",
+    placeholder: "Décrivez le fonctionnement quotidien de votre activité…",
+    hint: "Processus de production/service, fournisseurs, logistique, technologie, localisation.",
+  },
+  {
+    id: "rh",
+    title: "Ressources humaines",
+    icon: "👥",
+    type: "narrative",
+    placeholder: "Détaillez votre organisation et vos besoins en personnel…",
+    hint: "Organigramme, postes clés, profils recherchés, politique salariale, plan de recrutement.",
+  },
+  {
+    id: "investissements",
+    title: "Plan d'investissement",
+    icon: "🏗️",
+    type: "financial",
+    hint: "Listez tous les investissements nécessaires au démarrage et leur coût.",
+    rows: [
+      "Terrain / Local",
+      "Aménagement / Travaux",
+      "Équipements / Matériel",
+      "Véhicules",
+      "Mobilier de bureau",
+      "Matériel informatique",
+      "Frais d'établissement",
+      "Stock initial",
+      "Trésorerie de départ",
+      "Divers / Imprévus",
+    ],
+    columns: ["Désignation", "Montant"],
+  },
+  {
+    id: "compte_resultat",
+    title: "Compte de résultat prévisionnel",
+    icon: "📈",
+    type: "financial",
+    hint: "Projetez vos revenus et charges sur 3 ans.",
+    rows: [
+      "Chiffre d'affaires",
+      "Achats de marchandises",
+      "Marge brute",
+      "Charges de personnel",
+      "Loyer",
+      "Électricité / Eau",
+      "Transport",
+      "Télécommunications",
+      "Assurances",
+      "Publicité / Marketing",
+      "Frais divers",
+      "Total charges",
+      "Amortissements",
+      "Résultat d'exploitation",
+      "Charges financières",
+      "Résultat net",
+    ],
+    columns: ["Année 1", "Année 2", "Année 3"],
+  },
+  {
+    id: "tresorerie",
+    title: "Plan de trésorerie",
+    icon: "💰",
+    type: "financial",
+    hint: "Suivez mois par mois vos encaissements et décaissements pour la première année.",
+    rows: [
+      "Solde initial",
+      "Encaissements ventes",
+      "Apports / Emprunts",
+      "Autres encaissements",
+      "Total encaissements",
+      "Achats",
+      "Salaires",
+      "Charges sociales",
+      "Loyer",
+      "Autres décaissements",
+      "Total décaissements",
+      "Solde mensuel",
+      "Solde cumulé",
+    ],
+    columns: ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12"],
+  },
+  {
+    id: "swot",
+    title: "Analyse SWOT",
+    icon: "🔄",
+    type: "swot",
+    hint: "Forces, Faiblesses, Opportunités et Menaces de votre projet.",
+  },
+  {
+    id: "risques",
+    title: "Analyse des risques",
+    icon: "⚠️",
+    type: "narrative",
+    placeholder: "Identifiez les risques potentiels et les mesures d'atténuation…",
+    hint: "Risques commerciaux, financiers, opérationnels, réglementaires. Mesures préventives.",
+  },
+];
