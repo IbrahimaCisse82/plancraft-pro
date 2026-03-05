@@ -3,7 +3,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Save, ChevronLeft, Check } from "lucide-react";
+import { Save, ChevronLeft, Check, Download } from "lucide-react";
+import { exportBusinessPlanPDF } from "@/lib/exportPdf";
 import { BP_SECTIONS, SectionConfig } from "@/components/editor/sectionConfig";
 import NarrativeSection from "@/components/editor/NarrativeSection";
 import FinancialSection from "@/components/editor/FinancialSection";
@@ -164,6 +165,14 @@ const BusinessPlanEditor = () => {
           </div>
 
           <span className="text-[0.6rem] text-muted-foreground font-mono">{plan.devise}</span>
+
+          <button
+            onClick={() => exportBusinessPlanPDF(plan, content)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
+          >
+            <Download className="w-3.5 h-3.5" />
+            PDF
+          </button>
 
           <button
             onClick={() => saveContent(content)}
