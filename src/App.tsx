@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import Dashboard from "./pages/Dashboard";
 import BusinessPlanEditor from "./pages/BusinessPlanEditor";
+import AdminDashboard from "./pages/AdminDashboard";
 import CGUPage from "./pages/CGUPage";
 import NotFound from "./pages/NotFound";
 
@@ -32,6 +33,11 @@ const App = () => (
             <Route path="/bp/:id" element={
               <ProtectedRoute>
                 <BusinessPlanEditor />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <ProtectedRoute>
+                <AdminDashboard />
               </ProtectedRoute>
             } />
             <Route path="/cgu" element={<CGUPage />} />

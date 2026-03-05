@@ -128,6 +128,11 @@ const Dashboard = () => {
             <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[0.7rem] font-bold">{initial}</div>
             <span className="hidden sm:inline">{displayName}</span>
           </div>
+          {isAdmin && (
+            <Link to="/admin" className="px-4 py-1.5 bg-primary/20 border border-primary/30 rounded-md text-xs font-semibold text-primary hover:bg-primary/30 transition-all">
+              🛡️ Admin
+            </Link>
+          )}
           <Link to="/" className="px-4 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all">
             🏠 Accueil
           </Link>
