@@ -5,12 +5,12 @@ import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
 
 const AuthPage = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const { user, signIn, signUp, loading } = useAuth();
+  const { user, signIn, signUp, resetPassword, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,16 +20,35 @@ const AuthPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    const { error } = isLogin
-      ? await signIn(email, password)
-      : await signUp(email, password, displayName);
-    setSubmitting(false);
 
-    if (error) {
-      toast.error(error.message);
-    } else if (!isLogin) {
-      toast.success("Compte créé avec succès !");
-      navigate("/dashboard", { replace: true });
+    if (mode === "forgot") {
+      const { error } = await resetPassword(email);
+      setSubmitting(false);
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success("Un email de réinitialisation a été envoyé. Vérifiez votre boîte de réception.");
+        setMode("login");
+      }
+      return;
+    }
+
+    if (mode === "login") {
+      const { error } = await signIn(email, password);
+      setSubmitting(false);
+      if (error) toast.error(error.message);
+    } else {
+      const { error } = await signUp(email, password, displayName);
+      setSubmitting(false);
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success(
+          "Compte créé ! Vérifiez votre email pour confirmer votre inscription avant de vous connecter.",
+          { duration: 8000 }
+        );
+        setMode("login");
+      }
     }
   };
 
@@ -40,6 +59,12 @@ const AuthPage = () => {
       </div>
     );
   }
+
+  const titles = {
+    login: { heading: "Bienvenue", sub: "Connectez-vous avec votre email et mot de passe." },
+    register: { heading: "Créer un compte", sub: "Créez un compte gratuitement pour commencer." },
+    forgot: { heading: "Mot de passe oublié", sub: "Entrez votre email pour recevoir un lien de réinitialisation." },
+  };
 
   return (
     <div className="relative min-h-screen flex overflow-hidden">
@@ -69,7 +94,7 @@ const AuthPage = () => {
           professionnels et prêts pour les banques — avec l'assistance de l'intelligence artificielle.
         </p>
         <div className="flex flex-wrap gap-2">
-          {["📊 11 tableaux financiers", "✦ Génération IA", "📄 Export Word & PDF", "☁️ Multi-appareils", "💼 Fiche synthèse banquier", "🔒 Données sécurisées"].map((pill) => (
+          {["📊 11 tableaux financiers", "✦ Génération IA", "📄 Export PDF", "☁️ Multi-appareils", "🔒 Données sécurisées"].map((pill) => (
             <div key={pill} className="flex items-center gap-1.5 px-3.5 py-1.5 bg-card border border-border rounded-full text-xs text-secondary-foreground">
               {pill}
             </div>
@@ -86,16 +111,14 @@ const AuthPage = () => {
         </Link>
 
         <h2 className="text-center font-display text-3xl font-bold mb-2.5">
-          {isLogin ? "Bienvenue" : "Créer un compte"}
+          {titles[mode].heading}
         </h2>
         <p className="text-center text-xs text-secondary-foreground leading-relaxed mb-9 max-w-[300px]">
-          {isLogin
-            ? "Connectez-vous avec votre email et mot de passe."
-            : "Créez un compte gratuitement pour commencer."}
+          {titles[mode].sub}
         </p>
 
         <form onSubmit={handleSubmit} className="w-full space-y-3">
-          {!isLogin && (
+          {mode === "register" && (
             <div>
               <label className="block text-xs font-bold text-secondary-foreground mb-1.5">Nom complet</label>
               <input
@@ -118,52 +141,76 @@ const AuthPage = () => {
               className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
             />
           </div>
-          <div>
-            <label className="block text-xs font-bold text-secondary-foreground mb-1.5">Mot de passe *</label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
-            />
-          </div>
+          {mode !== "forgot" && (
+            <div>
+              <label className="block text-xs font-bold text-secondary-foreground mb-1.5">Mot de passe *</label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
+              />
+            </div>
+          )}
 
           <button
             type="submit"
             disabled={submitting}
             className="w-full py-3.5 bg-primary rounded-xl text-sm font-bold text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50 mt-2"
           >
-            {submitting ? "Chargement…" : isLogin ? "Se connecter →" : "Créer le compte →"}
+            {submitting
+              ? "Chargement…"
+              : mode === "login"
+              ? "Se connecter →"
+              : mode === "register"
+              ? "Créer le compte →"
+              : "Envoyer le lien →"
+            }
           </button>
         </form>
 
-        <div className="w-full flex items-center gap-3 my-4">
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-[0.65rem] text-muted-foreground uppercase tracking-wider">ou</span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
+        {mode === "login" && (
+          <button
+            onClick={() => setMode("forgot")}
+            className="mt-2 text-xs text-muted-foreground hover:text-primary transition-colors"
+          >
+            Mot de passe oublié ?
+          </button>
+        )}
+
+        {mode !== "forgot" && (
+          <>
+            <div className="w-full flex items-center gap-3 my-4">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-[0.65rem] text-muted-foreground uppercase tracking-wider">ou</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+
+            <button
+              onClick={async () => {
+                const { error } = await lovable.auth.signInWithOAuth("google", {
+                  redirect_uri: window.location.origin,
+                });
+                if (error) toast.error(error.message);
+              }}
+              className="w-full flex items-center justify-center gap-2.5 py-3 bg-secondary border border-border rounded-xl text-sm font-semibold text-foreground hover:border-primary/30 transition-all"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+              Continuer avec Google
+            </button>
+          </>
+        )}
 
         <button
-          onClick={async () => {
-            const { error } = await lovable.auth.signInWithOAuth("google", {
-              redirect_uri: window.location.origin,
-            });
-            if (error) toast.error(error.message);
-          }}
-          className="w-full flex items-center justify-center gap-2.5 py-3 bg-secondary border border-border rounded-xl text-sm font-semibold text-foreground hover:border-primary/30 transition-all"
-        >
-          <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-          Continuer avec Google
-        </button>
-
-        <button
-          onClick={() => setIsLogin(!isLogin)}
+          onClick={() => setMode(mode === "login" ? "register" : "login")}
           className="mt-4 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
-          {isLogin ? "Pas encore de compte ? Créer un compte" : "Déjà un compte ? Se connecter"}
+          {mode === "login" || mode === "forgot"
+            ? "Pas encore de compte ? Créer un compte"
+            : "Déjà un compte ? Se connecter"}
         </button>
 
         {/* Info box */}
