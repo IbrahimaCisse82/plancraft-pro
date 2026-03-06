@@ -1,18 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { Trash2, Archive, MoreVertical, ArchiveRestore } from "lucide-react";
-
-type BPRow = {
-  id: string;
-  name: string;
-  secteur: string | null;
-  statut: "brouillon" | "finalise" | "archive";
-  progress: number;
-  updated_at: string;
-};
+import { useBusinessPlans } from "@/hooks/useBusinessPlans";
+import { useClickOutside } from "@/hooks/useClickOutside";
+import { Trash2, Archive, MoreVertical, ArchiveRestore, Search } from "lucide-react";
+import TopBar from "@/components/shared/TopBar";
+import ConfirmDialog from "@/components/shared/ConfirmDialog";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 const statusConfig = {
   brouillon: { label: "Brouillon", className: "bg-secondary text-muted-foreground" },
@@ -20,127 +14,48 @@ const statusConfig = {
   archive: { label: "Archivé", className: "bg-destructive/10 text-destructive" },
 };
 
+type FilterStatus = "all" | "brouillon" | "finalise" | "archive";
+
 const Dashboard = () => {
-  const { user, profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
+  const { plans, loading, stats, createPlan, archivePlan, deletePlan } = useBusinessPlans();
+
   const [showModal, setShowModal] = useState(false);
-  const [plans, setPlans] = useState<BPRow[]>([]);
-  const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
   const [newSecteur, setNewSecteur] = useState("");
   const [newDevise, setNewDevise] = useState("FCFA (XOF)");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
+  const [search, setSearch] = useState("");
 
-  const fetchPlans = async () => {
-    const { data, error } = await supabase
-      .from("business_plans")
-      .select("id, name, secteur, statut, progress, updated_at")
-      .order("updated_at", { ascending: false });
-    if (error) {
-      toast.error("Erreur lors du chargement des business plans");
-    } else {
-      setPlans(data || []);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchPlans();
-  }, []);
+  const menuRef = useClickOutside<HTMLDivElement>(() => setOpenMenuId(null));
 
   const handleCreate = async () => {
-    if (!newName.trim() || !user) return;
+    if (!newName.trim()) return;
     setCreating(true);
-    const { error } = await supabase.from("business_plans").insert({
-      user_id: user.id,
-      name: newName.trim(),
-      secteur: newSecteur.trim() || null,
-      devise: newDevise,
-    });
+    const ok = await createPlan(newName, newSecteur, newDevise);
     setCreating(false);
-    if (error) {
-      toast.error("Erreur : " + error.message);
-    } else {
-      toast.success("Business plan créé !");
+    if (ok) {
       setShowModal(false);
       setNewName("");
       setNewSecteur("");
       setNewDevise("FCFA (XOF)");
-      fetchPlans();
     }
   };
 
-  const handleArchive = async (id: string, currentStatut: string) => {
-    const newStatut = currentStatut === "archive" ? "brouillon" : "archive";
-    const { error } = await supabase.from("business_plans").update({ statut: newStatut }).eq("id", id);
-    if (error) {
-      toast.error("Erreur : " + error.message);
-    } else {
-      toast.success(newStatut === "archive" ? "Business plan archivé" : "Business plan restauré");
-      fetchPlans();
-    }
-    setOpenMenuId(null);
-  };
-
-  const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("business_plans").delete().eq("id", id);
-    if (error) {
-      toast.error("Erreur : " + error.message);
-    } else {
-      toast.success("Business plan supprimé");
-      fetchPlans();
-    }
-    setConfirmDelete(null);
-    setOpenMenuId(null);
-  };
-
-  const handleLogout = async () => {
-    await signOut();
-    navigate("/");
-  };
-
-  const displayName = profile?.display_name || user?.email || "Utilisateur";
-  const initial = displayName.charAt(0).toUpperCase();
-
-  const stats = {
-    total: plans.length,
-    finalise: plans.filter((p) => p.statut === "finalise").length,
-    draft: plans.filter((p) => p.statut === "brouillon").length,
-    avgProgress: plans.length ? Math.round(plans.reduce((s, p) => s + p.progress, 0) / plans.length) : 0,
-  };
+  const filteredPlans = plans.filter((bp) => {
+    if (filterStatus !== "all" && bp.statut !== filterStatus) return false;
+    if (search && !bp.name.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
 
   return (
     <div className="min-h-screen relative z-10">
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_60%_40%_at_80%_10%,_hsl(43_55%_54%_/_0.06),_transparent)] pointer-events-none" />
 
-      {/* Top bar */}
-      <div className="sticky top-0 z-50 h-[58px] bg-card border-b border-border flex items-center px-5 md:px-8 gap-4">
-        <Link to="/" className="font-display text-xl font-bold text-[hsl(var(--gold-light))]">
-          Plan<span className="text-secondary-foreground font-normal">Craft</span> Pro
-        </Link>
-        {isAdmin && (
-          <span className="px-2 py-0.5 bg-primary/20 text-primary rounded-full text-[0.6rem] font-bold uppercase tracking-wider">Admin</span>
-        )}
-        <div className="ml-auto flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary border border-border rounded-full text-xs text-secondary-foreground">
-            <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[0.7rem] font-bold">{initial}</div>
-            <span className="hidden sm:inline">{displayName}</span>
-          </div>
-          {isAdmin && (
-            <Link to="/admin" className="px-4 py-1.5 bg-primary/20 border border-primary/30 rounded-md text-xs font-semibold text-primary hover:bg-primary/30 transition-all">
-              🛡️ Admin
-            </Link>
-          )}
-          <Link to="/" className="px-4 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all">
-            🏠 Accueil
-          </Link>
-          <button onClick={handleLogout} className="px-4 py-1.5 bg-secondary border border-destructive/30 rounded-md text-xs font-semibold text-destructive hover:bg-destructive/10 transition-all">
-            Déconnexion
-          </button>
-        </div>
-      </div>
+      <TopBar showHome />
 
       <div className="max-w-[1100px] mx-auto px-5 md:px-8 py-10">
         {/* Header */}
@@ -148,9 +63,6 @@ const Dashboard = () => {
           <div>
             <h1 className="font-display text-4xl font-bold">Mes Business Plans</h1>
             <p className="text-sm text-secondary-foreground mt-1">Créez, gérez et exportez vos dossiers depuis un seul endroit.</p>
-            <span className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 rounded-full text-[0.62rem] font-bold uppercase tracking-wide bg-secondary border border-border text-muted-foreground">
-              Plan Gratuit
-            </span>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -175,15 +87,48 @@ const Dashboard = () => {
           ))}
         </div>
 
+        {/* Filters & Search */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Rechercher un business plan…"
+              className="w-full pl-9 pr-3 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
+            />
+          </div>
+          <div className="flex gap-1 bg-secondary p-1 rounded-lg">
+            {([
+              { key: "all" as const, label: "Tous" },
+              { key: "brouillon" as const, label: "Brouillons" },
+              { key: "finalise" as const, label: "Finalisés" },
+              { key: "archive" as const, label: "Archivés" },
+            ]).map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setFilterStatus(f.key)}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${filterStatus === f.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Loading */}
         {loading ? (
           <div className="flex justify-center py-20">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <LoadingSpinner />
+          </div>
+        ) : filteredPlans.length === 0 && plans.length > 0 ? (
+          <div className="text-center py-16 text-muted-foreground">
+            <p className="text-sm">Aucun résultat pour ces filtres.</p>
           </div>
         ) : (
-          /* BP Grid */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {plans.map((bp) => {
+            {filteredPlans.map((bp) => {
               const status = statusConfig[bp.statut];
               return (
                 <div
@@ -194,24 +139,25 @@ const Dashboard = () => {
                   <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="flex items-start justify-between mb-4">
                     <div className="w-10 h-10 rounded-lg bg-[hsl(var(--gold-dim))] border border-primary/20 flex items-center justify-center text-lg">📋</div>
-                    <div className="relative">
+                    <div className="relative" ref={openMenuId === bp.id ? menuRef : undefined}>
                       <button
                         onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === bp.id ? null : bp.id); }}
                         className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                        aria-label="Menu d'actions"
                       >
                         <MoreVertical className="w-4 h-4" />
                       </button>
                       {openMenuId === bp.id && (
                         <div className="absolute right-0 top-8 z-50 bg-card border border-border rounded-lg shadow-[0_8px_30px_rgba(0,0,0,0.4)] py-1 min-w-[160px]" onClick={(e) => e.stopPropagation()}>
                           <button
-                            onClick={() => handleArchive(bp.id, bp.statut)}
+                            onClick={() => { archivePlan(bp.id, bp.statut); setOpenMenuId(null); }}
                             className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-secondary transition-colors text-foreground"
                           >
                             {bp.statut === "archive" ? <ArchiveRestore className="w-3.5 h-3.5" /> : <Archive className="w-3.5 h-3.5" />}
                             {bp.statut === "archive" ? "Restaurer" : "Archiver"}
                           </button>
                           <button
-                            onClick={() => setConfirmDelete(bp.id)}
+                            onClick={() => { setConfirmDeleteId(bp.id); setOpenMenuId(null); }}
                             className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-destructive/10 transition-colors text-destructive"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -273,6 +219,7 @@ const Dashboard = () => {
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder="Ex : Boulangerie Moderne Dakar"
+                  maxLength={150}
                   className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
                 />
               </div>
@@ -331,26 +278,16 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Delete confirmation modal */}
-      {confirmDelete && (
-        <div className="fixed inset-0 bg-background/75 z-[200] flex items-center justify-center" onClick={() => setConfirmDelete(null)}>
-          <div className="bg-card border border-border rounded-2xl w-[400px] max-w-[95vw] p-8 shadow-[0_24px_80px_rgba(0,0,0,0.6)]" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-display text-xl font-bold mb-2">Supprimer ce business plan ?</h3>
-            <p className="text-sm text-muted-foreground mb-6">Cette action est irréversible. Toutes les données seront perdues.</p>
-            <div className="flex gap-2.5">
-              <button onClick={() => setConfirmDelete(null)} className="px-5 py-2.5 bg-secondary border border-border rounded-lg text-sm font-semibold text-secondary-foreground hover:border-primary transition-all">
-                Annuler
-              </button>
-              <button
-                onClick={() => handleDelete(confirmDelete)}
-                className="flex-1 py-2.5 bg-destructive rounded-lg text-sm font-bold text-destructive-foreground hover:opacity-90 transition-all"
-              >
-                Supprimer définitivement
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete confirmation */}
+      <ConfirmDialog
+        open={!!confirmDeleteId}
+        onOpenChange={(open) => !open && setConfirmDeleteId(null)}
+        title="Supprimer ce business plan ?"
+        description="Cette action est irréversible. Toutes les données seront perdues."
+        confirmLabel="Supprimer définitivement"
+        variant="destructive"
+        onConfirm={() => { if (confirmDeleteId) deletePlan(confirmDeleteId); setConfirmDeleteId(null); }}
+      />
     </div>
   );
 };

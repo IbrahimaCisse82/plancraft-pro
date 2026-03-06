@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Shield, Users, FileText, Eye, Trash2 } from "lucide-react";
+import { Users, FileText, Eye, Trash2 } from "lucide-react";
+import TopBar from "@/components/shared/TopBar";
+import ConfirmDialog from "@/components/shared/ConfirmDialog";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 type UserRow = {
   user_id: string;
@@ -23,12 +26,13 @@ type BPRow = {
 };
 
 const AdminDashboard = () => {
-  const { user, isAdmin, signOut } = useAuth();
+  const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [plans, setPlans] = useState<BPRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"users" | "plans">("plans");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAdmin) {
@@ -48,13 +52,13 @@ const AdminDashboard = () => {
   }, [isAdmin, navigate]);
 
   const handleDeletePlan = async (id: string) => {
-    if (!confirm("Supprimer ce business plan ?")) return;
     const { error } = await supabase.from("business_plans").delete().eq("id", id);
     if (error) toast.error(error.message);
     else {
       setPlans(plans.filter((p) => p.id !== id));
       toast.success("Supprimé");
     }
+    setDeleteId(null);
   };
 
   const getUserName = (userId: string) => {
@@ -64,29 +68,13 @@ const AdminDashboard = () => {
 
   const statusColors: Record<string, string> = {
     brouillon: "bg-secondary text-muted-foreground",
-    finalise: "bg-green-500/10 text-green-500",
+    finalise: "bg-success/10 text-success",
     archive: "bg-destructive/10 text-destructive",
   };
 
   return (
     <div className="min-h-screen">
-      {/* Top bar */}
-      <div className="sticky top-0 z-50 h-[58px] bg-card border-b border-border flex items-center px-5 md:px-8 gap-4">
-        <Link to="/" className="font-display text-xl font-bold text-[hsl(var(--gold-light))]">
-          Plan<span className="text-secondary-foreground font-normal">Craft</span> Pro
-        </Link>
-        <span className="px-2 py-0.5 bg-primary/20 text-primary rounded-full text-[0.6rem] font-bold uppercase tracking-wider flex items-center gap-1">
-          <Shield className="w-3 h-3" /> Admin
-        </span>
-        <div className="ml-auto flex items-center gap-3">
-          <Link to="/dashboard" className="px-4 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all">
-            Mon Dashboard
-          </Link>
-          <button onClick={async () => { await signOut(); navigate("/"); }} className="px-4 py-1.5 bg-secondary border border-destructive/30 rounded-md text-xs font-semibold text-destructive hover:bg-destructive/10 transition-all">
-            Déconnexion
-          </button>
-        </div>
-      </div>
+      <TopBar showAdmin showDashboard />
 
       <div className="max-w-[1100px] mx-auto px-5 md:px-8 py-10">
         <h1 className="font-display text-4xl font-bold mb-2">Administration</h1>
@@ -97,8 +85,8 @@ const AdminDashboard = () => {
           {[
             { val: users.length, label: "Utilisateurs", icon: <Users className="w-4 h-4" /> },
             { val: plans.length, label: "Business plans", icon: <FileText className="w-4 h-4" /> },
-            { val: plans.filter((p) => p.statut === "finalise").length, label: "Finalisés", icon: null },
-            { val: plans.filter((p) => p.statut === "brouillon").length, label: "En cours", icon: null },
+            { val: plans.filter((p) => p.statut === "finalise").length, label: "Finalisés" },
+            { val: plans.filter((p) => p.statut === "brouillon").length, label: "En cours" },
           ].map((stat) => (
             <div key={stat.label} className="bg-card border border-border rounded-lg p-5">
               <div className="font-display text-3xl font-bold text-[hsl(var(--gold-light))]">{stat.val}</div>
@@ -118,17 +106,15 @@ const AdminDashboard = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-20">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          </div>
+          <div className="flex justify-center py-20"><LoadingSpinner /></div>
         ) : tab === "plans" ? (
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="bg-card border border-border rounded-xl overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-secondary text-xs text-muted-foreground uppercase tracking-wider">
                   <th className="text-left px-4 py-3">Nom</th>
                   <th className="text-left px-4 py-3">Utilisateur</th>
-                  <th className="text-left px-4 py-3">Secteur</th>
+                  <th className="text-left px-4 py-3 hidden md:table-cell">Secteur</th>
                   <th className="text-center px-4 py-3">Progrès</th>
                   <th className="text-center px-4 py-3">Statut</th>
                   <th className="text-right px-4 py-3">Actions</th>
@@ -139,7 +125,7 @@ const AdminDashboard = () => {
                   <tr key={bp.id} className="border-t border-border/50 hover:bg-secondary/30 transition-colors">
                     <td className="px-4 py-3 font-medium">{bp.name}</td>
                     <td className="px-4 py-3 text-muted-foreground text-xs">{getUserName(bp.user_id)}</td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs">{bp.secteur || "—"}</td>
+                    <td className="px-4 py-3 text-muted-foreground text-xs hidden md:table-cell">{bp.secteur || "—"}</td>
                     <td className="px-4 py-3 text-center text-xs">{bp.progress}%</td>
                     <td className="px-4 py-3 text-center">
                       <span className={`px-2 py-0.5 rounded-full text-[0.6rem] font-bold uppercase ${statusColors[bp.statut] || ""}`}>
@@ -148,10 +134,10 @@ const AdminDashboard = () => {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">
-                        <button onClick={() => navigate(`/bp/${bp.id}`)} className="p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-secondary transition-colors">
+                        <button onClick={() => navigate(`/bp/${bp.id}`)} className="p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-secondary transition-colors" aria-label="Voir le business plan">
                           <Eye className="w-3.5 h-3.5" />
                         </button>
-                        <button onClick={() => handleDeletePlan(bp.id)} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
+                        <button onClick={() => setDeleteId(bp.id)} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" aria-label="Supprimer le business plan">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -162,7 +148,7 @@ const AdminDashboard = () => {
             </table>
           </div>
         ) : (
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="bg-card border border-border rounded-xl overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-secondary text-xs text-muted-foreground uppercase tracking-wider">
@@ -175,7 +161,7 @@ const AdminDashboard = () => {
                 {users.map((u) => (
                   <tr key={u.user_id} className="border-t border-border/50 hover:bg-secondary/30 transition-colors">
                     <td className="px-4 py-3 font-medium flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[0.6rem] font-bold">
+                      <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[0.6rem] font-bold shrink-0">
                         {(u.display_name || "?").charAt(0).toUpperCase()}
                       </div>
                       {u.display_name || "—"}
@@ -193,6 +179,16 @@ const AdminDashboard = () => {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Supprimer ce business plan ?"
+        description="Cette action est irréversible."
+        confirmLabel="Supprimer"
+        variant="destructive"
+        onConfirm={() => { if (deleteId) handleDeletePlan(deleteId); }}
+      />
     </div>
   );
 };
