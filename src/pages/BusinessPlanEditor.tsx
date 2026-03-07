@@ -278,19 +278,28 @@ const BusinessPlanEditor = () => {
         </main>
       </div>
 
-      {/* AI Assistant */}
-      {currentSection.type === "narrative" && (
-        <AIAssistantPanel
-          key={currentSection.id}
-          sectionTitle={currentSection.title}
-          sectionHint={currentSection.hint}
-          currentContent={content[currentSection.id] || ""}
-          planName={plan.name}
-          secteur={plan.secteur}
-          devise={plan.devise}
-          onInsertText={(text) => handleSectionChange(currentSection.id, (content[currentSection.id] || "") + "\n\n" + text)}
-        />
-      )}
+      {/* AI Assistant — available for ALL section types */}
+      <AIAssistantPanel
+        key={currentSection.id}
+        sectionTitle={currentSection.title}
+        sectionHint={currentSection.hint}
+        currentContent={
+          currentSection.type === "narrative"
+            ? content[currentSection.id] || ""
+            : currentSection.type === "swot"
+            ? JSON.stringify(content[currentSection.id] || {}, null, 2)
+            : JSON.stringify(content[currentSection.id] || {}, null, 2)
+        }
+        planName={plan.name}
+        secteur={plan.secteur}
+        devise={plan.devise}
+        sectionType={currentSection.type}
+        onInsertText={
+          currentSection.type === "narrative"
+            ? (text) => handleSectionChange(currentSection.id, (content[currentSection.id] || "") + "\n\n" + text)
+            : undefined
+        }
+      />
     </div>
   );
 };

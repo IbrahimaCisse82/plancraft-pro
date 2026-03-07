@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBusinessPlans } from "@/hooks/useBusinessPlans";
 import { useClickOutside } from "@/hooks/useClickOutside";
-import { Trash2, Archive, MoreVertical, ArchiveRestore, Search } from "lucide-react";
+import { Trash2, Archive, MoreVertical, ArchiveRestore, Search, Copy } from "lucide-react";
 import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
@@ -18,7 +18,7 @@ type FilterStatus = "all" | "brouillon" | "finalise" | "archive";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { plans, loading, stats, createPlan, archivePlan, deletePlan } = useBusinessPlans();
+  const { plans, loading, stats, createPlan, archivePlan, deletePlan, duplicatePlan } = useBusinessPlans();
 
   const [showModal, setShowModal] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -149,6 +149,13 @@ const Dashboard = () => {
                       </button>
                       {openMenuId === bp.id && (
                         <div className="absolute right-0 top-8 z-50 bg-card border border-border rounded-lg shadow-[0_8px_30px_rgba(0,0,0,0.4)] py-1 min-w-[160px]" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => { duplicatePlan(bp.id); setOpenMenuId(null); }}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-secondary transition-colors text-foreground"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                            Dupliquer
+                          </button>
                           <button
                             onClick={() => { archivePlan(bp.id, bp.statut); setOpenMenuId(null); }}
                             className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-secondary transition-colors text-foreground"

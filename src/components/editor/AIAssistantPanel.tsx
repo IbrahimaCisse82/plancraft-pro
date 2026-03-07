@@ -11,6 +11,7 @@ interface Props {
   planName: string;
   secteur?: string;
   devise?: string;
+  sectionType?: "narrative" | "financial" | "swot";
   onInsertText?: (text: string) => void;
 }
 
@@ -21,6 +22,7 @@ const AIAssistantPanel = ({
   planName,
   secteur,
   devise,
+  sectionType = "narrative",
   onInsertText,
 }: Props) => {
   const [open, setOpen] = useState(false);
@@ -71,12 +73,26 @@ const AIAssistantPanel = ({
     setTimeout(() => setCopiedIdx(null), 2000);
   };
 
-  const quickPrompts = [
-    "Rédige cette section pour moi",
-    "Améliore le texte existant",
-    "Donne-moi un plan détaillé",
-    "Quels points clés inclure ?",
-  ];
+  const quickPrompts = sectionType === "financial"
+    ? [
+        "Aide-moi à remplir ce tableau",
+        "Quels montants sont réalistes ?",
+        "Explique chaque ligne du tableau",
+        "Donne un exemple chiffré pour mon secteur",
+      ]
+    : sectionType === "swot"
+    ? [
+        "Analyse les forces de mon projet",
+        "Identifie les faiblesses possibles",
+        "Quelles opportunités exploiter ?",
+        "Quelles menaces anticiper ?",
+      ]
+    : [
+        "Rédige cette section pour moi",
+        "Améliore le texte existant",
+        "Donne-moi un plan détaillé",
+        "Quels points clés inclure ?",
+      ];
 
   if (!open) {
     return (
