@@ -6,6 +6,7 @@ import { Save, ChevronLeft, Check, Download, Menu, X } from "lucide-react";
 import { exportBusinessPlanPDF } from "@/lib/exportPdf";
 import { BP_SECTIONS, SectionConfig } from "@/components/editor/sectionConfig";
 import NarrativeSection from "@/components/editor/NarrativeSection";
+import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
 import FinancialSection from "@/components/editor/FinancialSection";
 import SwotSection from "@/components/editor/SwotSection";
 import { useAutoSave } from "@/hooks/useAutoSave";
