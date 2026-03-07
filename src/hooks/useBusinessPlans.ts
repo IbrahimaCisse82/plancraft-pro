@@ -73,6 +73,36 @@ export function useBusinessPlans() {
     }
   }, [fetchPlans]);
 
+  const duplicatePlan = useCallback(async (id: string) => {
+    if (!user) return false;
+    // Fetch the full plan to duplicate
+    const { data: original, error: fetchErr } = await supabase
+      .from("business_plans")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (fetchErr || !original) {
+      toast.error("Erreur lors de la duplication");
+      return false;
+    }
+    const { error } = await supabase.from("business_plans").insert({
+      user_id: user.id,
+      name: `${original.name} (copie)`,
+      secteur: original.secteur,
+      devise: original.devise,
+      content: original.content,
+      statut: "brouillon" as const,
+      progress: original.progress,
+    });
+    if (error) {
+      toast.error("Erreur : " + error.message);
+      return false;
+    }
+    toast.success("Business plan dupliqué !");
+    await fetchPlans();
+    return true;
+  }, [user, fetchPlans]);
+
   const stats = {
     total: plans.length,
     finalise: plans.filter((p) => p.statut === "finalise").length,
@@ -80,5 +110,5 @@ export function useBusinessPlans() {
     avgProgress: plans.length ? Math.round(plans.reduce((s, p) => s + p.progress, 0) / plans.length) : 0,
   };
 
-  return { plans, loading, stats, createPlan, archivePlan, deletePlan, fetchPlans };
+  return { plans, loading, stats, createPlan, archivePlan, deletePlan, duplicatePlan, fetchPlans };
 }

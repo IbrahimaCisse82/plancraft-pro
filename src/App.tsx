@@ -13,6 +13,7 @@ import { FullPageSpinner } from "@/components/shared/LoadingSpinner";
 const Index = lazy(() => import("./pages/Index"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
+const EmailConfirmationPage = lazy(() => import("./pages/EmailConfirmationPage"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const BusinessPlanEditor = lazy(() => import("./pages/BusinessPlanEditor"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -34,6 +35,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/dashboard" element={
                   <ProtectedRoute><Dashboard /></ProtectedRoute>
