@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { lovable } from "@/integrations/lovable/index";
@@ -12,6 +12,15 @@ const AuthPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const { user, signIn, signUp, resetPassword, loading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Check if user just confirmed email
+  useEffect(() => {
+    const confirmed = searchParams.get("confirmed");
+    if (confirmed === "true") {
+      toast.success("Email confirmé ! Vous pouvez maintenant vous connecter.", { duration: 6000 });
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!loading && user) navigate("/dashboard", { replace: true });
@@ -43,11 +52,7 @@ const AuthPage = () => {
       if (error) {
         toast.error(error.message);
       } else {
-        toast.success(
-          "Compte créé ! Vérifiez votre email pour confirmer votre inscription avant de vous connecter.",
-          { duration: 8000 }
-        );
-        setMode("login");
+        navigate("/email-confirmation");
       }
     }
   };
