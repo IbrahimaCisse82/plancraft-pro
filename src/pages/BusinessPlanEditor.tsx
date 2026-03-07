@@ -277,6 +277,20 @@ const BusinessPlanEditor = () => {
           </div>
         </main>
       </div>
+
+      {/* AI Assistant */}
+      {currentSection.type === "narrative" && (
+        <AIAssistantPanel
+          key={currentSection.id}
+          sectionTitle={currentSection.title}
+          sectionHint={currentSection.hint}
+          currentContent={content[currentSection.id] || ""}
+          planName={plan.name}
+          secteur={plan.secteur}
+          devise={plan.devise}
+          onInsertText={(text) => handleSectionChange(currentSection.id, (content[currentSection.id] || "") + "\n\n" + text)}
+        />
+      )}
     </div>
   );
 };
