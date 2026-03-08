@@ -1,8 +1,8 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Save, ChevronLeft, Check, Download, Menu, X } from "lucide-react";
+import { Save, ChevronLeft, Check, Download, Menu, X, Search } from "lucide-react";
 import { exportBusinessPlanPDF } from "@/lib/exportPdf";
 import { exportBusinessPlanDOCX } from "@/lib/exportDocx";
 import { BP_SECTIONS, SectionConfig } from "@/components/editor/sectionConfig";
@@ -10,6 +10,7 @@ import NarrativeSection from "@/components/editor/NarrativeSection";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
 import FinancialSection from "@/components/editor/FinancialSection";
 import SwotSection from "@/components/editor/SwotSection";
+import VersionHistoryPanel from "@/components/editor/VersionHistoryPanel";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { FullPageSpinner } from "@/components/shared/LoadingSpinner";
 
@@ -23,6 +24,7 @@ const BusinessPlanEditor = () => {
   const [content, setContent] = useState<BPContent>({});
   const [activeSection, setActiveSection] = useState(BP_SECTIONS[0].id);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarSearch, setSidebarSearch] = useState("");
   const { saving, saved, saveContent, scheduleAutoSave } = useAutoSave(id);
 
   useEffect(() => {
