@@ -8,6 +8,7 @@ import { createPlanSchema } from "@/lib/validation";
 import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
+import OnboardingTour from "@/components/onboarding/OnboardingTour";
 
 const statusConfig = {
   brouillon: { label: "Brouillon", className: "bg-secondary text-muted-foreground" },
@@ -61,6 +62,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen relative z-10">
+      <OnboardingTour />
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_60%_40%_at_80%_10%,_hsl(43_55%_54%_/_0.06),_transparent)] pointer-events-none" />
 
       <TopBar showHome />

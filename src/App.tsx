@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { I18nProvider } from "@/contexts/I18nContext";
 import ProtectedRoute, { AdminRoute } from "@/components/ProtectedRoute";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 import { FullPageSpinner } from "@/components/shared/LoadingSpinner";
@@ -32,6 +33,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <I18nProvider>
           <ErrorBoundary>
             <Suspense fallback={<FullPageSpinner />}>
               <Routes>
@@ -58,6 +60,7 @@ const App = () => (
               </Routes>
             </Suspense>
           </ErrorBoundary>
+          </I18nProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

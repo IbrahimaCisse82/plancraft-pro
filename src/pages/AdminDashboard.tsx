@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Users, FileText, Eye, Trash2 } from "lucide-react";
+import { Users, FileText, Eye, Trash2, TrendingUp, BarChart3 } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend } from "recharts";
 import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
@@ -25,20 +26,19 @@ type BPRow = {
   created_at: string;
 };
 
+const PIE_COLORS = ["hsl(43, 55%, 54%)", "hsl(155, 62%, 53%)", "hsl(2, 82%, 60%)"];
+
 const AdminDashboard = () => {
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [plans, setPlans] = useState<BPRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"users" | "plans">("plans");
+  const [tab, setTab] = useState<"analytics" | "plans" | "users">("analytics");
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isAdmin) {
-      navigate("/dashboard");
-      return;
-    }
+    if (!isAdmin) { navigate("/dashboard"); return; }
     const fetch = async () => {
       const [usersRes, plansRes] = await Promise.all([
         supabase.from("profiles").select("user_id, display_name, avatar_url, created_at").order("created_at", { ascending: false }),
@@ -54,10 +54,7 @@ const AdminDashboard = () => {
   const handleDeletePlan = async (id: string) => {
     const { error } = await supabase.from("business_plans").delete().eq("id", id);
     if (error) toast.error(error.message);
-    else {
-      setPlans(plans.filter((p) => p.id !== id));
-      toast.success("Supprimé");
-    }
+    else { setPlans(plans.filter((p) => p.id !== id)); toast.success("Supprimé"); }
     setDeleteId(null);
   };
 
@@ -66,10 +63,59 @@ const AdminDashboard = () => {
     return u?.display_name || userId.slice(0, 8);
   };
 
+  // Analytics computations
+  const analytics = useMemo(() => {
+    const avgProgress = plans.length ? Math.round(plans.reduce((s, p) => s + p.progress, 0) / plans.length) : 0;
+
+    // Status distribution
+    const statusData = [
+      { name: "Brouillons", value: plans.filter(p => p.statut === "brouillon").length },
+      { name: "Finalisés", value: plans.filter(p => p.statut === "finalise").length },
+      { name: "Archivés", value: plans.filter(p => p.statut === "archive").length },
+    ].filter(d => d.value > 0);
+
+    // Sector distribution
+    const sectorMap: Record<string, number> = {};
+    plans.forEach(p => { const s = p.secteur || "Non défini"; sectorMap[s] = (sectorMap[s] || 0) + 1; });
+    const sectorData = Object.entries(sectorMap)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8);
+
+    // Monthly creation (last 6 months)
+    const now = new Date();
+    const monthlyData = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const month = d.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
+      const count = plans.filter(p => {
+        const pd = new Date(p.created_at);
+        return pd.getMonth() === d.getMonth() && pd.getFullYear() === d.getFullYear();
+      }).length;
+      const userCount = users.filter(u => {
+        const ud = new Date(u.created_at);
+        return ud.getMonth() === d.getMonth() && ud.getFullYear() === d.getFullYear();
+      }).length;
+      monthlyData.push({ month, plans: count, users: userCount });
+    }
+
+    // Completion rate
+    const completionRate = plans.length ? Math.round((plans.filter(p => p.statut === "finalise").length / plans.length) * 100) : 0;
+
+    return { avgProgress, statusData, sectorData, monthlyData, completionRate };
+  }, [plans, users]);
+
   const statusColors: Record<string, string> = {
     brouillon: "bg-secondary text-muted-foreground",
     finalise: "bg-success/10 text-success",
     archive: "bg-destructive/10 text-destructive",
+  };
+
+  const tooltipStyle = {
+    backgroundColor: "hsl(225, 15%, 10%)",
+    border: "1px solid hsl(0 0% 100% / 0.1)",
+    borderRadius: "8px",
+    fontSize: "12px",
   };
 
   return (
@@ -80,13 +126,14 @@ const AdminDashboard = () => {
         <h1 className="font-display text-4xl font-bold mb-2">Administration</h1>
         <p className="text-sm text-muted-foreground mb-8">Vue globale de tous les utilisateurs et business plans.</p>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        {/* Stats cards */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
           {[
             { val: users.length, label: "Utilisateurs", icon: <Users className="w-4 h-4" /> },
             { val: plans.length, label: "Business plans", icon: <FileText className="w-4 h-4" /> },
-            { val: plans.filter((p) => p.statut === "finalise").length, label: "Finalisés" },
-            { val: plans.filter((p) => p.statut === "brouillon").length, label: "En cours" },
+            { val: plans.filter(p => p.statut === "finalise").length, label: "Finalisés" },
+            { val: `${analytics.avgProgress}%`, label: "Progression moy." },
+            { val: `${analytics.completionRate}%`, label: "Taux complétion", icon: <TrendingUp className="w-4 h-4" /> },
           ].map((stat) => (
             <div key={stat.label} className="bg-card border border-border rounded-lg p-5">
               <div className="font-display text-3xl font-bold text-[hsl(var(--gold-light))]">{stat.val}</div>
@@ -97,16 +144,82 @@ const AdminDashboard = () => {
 
         {/* Tabs */}
         <div className="flex gap-1 mb-6 bg-secondary p-1 rounded-lg w-fit">
-          <button onClick={() => setTab("plans")} className={`px-4 py-2 rounded-md text-xs font-bold transition-all ${tab === "plans" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
-            <FileText className="w-3.5 h-3.5 inline mr-1.5" />Business Plans
-          </button>
-          <button onClick={() => setTab("users")} className={`px-4 py-2 rounded-md text-xs font-bold transition-all ${tab === "users" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
-            <Users className="w-3.5 h-3.5 inline mr-1.5" />Utilisateurs
-          </button>
+          {([
+            { key: "analytics" as const, label: "Analytiques", icon: <BarChart3 className="w-3.5 h-3.5 inline mr-1.5" /> },
+            { key: "plans" as const, label: "Business Plans", icon: <FileText className="w-3.5 h-3.5 inline mr-1.5" /> },
+            { key: "users" as const, label: "Utilisateurs", icon: <Users className="w-3.5 h-3.5 inline mr-1.5" /> },
+          ]).map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)} className={`px-4 py-2 rounded-md text-xs font-bold transition-all ${tab === t.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+              {t.icon}{t.label}
+            </button>
+          ))}
         </div>
 
         {loading ? (
           <div className="flex justify-center py-20"><LoadingSpinner /></div>
+        ) : tab === "analytics" ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Monthly creation chart */}
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="text-sm font-bold mb-4">📈 Créations mensuelles</h3>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={analytics.monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 100% / 0.05)" />
+                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(30, 7%, 40%)" }} />
+                    <YAxis tick={{ fontSize: 10, fill: "hsl(30, 7%, 40%)" }} allowDecimals={false} />
+                    <Tooltip contentStyle={tooltipStyle} labelStyle={{ color: "hsl(36, 20%, 93%)" }} />
+                    <Bar dataKey="plans" name="Business Plans" fill="hsl(43, 55%, 54%)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="users" name="Utilisateurs" fill="hsl(155, 62%, 53%)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Status pie chart */}
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="text-sm font-bold mb-4">📊 Répartition par statut</h3>
+                {analytics.statusData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <PieChart>
+                      <Pie
+                        data={analytics.statusData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={80}
+                        dataKey="value"
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        labelLine={false}
+                      >
+                        {analytics.statusData.map((_, i) => (
+                          <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip contentStyle={tooltipStyle} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-16">Aucune donnée</p>
+                )}
+              </div>
+            </div>
+
+            {/* Sector distribution */}
+            {analytics.sectorData.length > 0 && (
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="text-sm font-bold mb-4">🏢 Répartition par secteur</h3>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={analytics.sectorData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 100% / 0.05)" />
+                    <XAxis type="number" tick={{ fontSize: 10, fill: "hsl(30, 7%, 40%)" }} allowDecimals={false} />
+                    <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "hsl(30, 7%, 40%)" }} width={120} />
+                    <Tooltip contentStyle={tooltipStyle} labelStyle={{ color: "hsl(36, 20%, 93%)" }} />
+                    <Bar dataKey="value" name="Plans" fill="hsl(217, 90%, 64%)" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
         ) : tab === "plans" ? (
           <div className="bg-card border border-border rounded-xl overflow-x-auto">
             <table className="w-full text-sm">
@@ -134,12 +247,8 @@ const AdminDashboard = () => {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">
-                        <button onClick={() => navigate(`/bp/${bp.id}`)} className="p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-secondary transition-colors" aria-label="Voir le business plan">
-                          <Eye className="w-3.5 h-3.5" />
-                        </button>
-                        <button onClick={() => setDeleteId(bp.id)} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" aria-label="Supprimer le business plan">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        <button onClick={() => navigate(`/bp/${bp.id}`)} className="p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-secondary transition-colors"><Eye className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => setDeleteId(bp.id)} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                       </div>
                     </td>
                   </tr>
