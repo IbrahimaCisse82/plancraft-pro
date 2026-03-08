@@ -33,10 +33,17 @@ const Dashboard = () => {
 
   const menuRef = useClickOutside<HTMLDivElement>(() => setOpenMenuId(null));
 
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
   const handleCreate = async () => {
-    if (!newName.trim()) return;
+    const result = createPlanSchema.safeParse({ name: newName, secteur: newSecteur || undefined, devise: newDevise });
+    if (!result.success) {
+      setFormErrors(Object.fromEntries(result.error.errors.map(e => [e.path[0], e.message])));
+      return;
+    }
+    setFormErrors({});
     setCreating(true);
-    const ok = await createPlan(newName, newSecteur, newDevise);
+    const ok = await createPlan(result.data.name, result.data.secteur || "", result.data.devise);
     setCreating(false);
     if (ok) {
       setShowModal(false);
