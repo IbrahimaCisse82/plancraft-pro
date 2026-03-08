@@ -4,6 +4,7 @@ import { exportBusinessPlanPDF } from "@/lib/exportPdf";
 import { exportBusinessPlanDOCX } from "@/lib/exportDocx";
 import { exportBusinessPlanXLSX } from "@/lib/exportXlsx";
 import VersionHistoryPanel from "@/components/editor/VersionHistoryPanel";
+import ShareButton from "@/components/editor/ShareButton";
 import type { BusinessPlan, BPContent } from "@/types/businessPlan";
 
 interface Props {
