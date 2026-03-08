@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -10,12 +10,12 @@ const ProfilePage = () => {
   const [displayName, setDisplayName] = useState(profile?.display_name || "");
   const [saving, setSaving] = useState(false);
 
-  // Sync state if profile loads after mount
-  useState(() => {
+  // Sync display name when profile loads after mount
+  useEffect(() => {
     if (profile?.display_name && !displayName) {
       setDisplayName(profile.display_name);
     }
-  });
+  }, [profile?.display_name]);
 
   if (loading) return <FullPageSpinner />;
 
