@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import { BP_SECTIONS } from "@/components/editor/sectionConfig";
+import { isComputedRow } from "@/lib/financialFormulas";
 
 export const exportBusinessPlanPDF = (plan: any, content: Record<string, any>) => {
   const doc = new jsPDF();
@@ -18,6 +19,9 @@ export const exportBusinessPlanPDF = (plan: any, content: Record<string, any>) =
       addPage();
     }
   };
+
+  const isSeparator = (row: string) => row.startsWith("---");
+  const separatorLabel = (row: string) => row.replace(/^-+\s*/, "").replace(/\s*-+$/, "");
 
   // Title page
   doc.setFontSize(28);
@@ -71,27 +75,58 @@ export const exportBusinessPlanPDF = (plan: any, content: Record<string, any>) =
       const columns = section.columns || [];
 
       doc.setFontSize(8);
-      doc.setFont("helvetica", "bold");
 
       // Header row
       const colWidth = (maxWidth - 60) / columns.length;
-      doc.text("Poste", margin, y);
+      doc.setFont("helvetica", "bold");
+      doc.setFillColor(245, 240, 224);
+      doc.rect(margin, y - 3, maxWidth, 8, "F");
+      doc.text("Poste", margin + 1, y + 2);
       columns.forEach((col, i) => {
-        doc.text(col, margin + 62 + i * colWidth, y);
+        doc.text(col, margin + 62 + i * colWidth, y + 2);
       });
-      y += 3;
+      y += 8;
       doc.line(margin, y, pageWidth - margin, y);
-      y += 5;
+      y += 4;
 
-      doc.setFont("helvetica", "normal");
       rows.forEach((row) => {
-        checkPageBreak(6);
-        doc.text(row.substring(0, 30), margin, y);
+        checkPageBreak(8);
+
+        if (isSeparator(row)) {
+          // Render as section header
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(8);
+          doc.setFillColor(235, 235, 235);
+          doc.rect(margin, y - 3, maxWidth, 7, "F");
+          doc.text(separatorLabel(row).toUpperCase(), margin + 1, y + 1);
+          y += 7;
+          doc.setFont("helvetica", "normal");
+          return;
+        }
+
+        const computed = isComputedRow(section.id, row);
+
+        if (computed) {
+          doc.setFont("helvetica", "bold");
+          doc.setFillColor(248, 245, 235);
+          doc.rect(margin, y - 3, maxWidth, 7, "F");
+        } else {
+          doc.setFont("helvetica", "normal");
+        }
+
+        doc.text(row.substring(0, 35), margin + 1, y + 1);
         columns.forEach((col, i) => {
           const cellVal = val[row]?.[col] || "";
-          doc.text(cellVal, margin + 62 + i * colWidth, y);
+          const displayVal = cellVal && !isNaN(parseInt(cellVal))
+            ? parseInt(cellVal).toLocaleString("fr-FR")
+            : cellVal;
+          doc.text(displayVal, margin + 62 + i * colWidth, y + 1);
         });
-        y += 5;
+        y += computed ? 7 : 5;
+
+        if (computed) {
+          doc.setFont("helvetica", "normal");
+        }
       });
     } else if (section.type === "swot" && typeof val === "object") {
       doc.setFontSize(10);

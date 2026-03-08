@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBusinessPlans } from "@/hooks/useBusinessPlans";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { Trash2, Archive, MoreVertical, ArchiveRestore, Search, Copy } from "lucide-react";
+import { createPlanSchema } from "@/lib/validation";
 import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
@@ -32,10 +33,17 @@ const Dashboard = () => {
 
   const menuRef = useClickOutside<HTMLDivElement>(() => setOpenMenuId(null));
 
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
   const handleCreate = async () => {
-    if (!newName.trim()) return;
+    const result = createPlanSchema.safeParse({ name: newName, secteur: newSecteur || undefined, devise: newDevise });
+    if (!result.success) {
+      setFormErrors(Object.fromEntries(result.error.errors.map(e => [e.path[0], e.message])));
+      return;
+    }
+    setFormErrors({});
     setCreating(true);
-    const ok = await createPlan(newName, newSecteur, newDevise);
+    const ok = await createPlan(result.data.name, result.data.secteur || "", result.data.devise);
     setCreating(false);
     if (ok) {
       setShowModal(false);
@@ -229,6 +237,7 @@ const Dashboard = () => {
                   maxLength={150}
                   className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
                 />
+                {formErrors.name && <p className="text-xs text-destructive mt-1">{formErrors.name}</p>}
               </div>
               <div>
                 <label className="block text-xs font-bold text-secondary-foreground mb-1.5">Secteur d'activité</label>

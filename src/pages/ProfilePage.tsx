@@ -1,35 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import TopBar from "@/components/shared/TopBar";
 import { FullPageSpinner } from "@/components/shared/LoadingSpinner";
+import { profileSchema } from "@/lib/validation";
 
 const ProfilePage = () => {
   const { user, profile, refreshProfile, loading } = useAuth();
   const [displayName, setDisplayName] = useState(profile?.display_name || "");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  // Sync state if profile loads after mount
-  useState(() => {
+  // Sync display name when profile loads after mount
+  useEffect(() => {
     if (profile?.display_name && !displayName) {
       setDisplayName(profile.display_name);
     }
-  });
+  }, [profile?.display_name]);
 
   if (loading) return <FullPageSpinner />;
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !displayName.trim()) return;
+    setError("");
+    
+    const result = profileSchema.safeParse({ displayName });
+    if (!result.success) {
+      setError(result.error.errors[0].message);
+      return;
+    }
+    
+    if (!user) return;
     setSaving(true);
-    const { error } = await supabase
+    const { error: dbError } = await supabase
       .from("profiles")
-      .update({ display_name: displayName.trim() })
+      .update({ display_name: result.data.displayName })
       .eq("user_id", user.id);
     setSaving(false);
-    if (error) {
-      toast.error("Erreur : " + error.message);
+    if (dbError) {
+      toast.error("Erreur : " + dbError.message);
     } else {
       toast.success("Profil mis à jour !");
       await refreshProfile();
@@ -63,11 +73,12 @@ const ProfilePage = () => {
             <input
               type="text"
               value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              onChange={(e) => { setDisplayName(e.target.value); setError(""); }}
               placeholder="Votre nom"
               maxLength={100}
               className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
             />
+            {error && <p className="text-xs text-destructive mt-1">{error}</p>}
           </div>
 
           <div>
