@@ -125,8 +125,22 @@ const BusinessPlanEditor = () => {
     return false;
   }).length;
 
+  const filteredSections = sidebarSearch.trim()
+    ? BP_SECTIONS.filter((s) => searchMatchingSections.has(s.id))
+    : BP_SECTIONS;
+
   const SidebarContent = () => (
     <div className="p-4">
+      <div className="relative mb-3">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+        <input
+          type="text"
+          value={sidebarSearch}
+          onChange={(e) => setSidebarSearch(e.target.value)}
+          placeholder="Rechercher dans le plan…"
+          className="w-full pl-8 pr-3 py-1.5 bg-secondary border border-border rounded-lg text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
+        />
+      </div>
       <div className="flex items-center justify-between mb-3">
         <span className="text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">
           Sections ({filledCount}/{BP_SECTIONS.length})
@@ -143,7 +157,7 @@ const BusinessPlanEditor = () => {
       </div>
 
       <nav className="space-y-0.5">
-        {BP_SECTIONS.map((section) => {
+        {filteredSections.map((section) => {
           const isFilled = (() => {
             const val = content[section.id];
             if (!val) return false;
@@ -230,6 +244,8 @@ const BusinessPlanEditor = () => {
             <Download className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">DOCX</span>
           </button>
+
+          <VersionHistoryPanel planId={id!} content={content} onRestore={handleRestoreVersion} />
 
           <button
             onClick={() => saveContent(content)}
