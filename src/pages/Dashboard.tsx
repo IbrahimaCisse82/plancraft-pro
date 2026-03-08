@@ -237,6 +237,7 @@ const Dashboard = () => {
                   maxLength={150}
                   className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
                 />
+                {formErrors.name && <p className="text-xs text-destructive mt-1">{formErrors.name}</p>}
               </div>
               <div>
                 <label className="block text-xs font-bold text-secondary-foreground mb-1.5">Secteur d'activité</label>
