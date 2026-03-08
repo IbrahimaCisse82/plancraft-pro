@@ -1,8 +1,9 @@
 import jsPDF from "jspdf";
 import { BP_SECTIONS } from "@/components/editor/sectionConfig";
 import { isComputedRow } from "@/lib/financialFormulas";
+import type { BusinessPlan } from "@/types/businessPlan";
 
-export const exportBusinessPlanPDF = (plan: any, content: Record<string, any>) => {
+export const exportBusinessPlanPDF = (plan: BusinessPlan, content: Record<string, any>) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
