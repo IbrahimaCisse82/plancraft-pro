@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Save, ChevronLeft, Check, Download, Menu, X } from "lucide-react";
 import { exportBusinessPlanPDF } from "@/lib/exportPdf";
+import { exportBusinessPlanDOCX } from "@/lib/exportDocx";
 import { BP_SECTIONS, SectionConfig } from "@/components/editor/sectionConfig";
 import NarrativeSection from "@/components/editor/NarrativeSection";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
@@ -188,6 +189,15 @@ const BusinessPlanEditor = () => {
           >
             <Download className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">PDF</span>
+          </button>
+
+          <button
+            onClick={() => exportBusinessPlanDOCX(plan, content)}
+            className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
+            aria-label="Exporter en Word"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">DOCX</span>
           </button>
 
           <button
