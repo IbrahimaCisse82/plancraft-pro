@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 
 const Navbar = () => {
   const { user, loading } = useAuth();
@@ -38,6 +39,7 @@ const Navbar = () => {
       </div>
 
       <div className="flex gap-2.5 items-center ml-auto md:ml-0">
+        <ThemeToggle />
         {!loading && user ? (
           <Link
             to="/dashboard"

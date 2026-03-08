@@ -1,4 +1,5 @@
 import { SectionConfig } from "./sectionConfig";
+import FinancialChart from "./FinancialChart";
 
 interface Props {
   section: SectionConfig;
@@ -84,6 +85,8 @@ const FinancialSection = ({ section, value, onChange, devise }: Props) => {
           </tbody>
         </table>
       </div>
+
+      <FinancialChart section={section} value={value} devise={devise} />
     </div>
   );
 };
