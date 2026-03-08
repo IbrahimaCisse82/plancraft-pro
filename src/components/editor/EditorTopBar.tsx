@@ -83,6 +83,8 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
 
       <VersionHistoryPanel planId={plan.id} content={content} onRestore={onRestore} />
 
+      <ShareButton planId={plan.id} />
+
       <button
         onClick={onSave}
         className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-primary rounded-md text-xs font-bold text-primary-foreground hover:opacity-90 transition-all"
