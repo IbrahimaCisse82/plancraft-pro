@@ -191,12 +191,7 @@ const AIAssistantPanel = ({
                       {onInsertText && (
                         <button
                           onClick={() => {
-                            // Extract blockquote content if present, otherwise use full content
-                            const blockquoteMatch = msg.content.match(/^>\s*(.+)$/gm);
-                            const textToInsert = blockquoteMatch
-                              ? blockquoteMatch.map(l => l.replace(/^>\s*/, "")).join("\n")
-                              : msg.content;
-                            onInsertText(textToInsert);
+                            onInsertText(stripMarkdown(msg.content));
                             toast.success("Texte inséré dans la section !");
                           }}
                           className="flex items-center gap-1 px-2 py-1 text-[10px] rounded bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
