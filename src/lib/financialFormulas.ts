@@ -190,17 +190,33 @@ export const applyFormulas = (
   columns: string[]
 ): RowData => {
   const formulas = FORMULAS[sectionId];
-  if (!formulas) return data;
+  if (!formulas && sectionId !== "tresorerie") return data;
 
   const result = { ...data };
 
-  for (const [row, fn] of Object.entries(formulas)) {
-    if (!result[row]) result[row] = {};
-    const rowData = { ...result[row] };
-    for (const col of columns) {
-      rowData[col] = String(fn(result, col));
+  if (formulas) {
+    for (const [row, fn] of Object.entries(formulas)) {
+      if (!result[row]) result[row] = {};
+      const rowData = { ...result[row] };
+      for (const col of columns) {
+        rowData[col] = String(fn(result, col));
+      }
+      result[row] = rowData;
     }
-    result[row] = rowData;
+  }
+
+  // Special: Solde cumulé in trésorerie (depends on previous column)
+  if (sectionId === "tresorerie") {
+    if (!result["Solde cumulé"]) result["Solde cumulé"] = {};
+    const cumRow = { ...result["Solde cumulé"] };
+    for (let i = 0; i < columns.length; i++) {
+      const col = columns[i];
+      const soldeInitial = i === 0 ? num(result["Solde initial"]?.[col]) : 0;
+      const prevCumule = i > 0 ? num(cumRow[columns[i - 1]]) : soldeInitial;
+      const soldeMensuel = num(result["Solde mensuel"]?.[col]);
+      cumRow[col] = String(prevCumule + soldeMensuel);
+    }
+    result["Solde cumulé"] = cumRow;
   }
 
   return result;
@@ -210,5 +226,6 @@ export const applyFormulas = (
  * Check if a row in a section is auto-computed.
  */
 export const isComputedRow = (sectionId: string, row: string): boolean => {
+  if (sectionId === "tresorerie" && row === "Solde cumulé") return true;
   return !!(FORMULAS[sectionId]?.[row]);
 };
