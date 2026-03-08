@@ -229,7 +229,7 @@ const AuthPage = () => {
           En vous connectant, vous acceptez nos<br />
           <Link to="/cgu" className="text-[hsl(var(--gold-light))] hover:opacity-80 transition-opacity">Conditions Générales d'Utilisation</Link>
           {" "}et notre{" "}
-          <Link to="/cgu#confidentialite" className="text-[hsl(var(--gold-light))] hover:opacity-80 transition-opacity">Politique de confidentialité</Link>
+          <Link to="/confidentialite" className="text-[hsl(var(--gold-light))] hover:opacity-80 transition-opacity">Politique de confidentialité</Link>
           <br /><br />
           <strong className="text-secondary-foreground">Grow Hub SARL</strong> · Entreprise de droit sénégalais<br />
           <a href="mailto:plancraftpro@growhubsenegal.com" className="text-[hsl(var(--gold-light))] hover:opacity-80 transition-opacity">
