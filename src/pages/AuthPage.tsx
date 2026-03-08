@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
+import { loginSchema, registerSchema, forgotPasswordSchema } from "@/lib/validation";
 
 const AuthPage = () => {
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
@@ -10,11 +11,11 @@ const AuthPage = () => {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const { user, signIn, signUp, resetPassword, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Check if user just confirmed email
   useEffect(() => {
     const confirmed = searchParams.get("confirmed");
     if (confirmed === "true") {
@@ -28,10 +29,17 @@ const AuthPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
     setSubmitting(true);
 
     if (mode === "forgot") {
-      const { error } = await resetPassword(email);
+      const result = forgotPasswordSchema.safeParse({ email });
+      if (!result.success) {
+        setErrors(Object.fromEntries(result.error.errors.map(e => [e.path[0], e.message])));
+        setSubmitting(false);
+        return;
+      }
+      const { error } = await resetPassword(result.data.email);
       setSubmitting(false);
       if (error) {
         toast.error(error.message);
@@ -43,11 +51,23 @@ const AuthPage = () => {
     }
 
     if (mode === "login") {
-      const { error } = await signIn(email, password);
+      const result = loginSchema.safeParse({ email, password });
+      if (!result.success) {
+        setErrors(Object.fromEntries(result.error.errors.map(e => [e.path[0], e.message])));
+        setSubmitting(false);
+        return;
+      }
+      const { error } = await signIn(result.data.email, result.data.password);
       setSubmitting(false);
       if (error) toast.error(error.message);
     } else {
-      const { error } = await signUp(email, password, displayName);
+      const result = registerSchema.safeParse({ email, password, displayName: displayName || undefined });
+      if (!result.success) {
+        setErrors(Object.fromEntries(result.error.errors.map(e => [e.path[0], e.message])));
+        setSubmitting(false);
+        return;
+      }
+      const { error } = await signUp(result.data.email, result.data.password, result.data.displayName);
       setSubmitting(false);
       if (error) {
         toast.error(error.message);
@@ -70,6 +90,8 @@ const AuthPage = () => {
     register: { heading: "Créer un compte", sub: "Créez un compte gratuitement pour commencer." },
     forgot: { heading: "Mot de passe oublié", sub: "Entrez votre email pour recevoir un lien de réinitialisation." },
   };
+
+  const clearErrors = () => setErrors({});
 
   return (
     <div className="relative min-h-screen flex overflow-hidden">
@@ -129,10 +151,12 @@ const AuthPage = () => {
               <input
                 type="text"
                 value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
+                onChange={(e) => { setDisplayName(e.target.value); clearErrors(); }}
                 placeholder="Ex : Moussa Diop"
+                maxLength={100}
                 className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
               />
+              {errors.displayName && <p className="text-xs text-destructive mt-1">{errors.displayName}</p>}
             </div>
           )}
           <div>
@@ -141,10 +165,12 @@ const AuthPage = () => {
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); clearErrors(); }}
               placeholder="votre@email.com"
+              maxLength={255}
               className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
             />
+            {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
           </div>
           {mode !== "forgot" && (
             <div>
@@ -153,11 +179,13 @@ const AuthPage = () => {
                 type="password"
                 required
                 minLength={6}
+                maxLength={128}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setPassword(e.target.value); clearErrors(); }}
                 placeholder="••••••••"
                 className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
               />
+              {errors.password && <p className="text-xs text-destructive mt-1">{errors.password}</p>}
             </div>
           )}
 
@@ -179,7 +207,7 @@ const AuthPage = () => {
 
         {mode === "login" && (
           <button
-            onClick={() => setMode("forgot")}
+            onClick={() => { setMode("forgot"); clearErrors(); }}
             className="mt-2 text-xs text-muted-foreground hover:text-primary transition-colors"
           >
             Mot de passe oublié ?
@@ -210,7 +238,7 @@ const AuthPage = () => {
         )}
 
         <button
-          onClick={() => setMode(mode === "login" ? "register" : "login")}
+          onClick={() => { setMode(mode === "login" ? "register" : "login"); clearErrors(); }}
           className="mt-4 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           {mode === "login" || mode === "forgot"

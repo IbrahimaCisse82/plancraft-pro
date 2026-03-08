@@ -13,6 +13,10 @@ import {
 } from "docx";
 import { saveAs } from "file-saver";
 import { BP_SECTIONS } from "@/components/editor/sectionConfig";
+import { isComputedRow } from "@/lib/financialFormulas";
+
+const isSeparator = (row: string) => row.startsWith("---");
+const separatorLabel = (row: string) => row.replace(/^-+\s*/, "").replace(/\s*-+$/, "");
 
 export const exportBusinessPlanDOCX = async (plan: any, content: Record<string, any>) => {
   const children: Paragraph[] = [];
@@ -96,22 +100,54 @@ export const exportBusinessPlanDOCX = async (plan: any, content: Record<string, 
         ),
       ];
 
-      const dataRows = rows.map(
-        (row) =>
-          new TableRow({
+      const dataRows = rows.map((row) => {
+        if (isSeparator(row)) {
+          // Separator row spans all columns
+          return new TableRow({
             children: [
               new TableCell({
-                children: [new Paragraph({ children: [new TextRun({ text: row, size: 18, font: "Calibri" })] })],
+                columnSpan: columns.length + 1,
+                children: [
+                  new Paragraph({
+                    children: [new TextRun({ text: separatorLabel(row).toUpperCase(), bold: true, size: 16, font: "Calibri", color: "4A4A4A" })],
+                  }),
+                ],
+                shading: { fill: "EBEBEB" },
               }),
-              ...columns.map(
-                (col) =>
-                  new TableCell({
-                    children: [new Paragraph({ children: [new TextRun({ text: val[row]?.[col] || "", size: 18, font: "Calibri" })] })],
-                  })
-              ),
             ],
-          })
-      );
+          });
+        }
+
+        const computed = isComputedRow(section.id, row);
+        const fill = computed ? "F8F5EB" : undefined;
+
+        return new TableRow({
+          children: [
+            new TableCell({
+              children: [
+                new Paragraph({
+                  children: [new TextRun({ text: row, bold: computed, size: 18, font: "Calibri" })],
+                }),
+              ],
+              shading: fill ? { fill } : undefined,
+            }),
+            ...columns.map((col) => {
+              const cellVal = val[row]?.[col] || "";
+              const displayVal = cellVal && !isNaN(parseInt(cellVal))
+                ? parseInt(cellVal).toLocaleString("fr-FR")
+                : cellVal;
+              return new TableCell({
+                children: [
+                  new Paragraph({
+                    children: [new TextRun({ text: displayVal, bold: computed, size: 18, font: "Calibri" })],
+                  }),
+                ],
+                shading: fill ? { fill } : undefined,
+              });
+            }),
+          ],
+        });
+      });
 
       tables.push(
         new Table({

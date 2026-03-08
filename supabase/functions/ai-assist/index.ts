@@ -28,13 +28,77 @@ RÈGLES DE FORMATAGE IMPORTANTES :
 - Pour le SWOT, structure par quadrant avec des puces simples (•).
 - Ne fais jamais de code, tu n'es pas un développeur.`;
 
+// Input validation limits
+const MAX_MESSAGE_LENGTH = 5000;
+const MAX_MESSAGES = 30;
+const MAX_CONTENT_LENGTH = 50000;
+const MAX_FIELD_LENGTH = 500;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { messages, sectionTitle, sectionHint, currentContent, planName, secteur, devise } = await req.json();
+    const body = await req.json();
+    const { messages, sectionTitle, sectionHint, currentContent, planName, secteur, devise } = body;
+
+    // ── Input validation ──
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return new Response(JSON.stringify({ error: "Messages requis" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (messages.length > MAX_MESSAGES) {
+      return new Response(JSON.stringify({ error: `Maximum ${MAX_MESSAGES} messages par conversation` }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    for (const msg of messages) {
+      if (!msg.role || !msg.content || typeof msg.content !== "string") {
+        return new Response(JSON.stringify({ error: "Format de message invalide" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (!["user", "assistant"].includes(msg.role)) {
+        return new Response(JSON.stringify({ error: "Rôle de message invalide" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (msg.content.length > MAX_MESSAGE_LENGTH) {
+        return new Response(JSON.stringify({ error: `Message trop long (max ${MAX_MESSAGE_LENGTH} caractères)` }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    if (typeof sectionTitle !== "string" || sectionTitle.length > MAX_FIELD_LENGTH) {
+      return new Response(JSON.stringify({ error: "Titre de section invalide" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (currentContent && typeof currentContent === "string" && currentContent.length > MAX_CONTENT_LENGTH) {
+      return new Response(JSON.stringify({ error: `Contenu trop long (max ${MAX_CONTENT_LENGTH} caractères)` }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Sanitize optional string fields
+    const safePlanName = typeof planName === "string" ? planName.slice(0, MAX_FIELD_LENGTH) : "Sans nom";
+    const safeSecteur = typeof secteur === "string" ? secteur.slice(0, MAX_FIELD_LENGTH) : "";
+    const safeDevise = typeof devise === "string" ? devise.slice(0, MAX_FIELD_LENGTH) : "";
+    const safeSectionHint = typeof sectionHint === "string" ? sectionHint.slice(0, MAX_FIELD_LENGTH) : "";
+    const safeContent = typeof currentContent === "string" ? currentContent.slice(0, MAX_CONTENT_LENGTH) : "";
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -42,18 +106,21 @@ serve(async (req) => {
     }
 
     // Build context message
-    let context = `L'utilisateur travaille sur la section "${sectionTitle}" de son business plan "${planName || "Sans nom"}".`;
-    if (secteur) context += ` Secteur : ${secteur}.`;
-    if (devise) context += ` Devise : ${devise}.`;
-    if (sectionHint) context += `\nConsigne de la section : ${sectionHint}`;
-    if (currentContent && currentContent.trim()) {
-      context += `\n\nContenu actuel de la section :\n${currentContent}`;
+    let context = `L'utilisateur travaille sur la section "${sectionTitle}" de son business plan "${safePlanName}".`;
+    if (safeSecteur) context += ` Secteur : ${safeSecteur}.`;
+    if (safeDevise) context += ` Devise : ${safeDevise}.`;
+    if (safeSectionHint) context += `\nConsigne de la section : ${safeSectionHint}`;
+    if (safeContent.trim()) {
+      context += `\n\nContenu actuel de la section :\n${safeContent}`;
     }
 
     const allMessages = [
       { role: "system", content: SYSTEM_PROMPT },
       { role: "system", content: context },
-      ...messages,
+      ...messages.map((m: { role: string; content: string }) => ({
+        role: m.role,
+        content: m.content.slice(0, MAX_MESSAGE_LENGTH),
+      })),
     ];
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
