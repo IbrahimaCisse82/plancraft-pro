@@ -62,7 +62,8 @@
     --sidebar-ring: 43 55% 54%;
   }
 
-  .light {
+  .light,
+  [data-theme="light"] {
     --gold: 43 55% 44%;
     --gold-light: 43 68% 42%;
     --gold-dim: 43 55% 44% / 0.06;

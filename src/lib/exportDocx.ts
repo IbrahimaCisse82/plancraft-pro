@@ -14,11 +14,12 @@ import {
 import { saveAs } from "file-saver";
 import { BP_SECTIONS } from "@/components/editor/sectionConfig";
 import { isComputedRow } from "@/lib/financialFormulas";
+import type { BusinessPlan } from "@/types/businessPlan";
 
 const isSeparator = (row: string) => row.startsWith("---");
 const separatorLabel = (row: string) => row.replace(/^-+\s*/, "").replace(/\s*-+$/, "");
 
-export const exportBusinessPlanDOCX = async (plan: any, content: Record<string, any>) => {
+export const exportBusinessPlanDOCX = async (plan: BusinessPlan, content: Record<string, any>) => {
   const children: Paragraph[] = [];
 
   // Title page
