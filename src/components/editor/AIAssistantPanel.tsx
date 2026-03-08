@@ -4,6 +4,23 @@ import ReactMarkdown from "react-markdown";
 import { useAIChat, ChatMessage } from "@/hooks/useAIChat";
 import { toast } from "sonner";
 
+/** Strip all Markdown syntax to produce clean plain text */
+const stripMarkdown = (md: string): string => {
+  return md
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1")
+    .replace(/_{1,3}([^_]+)_{1,3}/g, "$1")
+    .replace(/^>\s*/gm, "")
+    .replace(/^[\s]*[-*]\s+/gm, "• ")
+    .replace(/^[\s]*\d+\.\s+/gm, "")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+    .replace(/^[-*_]{3,}$/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+};
 interface Props {
   sectionTitle: string;
   sectionHint?: string;
@@ -67,9 +84,9 @@ const AIAssistantPanel = ({
   };
 
   const copyBlock = (text: string, idx: number) => {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(stripMarkdown(text));
     setCopiedIdx(idx);
-    toast.success("Copié !");
+    toast.success("Copié (texte brut) !");
     setTimeout(() => setCopiedIdx(null), 2000);
   };
 
@@ -174,12 +191,7 @@ const AIAssistantPanel = ({
                       {onInsertText && (
                         <button
                           onClick={() => {
-                            // Extract blockquote content if present, otherwise use full content
-                            const blockquoteMatch = msg.content.match(/^>\s*(.+)$/gm);
-                            const textToInsert = blockquoteMatch
-                              ? blockquoteMatch.map(l => l.replace(/^>\s*/, "")).join("\n")
-                              : msg.content;
-                            onInsertText(textToInsert);
+                            onInsertText(stripMarkdown(msg.content));
                             toast.success("Texte inséré dans la section !");
                           }}
                           className="flex items-center gap-1 px-2 py-1 text-[10px] rounded bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
