@@ -3,6 +3,7 @@ import { useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBusinessPlans } from "@/hooks/useBusinessPlans";
 import { useClickOutside } from "@/hooks/useClickOutside";
+import { useI18n } from "@/contexts/I18nContext";
 import { Trash2, Archive, MoreVertical, ArchiveRestore, Search, Copy } from "lucide-react";
 import { createPlanSchema } from "@/lib/validation";
 import TopBar from "@/components/shared/TopBar";
@@ -10,17 +11,18 @@ import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import OnboardingTour from "@/components/onboarding/OnboardingTour";
 
-const statusConfig = {
-  brouillon: { label: "Brouillon", className: "bg-secondary text-muted-foreground" },
-  finalise: { label: "Finalisé", className: "bg-success/10 text-success" },
-  archive: { label: "Archivé", className: "bg-destructive/10 text-destructive" },
-};
-
-type FilterStatus = "all" | "brouillon" | "finalise" | "archive";
-
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { t, lang } = useI18n();
   const { plans, loading, stats, createPlan, archivePlan, deletePlan, duplicatePlan } = useBusinessPlans();
+
+  const statusConfig = {
+    brouillon: { label: lang === "fr" ? "Brouillon" : "Draft", className: "bg-secondary text-muted-foreground" },
+    finalise: { label: lang === "fr" ? "Finalisé" : "Finalized", className: "bg-success/10 text-success" },
+    archive: { label: lang === "fr" ? "Archivé" : "Archived", className: "bg-destructive/10 text-destructive" },
+  };
+
+  type FilterStatus = "all" | "brouillon" | "finalise" | "archive";
 
   const [showModal, setShowModal] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -60,6 +62,8 @@ const Dashboard = () => {
     return true;
   });
 
+  const dateLocale = lang === "fr" ? "fr-FR" : "en-US";
+
   return (
     <div className="min-h-screen relative z-10">
       <OnboardingTour />
@@ -71,24 +75,24 @@ const Dashboard = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-9">
           <div>
-            <h1 className="font-display text-4xl font-bold">Mes Business Plans</h1>
-            <p className="text-sm text-secondary-foreground mt-1">Créez, gérez et exportez vos dossiers depuis un seul endroit.</p>
+            <h1 className="font-display text-4xl font-bold">{t("dashboard.title")}</h1>
+            <p className="text-sm text-secondary-foreground mt-1">{t("dashboard.subtitle")}</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
             className="flex items-center gap-2 px-6 py-2.5 bg-primary rounded-lg text-sm font-bold text-primary-foreground hover:opacity-90 hover:-translate-y-0.5 transition-all"
           >
-            + Nouveau Business Plan
+            {t("dashboard.newPlan")}
           </button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {[
-            { val: stats.total, label: "Business plans" },
-            { val: stats.finalise, label: "Finalisés" },
-            { val: stats.draft, label: "En cours" },
-            { val: `${stats.avgProgress}%`, label: "Progression moy." },
+            { val: stats.total, label: t("dashboard.plans") },
+            { val: stats.finalise, label: t("dashboard.finalized") },
+            { val: stats.draft, label: t("dashboard.inProgress") },
+            { val: `${stats.avgProgress}%`, label: t("dashboard.avgProgress") },
           ].map((stat) => (
             <div key={stat.label} className="bg-card border border-border rounded-lg p-5">
               <div className="font-display text-3xl font-bold text-[hsl(var(--gold-light))]">{stat.val}</div>
@@ -105,16 +109,16 @@ const Dashboard = () => {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Rechercher un business plan…"
+              placeholder={t("dashboard.search")}
               className="w-full pl-9 pr-3 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
             />
           </div>
           <div className="flex gap-1 bg-secondary p-1 rounded-lg">
             {([
-              { key: "all" as const, label: "Tous" },
-              { key: "brouillon" as const, label: "Brouillons" },
-              { key: "finalise" as const, label: "Finalisés" },
-              { key: "archive" as const, label: "Archivés" },
+              { key: "all" as FilterStatus, label: t("dashboard.all") },
+              { key: "brouillon" as FilterStatus, label: t("dashboard.drafts") },
+              { key: "finalise" as FilterStatus, label: t("dashboard.finalized") },
+              { key: "archive" as FilterStatus, label: t("dashboard.archived") },
             ]).map((f) => (
               <button
                 key={f.key}
@@ -134,7 +138,7 @@ const Dashboard = () => {
           </div>
         ) : filteredPlans.length === 0 && plans.length > 0 ? (
           <div className="text-center py-16 text-muted-foreground">
-            <p className="text-sm">Aucun résultat pour ces filtres.</p>
+            <p className="text-sm">{t("dashboard.noResults")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -153,7 +157,7 @@ const Dashboard = () => {
                       <button
                         onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === bp.id ? null : bp.id); }}
                         className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-                        aria-label="Menu d'actions"
+                        aria-label="Menu"
                       >
                         <MoreVertical className="w-4 h-4" />
                       </button>
@@ -164,21 +168,21 @@ const Dashboard = () => {
                             className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-secondary transition-colors text-foreground"
                           >
                             <Copy className="w-3.5 h-3.5" />
-                            Dupliquer
+                            {t("dashboard.duplicate")}
                           </button>
                           <button
                             onClick={() => { archivePlan(bp.id, bp.statut); setOpenMenuId(null); }}
                             className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-secondary transition-colors text-foreground"
                           >
                             {bp.statut === "archive" ? <ArchiveRestore className="w-3.5 h-3.5" /> : <Archive className="w-3.5 h-3.5" />}
-                            {bp.statut === "archive" ? "Restaurer" : "Archiver"}
+                            {bp.statut === "archive" ? t("dashboard.restore") : t("dashboard.archive")}
                           </button>
                           <button
                             onClick={() => { setConfirmDeleteId(bp.id); setOpenMenuId(null); }}
                             className="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-destructive/10 transition-colors text-destructive"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
-                            Supprimer
+                            {t("dashboard.delete")}
                           </button>
                         </div>
                       )}
@@ -188,7 +192,7 @@ const Dashboard = () => {
                   <div className="text-xs text-muted-foreground mb-3.5">{bp.secteur || "—"}</div>
                   <div className="mb-3">
                     <div className="flex justify-between text-[0.65rem] text-muted-foreground mb-1.5">
-                      <span>Progression</span>
+                      <span>{t("dashboard.progression")}</span>
                       <span>{bp.progress}%</span>
                     </div>
                     <div className="h-[3px] bg-secondary rounded-full overflow-hidden">
@@ -200,7 +204,7 @@ const Dashboard = () => {
                   </div>
                   <div className="flex justify-between items-center pt-3.5 border-t border-border">
                     <div className="text-[0.65rem] text-muted-foreground font-mono">
-                      {new Date(bp.updated_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })}
+                      {new Date(bp.updated_at).toLocaleDateString(dateLocale, { day: "2-digit", month: "short", year: "numeric" })}
                     </div>
                     <span className={`px-2 py-0.5 rounded-full text-[0.6rem] font-bold uppercase tracking-wide ${status.className}`}>
                       {status.label}
@@ -215,7 +219,7 @@ const Dashboard = () => {
               className="border border-dashed border-primary/30 rounded-2xl flex flex-col items-center justify-center gap-2.5 min-h-[180px] text-muted-foreground cursor-pointer transition-all hover:border-primary hover:text-primary hover:bg-[hsl(var(--gold-dim))]"
             >
               <div className="text-3xl">+</div>
-              <div className="text-xs font-semibold">Nouveau business plan</div>
+              <div className="text-xs font-semibold">{t("dashboard.newPlanCard")}</div>
             </div>
           </div>
         )}
@@ -225,12 +229,12 @@ const Dashboard = () => {
       {showModal && (
         <div className="fixed inset-0 bg-background/75 z-[200] flex items-center justify-center" onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
           <div className="bg-card border border-border rounded-2xl w-[480px] max-w-[95vw] p-8 shadow-[0_24px_80px_rgba(0,0,0,0.6)]">
-            <h3 className="font-display text-2xl font-bold mb-1.5">Nouveau Business Plan</h3>
-            <p className="text-xs text-secondary-foreground mb-6">Donnez un nom à votre projet pour commencer.</p>
+            <h3 className="font-display text-2xl font-bold mb-1.5">{t("dashboard.newBpTitle")}</h3>
+            <p className="text-xs text-secondary-foreground mb-6">{t("dashboard.newBpSubtitle")}</p>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-secondary-foreground mb-1.5">Nom du projet *</label>
+                <label className="block text-xs font-bold text-secondary-foreground mb-1.5">{t("dashboard.projectName")}</label>
                 <input
                   type="text"
                   value={newName}
@@ -242,13 +246,13 @@ const Dashboard = () => {
                 {formErrors.name && <p className="text-xs text-destructive mt-1">{formErrors.name}</p>}
               </div>
               <div>
-                <label className="block text-xs font-bold text-secondary-foreground mb-1.5">Secteur d'activité</label>
+                <label className="block text-xs font-bold text-secondary-foreground mb-1.5">{t("dashboard.sector")}</label>
                 <select
                   value={newSecteur}
                   onChange={(e) => setNewSecteur(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground outline-none focus:border-primary transition-colors"
                 >
-                  <option value="">— Sélectionner un secteur —</option>
+                  <option value="">— {lang === "fr" ? "Sélectionner un secteur" : "Select a sector"} —</option>
                   <option>Agroalimentaire</option>
                   <option>Commerce</option>
                   <option>Services</option>
@@ -262,11 +266,11 @@ const Dashboard = () => {
                   <option>Industrie / Manufacture</option>
                   <option>Énergie</option>
                   <option>Immobilier</option>
-                  <option>Autre</option>
+                  <option>{lang === "fr" ? "Autre" : "Other"}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-bold text-secondary-foreground mb-1.5">Devise</label>
+                <label className="block text-xs font-bold text-secondary-foreground mb-1.5">{t("dashboard.currency")}</label>
                 <select
                   value={newDevise}
                   onChange={(e) => setNewDevise(e.target.value)}
@@ -282,14 +286,14 @@ const Dashboard = () => {
 
             <div className="flex gap-2.5 mt-6">
               <button onClick={() => setShowModal(false)} className="px-5 py-3 bg-secondary border border-border rounded-lg text-sm font-semibold text-secondary-foreground hover:border-destructive hover:text-destructive transition-all">
-                Annuler
+                {t("dashboard.cancel")}
               </button>
               <button
                 onClick={handleCreate}
                 disabled={creating || !newName.trim()}
                 className="flex-1 py-3 bg-primary rounded-lg text-sm font-bold text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50"
               >
-                {creating ? "Création…" : "Créer le projet →"}
+                {creating ? t("dashboard.creating") : t("dashboard.create")}
               </button>
             </div>
           </div>
@@ -300,9 +304,9 @@ const Dashboard = () => {
       <ConfirmDialog
         open={!!confirmDeleteId}
         onOpenChange={(open) => !open && setConfirmDeleteId(null)}
-        title="Supprimer ce business plan ?"
-        description="Cette action est irréversible. Toutes les données seront perdues."
-        confirmLabel="Supprimer définitivement"
+        title={t("common.confirmDelete")}
+        description={t("common.irreversible")}
+        confirmLabel={t("common.deleteConfirm")}
         variant="destructive"
         onConfirm={() => { if (confirmDeleteId) deletePlan(confirmDeleteId); setConfirmDeleteId(null); }}
       />
