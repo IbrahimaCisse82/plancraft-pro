@@ -53,6 +53,35 @@ const BusinessPlanEditor = () => {
     scheduleAutoSave(next);
   };
 
+  const handleRestoreVersion = (restoredContent: Record<string, any>) => {
+    setContent(restoredContent);
+    saveContent(restoredContent);
+  };
+
+  // Search sections by content
+  const searchMatchingSections = useMemo(() => {
+    if (!sidebarSearch.trim()) return new Set<string>();
+    const q = sidebarSearch.toLowerCase();
+    const matches = new Set<string>();
+    BP_SECTIONS.forEach((section) => {
+      // Match section title
+      if (section.title.toLowerCase().includes(q)) {
+        matches.add(section.id);
+        return;
+      }
+      const val = content[section.id];
+      if (!val) return;
+      if (typeof val === "string" && val.toLowerCase().includes(q)) {
+        matches.add(section.id);
+      } else if (typeof val === "object") {
+        if (JSON.stringify(val).toLowerCase().includes(q)) {
+          matches.add(section.id);
+        }
+      }
+    });
+    return matches;
+  }, [sidebarSearch, content]);
+
   const currentSection = BP_SECTIONS.find((s) => s.id === activeSection)!;
 
   if (loading) return <FullPageSpinner />;
