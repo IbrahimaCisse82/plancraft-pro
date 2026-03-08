@@ -67,9 +67,9 @@ const AIAssistantPanel = ({
   };
 
   const copyBlock = (text: string, idx: number) => {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(stripMarkdown(text));
     setCopiedIdx(idx);
-    toast.success("Copié !");
+    toast.success("Copié (texte brut) !");
     setTimeout(() => setCopiedIdx(null), 2000);
   };
 
