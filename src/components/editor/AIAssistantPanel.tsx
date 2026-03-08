@@ -4,6 +4,23 @@ import ReactMarkdown from "react-markdown";
 import { useAIChat, ChatMessage } from "@/hooks/useAIChat";
 import { toast } from "sonner";
 
+/** Strip all Markdown syntax to produce clean plain text */
+const stripMarkdown = (md: string): string => {
+  return md
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1")
+    .replace(/_{1,3}([^_]+)_{1,3}/g, "$1")
+    .replace(/^>\s*/gm, "")
+    .replace(/^[\s]*[-*]\s+/gm, "• ")
+    .replace(/^[\s]*\d+\.\s+/gm, "")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+    .replace(/^[-*_]{3,}$/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+};
 interface Props {
   sectionTitle: string;
   sectionHint?: string;
