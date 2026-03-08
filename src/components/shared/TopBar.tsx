@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/contexts/I18nContext";
 import { Shield } from "lucide-react";
 import ThemeToggle from "@/components/shared/ThemeToggle";
 import LangToggle from "@/components/shared/LangToggle";
@@ -14,9 +15,10 @@ interface Props {
 
 const TopBar = ({ showAdmin = false, showDashboard = false, showHome = false, showLogout = true, children }: Props) => {
   const { isAdmin, profile, user, signOut } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
 
-  const displayName = profile?.display_name || user?.email || "Utilisateur";
+  const displayName = profile?.display_name || user?.email || (t("common.loading"));
   const initial = displayName.charAt(0).toUpperCase();
 
   return (
@@ -51,19 +53,19 @@ const TopBar = ({ showAdmin = false, showDashboard = false, showHome = false, sh
             to="/admin"
             className="px-4 py-1.5 bg-primary/20 border border-primary/30 rounded-md text-xs font-semibold text-primary hover:bg-primary/30 transition-all"
           >
-            🛡️ Admin
+            {t("topbar.admin")}
           </Link>
         )}
 
         {showDashboard && (
           <Link to="/dashboard" className="px-4 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all">
-            Mon Dashboard
+            {t("nav.dashboard")}
           </Link>
         )}
 
         {showHome && (
           <Link to="/" className="px-4 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all">
-            🏠 Accueil
+            {t("topbar.home")}
           </Link>
         )}
 
@@ -72,7 +74,7 @@ const TopBar = ({ showAdmin = false, showDashboard = false, showHome = false, sh
             onClick={async () => { await signOut(); navigate("/"); }}
             className="px-4 py-1.5 bg-secondary border border-destructive/30 rounded-md text-xs font-semibold text-destructive hover:bg-destructive/10 transition-all"
           >
-            Déconnexion
+            {t("topbar.logout")}
           </button>
         )}
       </div>

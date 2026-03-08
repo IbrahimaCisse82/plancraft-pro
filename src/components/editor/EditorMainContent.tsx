@@ -1,4 +1,5 @@
 import { BP_SECTIONS, SectionConfig } from "@/components/editor/sectionConfig";
+import { useI18n } from "@/contexts/I18nContext";
 import NarrativeSection from "@/components/editor/NarrativeSection";
 import FinancialSection from "@/components/editor/FinancialSection";
 import SwotSection from "@/components/editor/SwotSection";
@@ -16,6 +17,7 @@ interface Props {
 }
 
 const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNavigate, onSave }: Props) => {
+  const { t } = useI18n();
   const currentSection = BP_SECTIONS.find((s) => s.id === activeSection)!;
   const currentIdx = BP_SECTIONS.findIndex((s) => s.id === activeSection);
 
@@ -49,6 +51,12 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
     }
   };
 
+  const sectionTypeLabel = currentSection.type === "financial"
+    ? t("editor.financial")
+    : currentSection.type === "swot"
+    ? "Matrice SWOT"
+    : t("editor.narrative");
+
   return (
     <>
       <main className="flex-1 overflow-y-auto">
@@ -60,10 +68,10 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="uppercase tracking-wider font-bold">
-                {currentSection.type === "financial" ? "Tableau financier" : currentSection.type === "swot" ? "Matrice SWOT" : "Section narrative"}
+                {sectionTypeLabel}
               </span>
               <span>·</span>
-              <span>Section {currentIdx + 1} sur {BP_SECTIONS.length}</span>
+              <span>{t("editor.sectionOf", { current: String(currentIdx + 1), total: String(BP_SECTIONS.length) })}</span>
             </div>
           </div>
 
@@ -76,7 +84,7 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
                 className="px-3 sm:px-4 py-2 bg-secondary border border-border rounded-lg text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
               >
                 ← <span className="hidden sm:inline">{BP_SECTIONS[currentIdx - 1].title}</span>
-                <span className="sm:hidden">Précédent</span>
+                <span className="sm:hidden">{t("editor.previous")}</span>
               </button>
             ) : <div />}
 
@@ -86,14 +94,14 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
                 className="px-3 sm:px-4 py-2 bg-primary rounded-lg text-xs font-bold text-primary-foreground hover:opacity-90 transition-all"
               >
                 <span className="hidden sm:inline">{BP_SECTIONS[currentIdx + 1].title}</span>
-                <span className="sm:hidden">Suivant</span> →
+                <span className="sm:hidden">{t("editor.next")}</span> →
               </button>
             ) : (
               <button
-                onClick={() => { onSave(); toast.success("Business plan sauvegardé !"); }}
+                onClick={() => { onSave(); toast.success(t("editor.saved") + " !"); }}
                 className="px-3 sm:px-4 py-2 bg-primary rounded-lg text-xs font-bold text-primary-foreground hover:opacity-90 transition-all"
               >
-                ✅ Finaliser
+                {t("editor.finalize")}
               </button>
             )}
           </div>

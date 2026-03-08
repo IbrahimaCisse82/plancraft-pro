@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/contexts/I18nContext";
 import ThemeToggle from "@/components/shared/ThemeToggle";
 import LangToggle from "@/components/shared/LangToggle";
 
 const Navbar = () => {
   const { user, loading } = useAuth();
+  const { t } = useI18n();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex items-center px-6 md:px-12 py-4 bg-background/80 backdrop-blur-xl border-b border-border">
@@ -14,10 +16,10 @@ const Navbar = () => {
 
       <div className="hidden md:flex gap-8 mx-auto">
         {[
-          { label: "Fonctionnalités", href: "#fonctionnalites" },
-          { label: "Comment ça marche", href: "#comment" },
-          { label: "Tarifs", href: "#tarifs" },
-          { label: "CGU", href: "/cgu" },
+          { label: t("nav.features"), href: "#fonctionnalites" },
+          { label: t("nav.howItWorks"), href: "#comment" },
+          { label: t("nav.pricing"), href: "#tarifs" },
+          { label: t("nav.cgu"), href: "/cgu" },
         ].map((link) => (
           link.href.startsWith("#") ? (
             <a
@@ -47,7 +49,7 @@ const Navbar = () => {
             to="/dashboard"
             className="px-5 py-2 bg-primary rounded-lg text-xs font-bold text-primary-foreground hover:bg-gold-light hover:-translate-y-0.5 transition-all"
           >
-            Mon Dashboard
+            {t("nav.dashboard")}
           </Link>
         ) : (
           <>
@@ -55,13 +57,13 @@ const Navbar = () => {
               to="/auth"
               className="px-5 py-2 border border-border rounded-lg text-xs font-bold text-secondary-foreground hover:border-gold hover:text-gold transition-all"
             >
-              Connexion
+              {t("nav.login")}
             </Link>
             <Link
               to="/auth"
               className="px-5 py-2 bg-primary rounded-lg text-xs font-bold text-primary-foreground hover:bg-gold-light hover:-translate-y-0.5 transition-all"
             >
-              Commencer gratuitement
+              {t("nav.start")}
             </Link>
           </>
         )}
