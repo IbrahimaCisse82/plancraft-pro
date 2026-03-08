@@ -1,8 +1,8 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Save, ChevronLeft, Check, Download, Menu, X } from "lucide-react";
+import { Save, ChevronLeft, Check, Download, Menu, X, Search } from "lucide-react";
 import { exportBusinessPlanPDF } from "@/lib/exportPdf";
 import { exportBusinessPlanDOCX } from "@/lib/exportDocx";
 import { BP_SECTIONS, SectionConfig } from "@/components/editor/sectionConfig";
@@ -10,6 +10,7 @@ import NarrativeSection from "@/components/editor/NarrativeSection";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
 import FinancialSection from "@/components/editor/FinancialSection";
 import SwotSection from "@/components/editor/SwotSection";
+import VersionHistoryPanel from "@/components/editor/VersionHistoryPanel";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { FullPageSpinner } from "@/components/shared/LoadingSpinner";
 
@@ -23,6 +24,7 @@ const BusinessPlanEditor = () => {
   const [content, setContent] = useState<BPContent>({});
   const [activeSection, setActiveSection] = useState(BP_SECTIONS[0].id);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarSearch, setSidebarSearch] = useState("");
   const { saving, saved, saveContent, scheduleAutoSave } = useAutoSave(id);
 
   useEffect(() => {
@@ -50,6 +52,35 @@ const BusinessPlanEditor = () => {
     setContent(next);
     scheduleAutoSave(next);
   };
+
+  const handleRestoreVersion = (restoredContent: Record<string, any>) => {
+    setContent(restoredContent);
+    saveContent(restoredContent);
+  };
+
+  // Search sections by content
+  const searchMatchingSections = useMemo(() => {
+    if (!sidebarSearch.trim()) return new Set<string>();
+    const q = sidebarSearch.toLowerCase();
+    const matches = new Set<string>();
+    BP_SECTIONS.forEach((section) => {
+      // Match section title
+      if (section.title.toLowerCase().includes(q)) {
+        matches.add(section.id);
+        return;
+      }
+      const val = content[section.id];
+      if (!val) return;
+      if (typeof val === "string" && val.toLowerCase().includes(q)) {
+        matches.add(section.id);
+      } else if (typeof val === "object") {
+        if (JSON.stringify(val).toLowerCase().includes(q)) {
+          matches.add(section.id);
+        }
+      }
+    });
+    return matches;
+  }, [sidebarSearch, content]);
 
   const currentSection = BP_SECTIONS.find((s) => s.id === activeSection)!;
 
@@ -94,8 +125,22 @@ const BusinessPlanEditor = () => {
     return false;
   }).length;
 
+  const filteredSections = sidebarSearch.trim()
+    ? BP_SECTIONS.filter((s) => searchMatchingSections.has(s.id))
+    : BP_SECTIONS;
+
   const SidebarContent = () => (
     <div className="p-4">
+      <div className="relative mb-3">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+        <input
+          type="text"
+          value={sidebarSearch}
+          onChange={(e) => setSidebarSearch(e.target.value)}
+          placeholder="Rechercher dans le plan…"
+          className="w-full pl-8 pr-3 py-1.5 bg-secondary border border-border rounded-lg text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
+        />
+      </div>
       <div className="flex items-center justify-between mb-3">
         <span className="text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">
           Sections ({filledCount}/{BP_SECTIONS.length})
@@ -112,7 +157,7 @@ const BusinessPlanEditor = () => {
       </div>
 
       <nav className="space-y-0.5">
-        {BP_SECTIONS.map((section) => {
+        {filteredSections.map((section) => {
           const isFilled = (() => {
             const val = content[section.id];
             if (!val) return false;
@@ -199,6 +244,8 @@ const BusinessPlanEditor = () => {
             <Download className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">DOCX</span>
           </button>
+
+          <VersionHistoryPanel planId={id!} content={content} onRestore={handleRestoreVersion} />
 
           <button
             onClick={() => saveContent(content)}
