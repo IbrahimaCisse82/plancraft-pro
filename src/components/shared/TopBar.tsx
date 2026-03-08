@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Shield } from "lucide-react";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 
 interface Props {
   showAdmin?: boolean;
@@ -31,7 +32,8 @@ const TopBar = ({ showAdmin = false, showDashboard = false, showHome = false, sh
 
       {children}
 
-      <div className="ml-auto flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-2">
+        <ThemeToggle />
         <Link
           to="/profile"
           className="flex items-center gap-2 px-3 py-1.5 bg-secondary border border-border rounded-full text-xs text-secondary-foreground hover:border-primary/30 transition-all cursor-pointer"

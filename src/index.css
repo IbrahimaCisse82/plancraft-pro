@@ -11,7 +11,7 @@
     --gold-light: 43 68% 66%;
     --gold-dim: 43 55% 54% / 0.08;
 
-    /* Dark surfaces */
+    /* Dark surfaces (default) */
     --background: 228 20% 4%;
     --foreground: 36 20% 93%;
 
@@ -60,6 +60,59 @@
     --sidebar-accent-foreground: 36 10% 72%;
     --sidebar-border: 0 0% 100% / 0.07;
     --sidebar-ring: 43 55% 54%;
+  }
+
+  .light {
+    --gold: 43 55% 44%;
+    --gold-light: 43 68% 42%;
+    --gold-dim: 43 55% 44% / 0.06;
+
+    --background: 40 20% 97%;
+    --foreground: 228 20% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 228 20% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 228 20% 12%;
+
+    --primary: 43 55% 44%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 40 15% 93%;
+    --secondary-foreground: 228 10% 40%;
+
+    --muted: 40 15% 93%;
+    --muted-foreground: 228 10% 50%;
+
+    --accent: 43 55% 44% / 0.08;
+    --accent-foreground: 43 55% 35%;
+
+    --destructive: 2 82% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 155 62% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --info: 217 90% 55%;
+    --info-foreground: 0 0% 100%;
+
+    --border: 228 15% 88%;
+    --border-strong: 228 15% 82%;
+    --input: 228 15% 88%;
+    --ring: 43 55% 44%;
+
+    --surface: 0 0% 100%;
+    --surface2: 40 15% 96%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 228 10% 40%;
+    --sidebar-primary: 43 55% 44%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 40 15% 93%;
+    --sidebar-accent-foreground: 228 10% 40%;
+    --sidebar-border: 228 15% 88%;
+    --sidebar-ring: 43 55% 44%;
   }
 }
 
@@ -129,12 +182,12 @@
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(228 20% 4%);
+  background: hsl(var(--background));
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(0 0% 100% / 0.1);
+  background: hsl(var(--muted-foreground) / 0.3);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(0 0% 100% / 0.2);
+  background: hsl(var(--muted-foreground) / 0.5);
 }
