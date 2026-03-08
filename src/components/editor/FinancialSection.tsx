@@ -1,5 +1,7 @@
+import { useEffect, useMemo } from "react";
 import { SectionConfig } from "./sectionConfig";
 import FinancialChart from "./FinancialChart";
+import { applyFormulas, isComputedRow } from "@/lib/financialFormulas";
 
 interface Props {
   section: SectionConfig;
@@ -9,16 +11,39 @@ interface Props {
 }
 
 const formatNumber = (val: string): string => {
-  const num = val.replace(/[^\d-]/g, "");
-  return num;
+  return val.replace(/[^\d-]/g, "");
 };
 
 const FinancialSection = ({ section, value, onChange, devise }: Props) => {
   const rows = section.rows || [];
   const columns = section.columns || [];
 
+  // Apply formulas to get computed values
+  const computedData = useMemo(
+    () => applyFormulas(section.id, value, columns),
+    [section.id, value, columns]
+  );
+
+  // Sync computed values back to parent when inputs change
+  useEffect(() => {
+    const formulaKeys = Object.keys(computedData);
+    let hasChanges = false;
+    for (const row of formulaKeys) {
+      if (!isComputedRow(section.id, row)) continue;
+      for (const col of columns) {
+        if (computedData[row]?.[col] !== value[row]?.[col]) {
+          hasChanges = true;
+          break;
+        }
+      }
+      if (hasChanges) break;
+    }
+    if (hasChanges) {
+      onChange(computedData);
+    }
+  }, [computedData]);
+
   const handleCell = (row: string, col: string, cellValue: string) => {
-    // Only allow digits, minus sign, and empty string
     const sanitized = formatNumber(cellValue);
     const next = { ...value };
     if (!next[row]) next[row] = {};
@@ -26,16 +51,19 @@ const FinancialSection = ({ section, value, onChange, devise }: Props) => {
     onChange(next);
   };
 
-  const getCell = (row: string, col: string) => value?.[row]?.[col] || "";
+  const getCell = (row: string, col: string) => computedData?.[row]?.[col] || "";
 
   const displayValue = (val: string) => {
-    if (!val) return "";
-    const num = parseInt(val, 10);
-    if (isNaN(num)) return val;
-    return num.toLocaleString("fr-FR");
+    if (!val || val === "0") return "";
+    const n = parseInt(val, 10);
+    if (isNaN(n)) return val;
+    return n.toLocaleString("fr-FR");
   };
 
   const currencySymbol = devise.includes("FCFA") ? "FCFA" : devise.includes("EUR") ? "€" : devise.includes("USD") ? "$" : devise.includes("MAD") ? "MAD" : "";
+
+  const isSeparator = (row: string) => row.startsWith("---");
+  const separatorLabel = (row: string) => row.replace(/^-+\s*/, "").replace(/\s*-+$/, "");
 
   return (
     <div>
@@ -49,44 +77,78 @@ const FinancialSection = ({ section, value, onChange, devise }: Props) => {
           <thead>
             <tr className="bg-secondary">
               <th className="text-left px-3 py-2.5 text-xs font-bold text-secondary-foreground border-b border-border min-w-[180px] sticky left-0 bg-secondary z-10">
-                {columns[0] === "Désignation" ? "Désignation" : "Poste"}
+                Poste
               </th>
               {columns.map((col) => (
                 <th key={col} className="text-right px-3 py-2.5 text-xs font-bold text-secondary-foreground border-b border-border min-w-[100px]">
-                  {col} {col !== "Désignation" && currencySymbol ? `(${currencySymbol})` : ""}
+                  {col} {currencySymbol && !["Effectif", "Taux de marge (%)", "Durée (années)", "Taux d'intérêt (%)"].includes(col) ? `(${currencySymbol})` : ""}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, i) => (
-              <tr key={row} className={`${i % 2 === 0 ? "bg-card" : "bg-secondary/30"} hover:bg-primary/5 transition-colors`}>
-                <td className="px-3 py-2 text-xs font-medium text-foreground border-b border-border/50 sticky left-0 bg-inherit z-10">
-                  {row}
-                </td>
-                {columns.map((col) => (
-                  <td key={col} className="px-1 py-1 border-b border-border/50">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={getCell(row, col)}
-                      onChange={(e) => handleCell(row, col, e.target.value)}
-                      onBlur={(e) => {
-                        // Format display on blur
-                      }}
-                      placeholder="0"
-                      className="w-full px-2 py-1.5 bg-transparent text-right text-xs text-foreground outline-none focus:bg-primary/5 rounded transition-colors"
-                      aria-label={`${row} - ${col}`}
-                    />
+            {rows.map((row, i) => {
+              if (isSeparator(row)) {
+                return (
+                  <tr key={row} className="bg-muted/50">
+                    <td
+                      colSpan={columns.length + 1}
+                      className="px-3 py-2 text-xs font-bold text-primary uppercase tracking-wider border-b border-border/50"
+                    >
+                      {separatorLabel(row)}
+                    </td>
+                  </tr>
+                );
+              }
+
+              const computed = isComputedRow(section.id, row);
+
+              return (
+                <tr
+                  key={row}
+                  className={`${
+                    computed
+                      ? "bg-primary/5 font-semibold"
+                      : i % 2 === 0
+                      ? "bg-card"
+                      : "bg-secondary/30"
+                  } hover:bg-primary/5 transition-colors`}
+                >
+                  <td className={`px-3 py-2 text-xs font-medium border-b border-border/50 sticky left-0 bg-inherit z-10 ${computed ? "text-primary" : "text-foreground"}`}>
+                    {row}
+                    {computed && (
+                      <span className="ml-1.5 text-[0.6rem] text-muted-foreground font-normal">
+                        (auto)
+                      </span>
+                    )}
                   </td>
-                ))}
-              </tr>
-            ))}
+                  {columns.map((col) => (
+                    <td key={col} className="px-1 py-1 border-b border-border/50">
+                      {computed ? (
+                        <div className="w-full px-2 py-1.5 text-right text-xs text-primary font-bold">
+                          {displayValue(getCell(row, col))}
+                        </div>
+                      ) : (
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={getCell(row, col)}
+                          onChange={(e) => handleCell(row, col, e.target.value)}
+                          placeholder="0"
+                          className="w-full px-2 py-1.5 bg-transparent text-right text-xs text-foreground outline-none focus:bg-primary/5 rounded transition-colors"
+                          aria-label={`${row} - ${col}`}
+                        />
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
-      <FinancialChart section={section} value={value} devise={devise} />
+      <FinancialChart section={section} value={computedData} devise={devise} />
     </div>
   );
 };
