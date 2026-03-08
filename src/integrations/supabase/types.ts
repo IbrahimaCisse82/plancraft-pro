@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      bp_versions: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          label: string | null
+          plan_id: string
+          user_id: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          id?: string
+          label?: string | null
+          plan_id: string
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          label?: string | null
+          plan_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       business_plans: {
         Row: {
           content: Json | null
