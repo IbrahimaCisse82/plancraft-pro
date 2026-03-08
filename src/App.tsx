@@ -53,6 +53,7 @@ const App = () => (
                 } />
                 <Route path="/cgu" element={<CGUPage />} />
                 <Route path="/confidentialite" element={<PrivacyPage />} />
+                <Route path="/share/:token" element={<SharedPlanPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
