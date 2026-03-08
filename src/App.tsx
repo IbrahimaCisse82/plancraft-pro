@@ -19,6 +19,7 @@ const BusinessPlanEditor = lazy(() => import("./pages/BusinessPlanEditor"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const CGUPage = lazy(() => import("./pages/CGUPage"));
+const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
                   <ProtectedRoute><ProfilePage /></ProtectedRoute>
                 } />
                 <Route path="/cgu" element={<CGUPage />} />
+                <Route path="/confidentialite" element={<PrivacyPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
