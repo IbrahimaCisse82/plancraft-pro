@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Step {
   title: string;
@@ -35,13 +37,12 @@ const STEPS: Step[] = [
   },
 ];
 
-const STORAGE_KEY = "plancraft_onboarding_done";
-
 interface Props {
   forceShow?: boolean;
 }
 
 const OnboardingTour = ({ forceShow = false }: Props) => {
+  const { user, profile } = useAuth();
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(0);
 
@@ -51,17 +52,22 @@ const OnboardingTour = ({ forceShow = false }: Props) => {
       setStep(0);
       return;
     }
-    const done = localStorage.getItem(STORAGE_KEY);
-    if (!done) {
-      // Small delay so it doesn't flash on page load
+    // Show only if profile loaded and onboarding not done
+    if (profile && !(profile as any).onboarding_done) {
       const t = setTimeout(() => setVisible(true), 800);
       return () => clearTimeout(t);
     }
-  }, [forceShow]);
+  }, [forceShow, profile]);
 
-  const dismiss = () => {
+  const dismiss = async () => {
     setVisible(false);
-    localStorage.setItem(STORAGE_KEY, "true");
+    // Persist in DB
+    if (user) {
+      await supabase
+        .from("profiles")
+        .update({ onboarding_done: true } as any)
+        .eq("user_id", user.id);
+    }
   };
 
   const next = () => {
