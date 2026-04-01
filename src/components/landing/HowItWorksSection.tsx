@@ -1,14 +1,16 @@
 import { useEffect, useRef } from "react";
-
-const steps = [
-  { num: "01", title: "Décrivez votre projet", desc: "Renseignez les informations de base : nom, secteur, localisation, montant recherché. PlanCraft configure automatiquement l'ensemble de l'environnement." },
-  { num: "02", title: "Laissez l'IA rédiger", desc: "Cliquez sur \"✦ Tout générer\" — l'IA rédige les 14 sections en quelques minutes. Relisez, ajustez, personnalisez selon votre connaissance terrain." },
-  { num: "03", title: "Renseignez vos chiffres", desc: "Entrez votre CA prévisionnel, vos charges, vos effectifs. Les 11 tableaux financiers se calculent et se mettent à jour en temps réel." },
-  { num: "04", title: "Exportez et déposez", desc: "Exportez en Word ou PDF, vérifiez la fiche synthèse banquier avec les ratios clés, puis remettez votre dossier — complet et professionnel." },
-];
+import { useI18n } from "@/contexts/I18nContext";
 
 const HowItWorksSection = () => {
+  const { t } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
+
+  const steps = [
+    { num: "01", title: t("howItWorks.step1.title"), desc: t("howItWorks.step1.desc") },
+    { num: "02", title: t("howItWorks.step2.title"), desc: t("howItWorks.step2.desc") },
+    { num: "03", title: t("howItWorks.step3.title"), desc: t("howItWorks.step3.desc") },
+    { num: "04", title: t("howItWorks.step4.title"), desc: t("howItWorks.step4.desc") },
+  ];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -21,13 +23,12 @@ const HowItWorksSection = () => {
 
   return (
     <section id="comment" className="py-24 px-5 md:px-12 max-w-[1200px] mx-auto border-t border-border" ref={ref}>
-      <div className="text-[0.68rem] font-bold text-gold-light uppercase tracking-[2px] mb-3">Comment ça marche</div>
-      <h2 className="font-display text-[clamp(2rem,4vw,3.2rem)] font-bold leading-tight mb-4">
-        De l'idée au dossier<br />en 4 étapes
+      <div className="text-[0.68rem] font-bold text-gold-light uppercase tracking-[2px] mb-3">{t("howItWorks.label")}</div>
+      <h2 className="font-display text-[clamp(2rem,4vw,3.2rem)] font-bold leading-tight mb-4 whitespace-pre-line">
+        {t("howItWorks.heading")}
       </h2>
 
       <div className="flex flex-col gap-0 mt-16 relative">
-        {/* Vertical line */}
         <div className="absolute left-[27px] top-0 bottom-0 w-px bg-gradient-to-b from-gold to-transparent" />
 
         {steps.map((step) => (

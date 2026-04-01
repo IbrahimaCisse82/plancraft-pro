@@ -1,67 +1,69 @@
 import { Link } from "react-router-dom";
 import { useEffect, useRef } from "react";
-
-const plans = [
-  {
-    name: "Gratuit",
-    price: "0",
-    unit: "FCFA / mois",
-    desc: "Pour découvrir et commencer",
-    features: [
-      { text: "2 business plans maximum", included: true },
-      { text: "14 sections structurées", included: true },
-      { text: "Génération IA limitée (5 sections)", included: true },
-      { text: "Export PDF", included: true },
-      { text: "Export Word", included: false },
-      { text: "Tableaux financiers avancés", included: false },
-      { text: "Fiche synthèse banquier", included: false },
-    ],
-    cta: "Commencer gratuitement",
-    ctaStyle: "outline" as const,
-    featured: false,
-  },
-  {
-    name: "Pro",
-    price: "15 000",
-    unit: "FCFA / mois",
-    desc: "Pour les entrepreneurs sérieux",
-    badge: "⭐ Recommandé",
-    features: [
-      { text: "Business plans illimités", included: true },
-      { text: "14 sections structurées", included: true },
-      { text: "Génération IA illimitée", included: true },
-      { text: "Export PDF & Word", included: true },
-      { text: "11 tableaux financiers complets", included: true },
-      { text: "Fiche synthèse banquier", included: true },
-      { text: "Sauvegarde cloud multi-appareils", included: true },
-      { text: "Support email prioritaire", included: true },
-    ],
-    cta: "Démarrer l'essai gratuit",
-    ctaStyle: "solid" as const,
-    featured: true,
-  },
-  {
-    name: "Entreprise",
-    price: "Sur",
-    unit: "devis",
-    desc: "Pour les incubateurs et structures",
-    features: [
-      { text: "Tout le plan Pro", included: true },
-      { text: "Multi-utilisateurs", included: true },
-      { text: "Tableau de bord administrateur", included: true },
-      { text: "Personnalisation du template", included: true },
-      { text: "Formation et onboarding", included: true },
-      { text: "Support dédié", included: true },
-    ],
-    cta: "Nous contacter",
-    ctaStyle: "outline" as const,
-    featured: false,
-    ctaLink: "mailto:plancraftpro@growhubsenegal.com",
-  },
-];
+import { useI18n } from "@/contexts/I18nContext";
 
 const PricingSection = () => {
+  const { t } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
+
+  const plans = [
+    {
+      name: t("pricing.free"),
+      price: "0",
+      unit: "FCFA / mois",
+      desc: t("pricing.freeDesc"),
+      features: [
+        { text: "2 business plans maximum", included: true },
+        { text: "14 sections structurées", included: true },
+        { text: "Génération IA limitée (5 sections)", included: true },
+        { text: "Export PDF", included: true },
+        { text: "Export Word", included: false },
+        { text: "Tableaux financiers avancés", included: false },
+        { text: "Fiche synthèse banquier", included: false },
+      ],
+      cta: t("pricing.startFree"),
+      ctaStyle: "outline" as const,
+      featured: false,
+    },
+    {
+      name: t("pricing.pro"),
+      price: "15 000",
+      unit: "FCFA / mois",
+      desc: t("pricing.proDesc"),
+      badge: t("pricing.recommended"),
+      features: [
+        { text: "Business plans illimités", included: true },
+        { text: "14 sections structurées", included: true },
+        { text: "Génération IA illimitée", included: true },
+        { text: "Export PDF & Word", included: true },
+        { text: "11 tableaux financiers complets", included: true },
+        { text: "Fiche synthèse banquier", included: true },
+        { text: "Sauvegarde cloud multi-appareils", included: true },
+        { text: "Support email prioritaire", included: true },
+      ],
+      cta: t("pricing.startTrial"),
+      ctaStyle: "solid" as const,
+      featured: true,
+    },
+    {
+      name: t("pricing.enterprise"),
+      price: t("pricing.onQuote"),
+      unit: t("pricing.quote"),
+      desc: t("pricing.enterpriseDesc"),
+      features: [
+        { text: "Tout le plan Pro", included: true },
+        { text: "Multi-utilisateurs", included: true },
+        { text: "Tableau de bord administrateur", included: true },
+        { text: "Personnalisation du template", included: true },
+        { text: "Formation et onboarding", included: true },
+        { text: "Support dédié", included: true },
+      ],
+      cta: t("pricing.contact"),
+      ctaStyle: "outline" as const,
+      featured: false,
+      ctaLink: "mailto:plancraftpro@growhubsenegal.com",
+    },
+  ];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -74,10 +76,10 @@ const PricingSection = () => {
 
   return (
     <section id="tarifs" className="py-24 px-5 md:px-12 max-w-[1200px] mx-auto border-t border-border" ref={ref}>
-      <div className="text-[0.68rem] font-bold text-gold-light uppercase tracking-[2px] mb-3">Tarifs</div>
-      <h2 className="font-display text-[clamp(2rem,4vw,3.2rem)] font-bold leading-tight mb-4">Simple et transparent</h2>
+      <div className="text-[0.68rem] font-bold text-gold-light uppercase tracking-[2px] mb-3">{t("pricing.label")}</div>
+      <h2 className="font-display text-[clamp(2rem,4vw,3.2rem)] font-bold leading-tight mb-4">{t("pricing.heading")}</h2>
       <p className="text-sm text-secondary-foreground max-w-[520px] leading-relaxed">
-        Commencez gratuitement. Passez à Pro quand vous en avez besoin.
+        {t("pricing.subtitle")}
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-16 items-start" ref={ref}>
