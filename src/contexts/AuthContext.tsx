@@ -6,6 +6,7 @@ interface Profile {
   id: string;
   display_name: string | null;
   avatar_url: string | null;
+  onboarding_done: boolean;
 }
 
 interface AuthContextType {
