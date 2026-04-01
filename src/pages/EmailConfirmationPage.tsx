@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { CheckCircle, Mail } from "lucide-react";
+import { useI18n } from "@/contexts/I18nContext";
 
 const EmailConfirmationPage = () => {
+  const { t } = useI18n();
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="fixed inset-0 z-0">
@@ -15,17 +18,17 @@ const EmailConfirmationPage = () => {
           <Mail className="w-8 h-8 text-success" />
         </div>
 
-        <h1 className="font-display text-2xl font-bold mb-3">Vérifiez votre email</h1>
+        <h1 className="font-display text-2xl font-bold mb-3">{t("emailConfirm.title")}</h1>
 
         <p className="text-sm text-secondary-foreground leading-relaxed mb-6">
-          Un email de confirmation a été envoyé à votre adresse. Cliquez sur le lien dans l'email pour activer votre compte.
+          {t("emailConfirm.description")}
         </p>
 
         <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 mb-6">
           <div className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
             <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
             <span>
-              Si vous ne trouvez pas l'email, vérifiez votre dossier <strong className="text-foreground">spam</strong> ou <strong className="text-foreground">courrier indésirable</strong>.
+              {t("emailConfirm.spam")} <strong className="text-foreground">{t("emailConfirm.spamFolder")}</strong> {t("emailConfirm.orJunk")} <strong className="text-foreground">{t("emailConfirm.junkFolder")}</strong>.
             </span>
           </div>
         </div>
@@ -34,13 +37,13 @@ const EmailConfirmationPage = () => {
           to="/auth"
           className="inline-flex items-center gap-2 px-6 py-3 bg-primary rounded-xl text-sm font-bold text-primary-foreground hover:opacity-90 transition-all"
         >
-          Retour à la connexion →
+          {t("emailConfirm.backToLogin")}
         </Link>
 
         <p className="text-[0.65rem] text-muted-foreground mt-6">
-          Vous n'avez pas reçu d'email ?{" "}
+          {t("emailConfirm.noEmail")}{" "}
           <Link to="/auth" className="text-primary hover:opacity-80 transition-opacity">
-            Réessayer l'inscription
+            {t("emailConfirm.retry")}
           </Link>
         </p>
       </div>

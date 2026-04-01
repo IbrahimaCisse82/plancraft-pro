@@ -1,6 +1,7 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/contexts/I18nContext";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
 import { loginSchema, registerSchema, forgotPasswordSchema } from "@/lib/validation";
@@ -13,13 +14,14 @@ const AuthPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { user, signIn, signUp, resetPassword, loading } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
     const confirmed = searchParams.get("confirmed");
     if (confirmed === "true") {
-      toast.success("Email confirmé ! Vous pouvez maintenant vous connecter.", { duration: 6000 });
+      toast.success(t("auth.emailConfirmed"), { duration: 6000 });
     }
   }, [searchParams]);
 
@@ -44,7 +46,7 @@ const AuthPage = () => {
       if (error) {
         toast.error(error.message);
       } else {
-        toast.success("Un email de réinitialisation a été envoyé. Vérifiez votre boîte de réception.");
+        toast.success(t("auth.resetSent"));
         setMode("login");
       }
       return;
@@ -86,16 +88,15 @@ const AuthPage = () => {
   }
 
   const titles = {
-    login: { heading: "Bienvenue", sub: "Connectez-vous avec votre email et mot de passe." },
-    register: { heading: "Créer un compte", sub: "Créez un compte gratuitement pour commencer." },
-    forgot: { heading: "Mot de passe oublié", sub: "Entrez votre email pour recevoir un lien de réinitialisation." },
+    login: { heading: t("auth.welcomeTitle"), sub: t("auth.welcomeSub") },
+    register: { heading: t("auth.registerTitle"), sub: t("auth.registerSub") },
+    forgot: { heading: t("auth.forgotTitle"), sub: t("auth.forgotSub") },
   };
 
   const clearErrors = () => setErrors({});
 
   return (
     <div className="relative min-h-screen flex overflow-hidden">
-      {/* Background art */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_-10%_50%,_hsl(43_55%_54%_/_0.12),_transparent_60%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_110%_20%,_hsl(217_90%_64%_/_0.07),_transparent_60%)]" />
@@ -103,25 +104,23 @@ const AuthPage = () => {
       </div>
       <div className="fixed inset-0 z-0 bg-[linear-gradient(hsl(0_0%_100%_/_0.02)_1px,transparent_1px),linear-gradient(90deg,hsl(0_0%_100%_/_0.02)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,black,transparent)]" />
 
-      {/* Left pitch */}
       <div className="hidden lg:flex flex-1 flex-col justify-center px-12 xl:px-[72px] relative z-10">
         <Link to="/" className="font-display text-2xl font-bold text-[hsl(var(--gold-light))] tracking-wide block mb-16">
           Plan<span className="text-secondary-foreground font-normal">Craft</span> Pro
         </Link>
         <div className="inline-flex items-center gap-2 px-3.5 py-1 border border-primary/25 rounded-full text-[0.62rem] font-bold text-[hsl(var(--gold-light))] uppercase tracking-[1.5px] bg-[hsl(var(--gold-dim))] mb-6 w-fit">
           <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-          ✦ Afrique francophone · SaaS
+          {t("auth.tagline")}
         </div>
         <h1 className="font-display text-[clamp(2.4rem,4vw,3.8rem)] font-bold leading-[1.07] mb-5">
-          Créez votre<br />business plan<br />
-          <em className="italic text-[hsl(var(--gold-light))]">bankable</em>
+          {t("auth.leftHeading1")}<br />{t("auth.leftHeading2")}<br />
+          <em className="italic text-[hsl(var(--gold-light))]">{t("auth.leftHeadingHighlight")}</em>
         </h1>
         <p className="text-sm text-secondary-foreground leading-relaxed max-w-[480px] mb-12">
-          PlanCraft Pro est la plateforme de référence pour créer des business plans complets,
-          professionnels et prêts pour les banques — avec l'assistance de l'intelligence artificielle.
+          {t("auth.leftDesc")}
         </p>
         <div className="flex flex-wrap gap-2">
-          {["📊 11 tableaux financiers", "✦ Génération IA", "📄 Export PDF", "☁️ Multi-appareils", "🔒 Données sécurisées"].map((pill) => (
+          {[t("auth.pill1"), t("auth.pill2"), t("auth.pill3"), t("auth.pill4"), t("auth.pill5")].map((pill) => (
             <div key={pill} className="flex items-center gap-1.5 px-3.5 py-1.5 bg-card border border-border rounded-full text-xs text-secondary-foreground">
               {pill}
             </div>
@@ -129,7 +128,6 @@ const AuthPage = () => {
         </div>
       </div>
 
-      {/* Right auth panel */}
       <div className="relative z-10 w-full lg:w-[460px] shrink-0 bg-card border-l border-border flex flex-col items-center justify-center px-8 md:px-12 py-14">
         <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent" />
 
@@ -147,7 +145,7 @@ const AuthPage = () => {
         <form onSubmit={handleSubmit} className="w-full space-y-3">
           {mode === "register" && (
             <div>
-              <label className="block text-xs font-bold text-secondary-foreground mb-1.5">Nom complet</label>
+              <label className="block text-xs font-bold text-secondary-foreground mb-1.5">{t("auth.fullName")}</label>
               <input
                 type="text"
                 value={displayName}
@@ -160,7 +158,7 @@ const AuthPage = () => {
             </div>
           )}
           <div>
-            <label className="block text-xs font-bold text-secondary-foreground mb-1.5">Email *</label>
+            <label className="block text-xs font-bold text-secondary-foreground mb-1.5">{t("auth.email")} *</label>
             <input
               type="email"
               required
@@ -174,7 +172,7 @@ const AuthPage = () => {
           </div>
           {mode !== "forgot" && (
             <div>
-              <label className="block text-xs font-bold text-secondary-foreground mb-1.5">Mot de passe *</label>
+              <label className="block text-xs font-bold text-secondary-foreground mb-1.5">{t("auth.password")} *</label>
               <input
                 type="password"
                 required
@@ -195,12 +193,12 @@ const AuthPage = () => {
             className="w-full py-3.5 bg-primary rounded-xl text-sm font-bold text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50 mt-2"
           >
             {submitting
-              ? "Chargement…"
+              ? t("auth.loading")
               : mode === "login"
-              ? "Se connecter →"
+              ? t("auth.loginBtn")
               : mode === "register"
-              ? "Créer le compte →"
-              : "Envoyer le lien →"
+              ? t("auth.registerBtn")
+              : t("auth.sendLinkBtn")
             }
           </button>
         </form>
@@ -210,7 +208,7 @@ const AuthPage = () => {
             onClick={() => { setMode("forgot"); clearErrors(); }}
             className="mt-2 text-xs text-muted-foreground hover:text-primary transition-colors"
           >
-            Mot de passe oublié ?
+            {t("auth.forgotPassword")}
           </button>
         )}
 
@@ -218,7 +216,7 @@ const AuthPage = () => {
           <>
             <div className="w-full flex items-center gap-3 my-4">
               <div className="flex-1 h-px bg-border" />
-              <span className="text-[0.65rem] text-muted-foreground uppercase tracking-wider">ou</span>
+              <span className="text-[0.65rem] text-muted-foreground uppercase tracking-wider">{t("auth.or")}</span>
               <div className="flex-1 h-px bg-border" />
             </div>
 
@@ -232,7 +230,7 @@ const AuthPage = () => {
               className="w-full flex items-center justify-center gap-2.5 py-3 bg-secondary border border-border rounded-xl text-sm font-semibold text-foreground hover:border-primary/30 transition-all"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-              Continuer avec Google
+              {t("auth.continueGoogle")}
             </button>
           </>
         )}
@@ -242,22 +240,20 @@ const AuthPage = () => {
           className="mt-4 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           {mode === "login" || mode === "forgot"
-            ? "Pas encore de compte ? Créer un compte"
-            : "Déjà un compte ? Se connecter"}
+            ? t("auth.noAccount")
+            : t("auth.hasAccount")}
         </button>
 
-        {/* Info box */}
         <div className="mt-5 p-3 px-4 bg-[hsl(var(--gold-dim))] border border-primary/15 rounded-lg text-xs text-secondary-foreground leading-relaxed w-full">
-          <strong className="text-[hsl(var(--gold-light))]">Première connexion ?</strong><br />
-          Créez un compte et commencez à rédiger votre business plan immédiatement.
+          <strong className="text-[hsl(var(--gold-light))]">{t("auth.firstTime")}</strong><br />
+          {t("auth.firstTimeDesc")}
         </div>
 
-        {/* Footer */}
         <div className="mt-auto pt-8 border-t border-border w-full text-center text-[0.67rem] text-muted-foreground leading-relaxed">
-          En vous connectant, vous acceptez nos<br />
-          <Link to="/cgu" className="text-[hsl(var(--gold-light))] hover:opacity-80 transition-opacity">Conditions Générales d'Utilisation</Link>
-          {" "}et notre{" "}
-          <Link to="/confidentialite" className="text-[hsl(var(--gold-light))] hover:opacity-80 transition-opacity">Politique de confidentialité</Link>
+          {t("auth.termsIntro")}<br />
+          <Link to="/cgu" className="text-[hsl(var(--gold-light))] hover:opacity-80 transition-opacity">{t("auth.termsLink")}</Link>
+          {" "}{t("auth.privacyAnd")}{" "}
+          <Link to="/confidentialite" className="text-[hsl(var(--gold-light))] hover:opacity-80 transition-opacity">{t("auth.privacyLink")}</Link>
           <br /><br />
           <strong className="text-secondary-foreground">Grow Hub SARL</strong> · Entreprise de droit sénégalais<br />
           <a href="mailto:plancraftpro@growhubsenegal.com" className="text-[hsl(var(--gold-light))] hover:opacity-80 transition-opacity">
