@@ -54,7 +54,7 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
   const sectionTypeLabel = currentSection.type === "financial"
     ? t("editor.financial")
     : currentSection.type === "swot"
-    ? "Matrice SWOT"
+    ? t("editor.swot")
     : t("editor.narrative");
 
   return (

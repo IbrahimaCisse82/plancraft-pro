@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Share2, Link2, Copy, Check, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/contexts/I18nContext";
 import { toast } from "sonner";
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
 
 const ShareButton = ({ planId }: Props) => {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shareLink, setShareLink] = useState<{ id: string; token: string; is_active: boolean } | null>(null);
@@ -41,10 +43,10 @@ const ShareButton = ({ planId }: Props) => {
       .single();
     setLoading(false);
     if (error) {
-      toast.error("Erreur lors de la création du lien");
+      toast.error(t("share.createError"));
     } else {
       setShareLink(data as any);
-      toast.success("Lien de partage créé !");
+      toast.success(t("share.linkCreated"));
     }
   };
 
@@ -52,7 +54,7 @@ const ShareButton = ({ planId }: Props) => {
     if (!shareLink) return;
     await supabase.from("share_links").delete().eq("id", shareLink.id);
     setShareLink(null);
-    toast.success("Lien de partage supprimé");
+    toast.success(t("share.linkDeleted"));
   };
 
   const getShareUrl = () => {
@@ -63,7 +65,7 @@ const ShareButton = ({ planId }: Props) => {
   const copyLink = () => {
     navigator.clipboard.writeText(getShareUrl());
     setCopied(true);
-    toast.success("Lien copié !");
+    toast.success(t("share.linkCopied"));
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -72,10 +74,10 @@ const ShareButton = ({ planId }: Props) => {
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
-        aria-label="Partager"
+        aria-label={t("share.button")}
       >
         <Share2 className="w-3.5 h-3.5" />
-        <span className="hidden sm:inline">Partager</span>
+        <span className="hidden sm:inline">{t("share.button")}</span>
       </button>
 
       {open && (
@@ -84,13 +86,13 @@ const ShareButton = ({ planId }: Props) => {
           <div className="absolute right-0 top-10 z-50 w-[320px] bg-card border border-border rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.4)] p-4">
             <div className="flex items-center gap-2 mb-3">
               <Link2 className="w-4 h-4 text-primary" />
-              <span className="text-sm font-bold">Partage public</span>
+              <span className="text-sm font-bold">{t("share.title")}</span>
             </div>
 
             {shareLink ? (
               <div className="space-y-3">
                 <p className="text-xs text-muted-foreground">
-                  Toute personne avec ce lien peut consulter votre business plan en lecture seule.
+                  {t("share.description")}
                 </p>
                 <div className="flex items-center gap-2">
                   <input
@@ -111,20 +113,20 @@ const ShareButton = ({ planId }: Props) => {
                   className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors"
                 >
                   <Trash2 className="w-3 h-3" />
-                  Supprimer le lien
+                  {t("share.deleteLink")}
                 </button>
               </div>
             ) : (
               <div className="space-y-3">
                 <p className="text-xs text-muted-foreground">
-                  Créez un lien public pour partager votre business plan en lecture seule.
+                  {t("share.createDesc")}
                 </p>
                 <button
                   onClick={createLink}
                   disabled={loading}
                   className="w-full py-2 bg-primary rounded-lg text-xs font-bold text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50"
                 >
-                  {loading ? "Création…" : "Créer un lien de partage"}
+                  {loading ? t("share.creating") : t("share.createBtn")}
                 </button>
               </div>
             )}

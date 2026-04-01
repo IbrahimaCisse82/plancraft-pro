@@ -2,9 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { Sparkles, Send, X, StopCircle, RotateCcw, Copy, Check } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useAIChat, ChatMessage } from "@/hooks/useAIChat";
+import { useI18n } from "@/contexts/I18nContext";
 import { toast } from "sonner";
 
-/** Strip all Markdown syntax to produce clean plain text */
 const stripMarkdown = (md: string): string => {
   return md
     .replace(/^#{1,6}\s+/gm, "")
@@ -21,6 +21,7 @@ const stripMarkdown = (md: string): string => {
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 };
+
 interface Props {
   sectionTitle: string;
   sectionHint?: string;
@@ -42,6 +43,7 @@ const AIAssistantPanel = ({
   sectionType = "narrative",
   onInsertText,
 }: Props) => {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
@@ -86,30 +88,15 @@ const AIAssistantPanel = ({
   const copyBlock = (text: string, idx: number) => {
     navigator.clipboard.writeText(stripMarkdown(text));
     setCopiedIdx(idx);
-    toast.success("Copié (texte brut) !");
+    toast.success(t("ai.copied"));
     setTimeout(() => setCopiedIdx(null), 2000);
   };
 
   const quickPrompts = sectionType === "financial"
-    ? [
-        "Aide-moi à remplir ce tableau",
-        "Quels montants sont réalistes ?",
-        "Explique chaque ligne du tableau",
-        "Donne un exemple chiffré pour mon secteur",
-      ]
+    ? [t("ai.financial.1"), t("ai.financial.2"), t("ai.financial.3"), t("ai.financial.4")]
     : sectionType === "swot"
-    ? [
-        "Analyse les forces de mon projet",
-        "Identifie les faiblesses possibles",
-        "Quelles opportunités exploiter ?",
-        "Quelles menaces anticiper ?",
-      ]
-    : [
-        "Rédige cette section pour moi",
-        "Améliore le texte existant",
-        "Donne-moi un plan détaillé",
-        "Quels points clés inclure ?",
-      ];
+    ? [t("ai.swot.1"), t("ai.swot.2"), t("ai.swot.3"), t("ai.swot.4")]
+    : [t("ai.narrative.1"), t("ai.narrative.2"), t("ai.narrative.3"), t("ai.narrative.4")];
 
   if (!open) {
     return (
@@ -118,23 +105,22 @@ const AIAssistantPanel = ({
         className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-primary to-[hsl(var(--gold-light))] text-primary-foreground rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all text-sm font-bold"
       >
         <Sparkles className="w-4 h-4" />
-        Assistant IA
+        {t("ai.button")}
       </button>
     );
   }
 
   return (
     <div className="fixed bottom-0 right-0 z-50 w-full sm:w-[420px] h-[70vh] sm:h-[600px] sm:bottom-4 sm:right-4 flex flex-col bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden">
-      {/* Header */}
       <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-primary/10 to-[hsl(var(--gold-light))]/10 border-b border-border shrink-0">
         <Sparkles className="w-4 h-4 text-primary" />
         <span className="text-sm font-bold text-foreground flex-1">
-          Assistant IA — {sectionTitle}
+          {t("ai.title")} — {sectionTitle}
         </span>
         <button
           onClick={() => { reset(); }}
           className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-          title="Nouvelle conversation"
+          title={t("ai.newConversation")}
         >
           <RotateCcw className="w-3.5 h-3.5" />
         </button>
@@ -146,12 +132,11 @@ const AIAssistantPanel = ({
         </button>
       </div>
 
-      {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {messages.length === 0 && (
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground text-center py-2">
-              Je peux vous aider à rédiger cette section. Posez une question ou choisissez un prompt rapide :
+              {t("ai.helpIntro")}
             </p>
             <div className="grid grid-cols-1 gap-1.5">
               {quickPrompts.map((p) => (
@@ -186,17 +171,17 @@ const AIAssistantPanel = ({
                         className="flex items-center gap-1 px-2 py-1 text-[10px] rounded bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {copiedIdx === i ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                        Copier
+                        {t("ai.copy")}
                       </button>
                       {onInsertText && (
                         <button
                           onClick={() => {
                             onInsertText(stripMarkdown(msg.content));
-                            toast.success("Texte inséré dans la section !");
+                            toast.success(t("ai.inserted"));
                           }}
                           className="flex items-center gap-1 px-2 py-1 text-[10px] rounded bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
                         >
-                          Insérer dans la section
+                          {t("ai.insert")}
                         </button>
                       )}
                     </div>
@@ -222,7 +207,6 @@ const AIAssistantPanel = ({
         )}
       </div>
 
-      {/* Input */}
       <div className="px-3 py-3 border-t border-border bg-card shrink-0">
         <div className="flex items-end gap-2">
           <textarea
@@ -230,7 +214,7 @@ const AIAssistantPanel = ({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Posez votre question…"
+            placeholder={t("ai.placeholder")}
             rows={1}
             className="flex-1 resize-none bg-secondary border border-border rounded-lg px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors max-h-20"
           />
@@ -238,7 +222,7 @@ const AIAssistantPanel = ({
             <button
               onClick={stop}
               className="p-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors shrink-0"
-              title="Arrêter"
+              title={t("ai.stop")}
             >
               <StopCircle className="w-4 h-4" />
             </button>
@@ -247,7 +231,7 @@ const AIAssistantPanel = ({
               onClick={handleSend}
               disabled={!input.trim()}
               className="p-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-all disabled:opacity-30 shrink-0"
-              title="Envoyer"
+              title={t("ai.send")}
             >
               <Send className="w-4 h-4" />
             </button>
