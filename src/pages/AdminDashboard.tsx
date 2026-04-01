@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/contexts/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Users, FileText, Eye, Trash2, TrendingUp, BarChart3 } from "lucide-react";
@@ -30,12 +31,15 @@ const PIE_COLORS = ["hsl(43, 55%, 54%)", "hsl(155, 62%, 53%)", "hsl(2, 82%, 60%)
 
 const AdminDashboard = () => {
   const { isAdmin } = useAuth();
+  const { t, lang } = useI18n();
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [plans, setPlans] = useState<BPRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"analytics" | "plans" | "users">("analytics");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const dateLocale = lang === "fr" ? "fr-FR" : "en-US";
 
   useEffect(() => {
     if (!isAdmin) { navigate("/dashboard"); return; }
@@ -54,7 +58,7 @@ const AdminDashboard = () => {
   const handleDeletePlan = async (id: string) => {
     const { error } = await supabase.from("business_plans").delete().eq("id", id);
     if (error) toast.error(error.message);
-    else { setPlans(plans.filter((p) => p.id !== id)); toast.success("Supprimé"); }
+    else { setPlans(plans.filter((p) => p.id !== id)); toast.success(t("admin.deleted")); }
     setDeleteId(null);
   };
 
@@ -63,31 +67,27 @@ const AdminDashboard = () => {
     return u?.display_name || userId.slice(0, 8);
   };
 
-  // Analytics computations
   const analytics = useMemo(() => {
     const avgProgress = plans.length ? Math.round(plans.reduce((s, p) => s + p.progress, 0) / plans.length) : 0;
 
-    // Status distribution
     const statusData = [
-      { name: "Brouillons", value: plans.filter(p => p.statut === "brouillon").length },
-      { name: "Finalisés", value: plans.filter(p => p.statut === "finalise").length },
-      { name: "Archivés", value: plans.filter(p => p.statut === "archive").length },
+      { name: t("admin.drafts"), value: plans.filter(p => p.statut === "brouillon").length },
+      { name: t("admin.finalized"), value: plans.filter(p => p.statut === "finalise").length },
+      { name: t("admin.archived"), value: plans.filter(p => p.statut === "archive").length },
     ].filter(d => d.value > 0);
 
-    // Sector distribution
     const sectorMap: Record<string, number> = {};
-    plans.forEach(p => { const s = p.secteur || "Non défini"; sectorMap[s] = (sectorMap[s] || 0) + 1; });
+    plans.forEach(p => { const s = p.secteur || t("admin.undefined"); sectorMap[s] = (sectorMap[s] || 0) + 1; });
     const sectorData = Object.entries(sectorMap)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 8);
 
-    // Monthly creation (last 6 months)
     const now = new Date();
     const monthlyData = [];
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const month = d.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
+      const month = d.toLocaleDateString(dateLocale, { month: "short", year: "2-digit" });
       const count = plans.filter(p => {
         const pd = new Date(p.created_at);
         return pd.getMonth() === d.getMonth() && pd.getFullYear() === d.getFullYear();
@@ -99,11 +99,10 @@ const AdminDashboard = () => {
       monthlyData.push({ month, plans: count, users: userCount });
     }
 
-    // Completion rate
     const completionRate = plans.length ? Math.round((plans.filter(p => p.statut === "finalise").length / plans.length) * 100) : 0;
 
     return { avgProgress, statusData, sectorData, monthlyData, completionRate };
-  }, [plans, users]);
+  }, [plans, users, t, dateLocale]);
 
   const statusColors: Record<string, string> = {
     brouillon: "bg-secondary text-muted-foreground",
@@ -123,17 +122,16 @@ const AdminDashboard = () => {
       <TopBar showAdmin showDashboard />
 
       <div className="max-w-[1100px] mx-auto px-5 md:px-8 py-10">
-        <h1 className="font-display text-4xl font-bold mb-2">Administration</h1>
-        <p className="text-sm text-muted-foreground mb-8">Vue globale de tous les utilisateurs et business plans.</p>
+        <h1 className="font-display text-4xl font-bold mb-2">{t("admin.title")}</h1>
+        <p className="text-sm text-muted-foreground mb-8">{t("admin.subtitle")}</p>
 
-        {/* Stats cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
           {[
-            { val: users.length, label: "Utilisateurs", icon: <Users className="w-4 h-4" /> },
-            { val: plans.length, label: "Business plans", icon: <FileText className="w-4 h-4" /> },
-            { val: plans.filter(p => p.statut === "finalise").length, label: "Finalisés" },
-            { val: `${analytics.avgProgress}%`, label: "Progression moy." },
-            { val: `${analytics.completionRate}%`, label: "Taux complétion", icon: <TrendingUp className="w-4 h-4" /> },
+            { val: users.length, label: t("admin.users"), icon: <Users className="w-4 h-4" /> },
+            { val: plans.length, label: t("admin.businessPlans"), icon: <FileText className="w-4 h-4" /> },
+            { val: plans.filter(p => p.statut === "finalise").length, label: t("admin.finalized") },
+            { val: `${analytics.avgProgress}%`, label: t("admin.avgProgress") },
+            { val: `${analytics.completionRate}%`, label: t("admin.completionRate"), icon: <TrendingUp className="w-4 h-4" /> },
           ].map((stat) => (
             <div key={stat.label} className="bg-card border border-border rounded-lg p-5">
               <div className="font-display text-3xl font-bold text-[hsl(var(--gold-light))]">{stat.val}</div>
@@ -142,15 +140,14 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-1 mb-6 bg-secondary p-1 rounded-lg w-fit">
           {([
-            { key: "analytics" as const, label: "Analytiques", icon: <BarChart3 className="w-3.5 h-3.5 inline mr-1.5" /> },
-            { key: "plans" as const, label: "Business Plans", icon: <FileText className="w-3.5 h-3.5 inline mr-1.5" /> },
-            { key: "users" as const, label: "Utilisateurs", icon: <Users className="w-3.5 h-3.5 inline mr-1.5" /> },
-          ]).map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)} className={`px-4 py-2 rounded-md text-xs font-bold transition-all ${tab === t.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
-              {t.icon}{t.label}
+            { key: "analytics" as const, label: t("admin.analytics"), icon: <BarChart3 className="w-3.5 h-3.5 inline mr-1.5" /> },
+            { key: "plans" as const, label: t("admin.businessPlans"), icon: <FileText className="w-3.5 h-3.5 inline mr-1.5" /> },
+            { key: "users" as const, label: t("admin.users"), icon: <Users className="w-3.5 h-3.5 inline mr-1.5" /> },
+          ]).map(tabItem => (
+            <button key={tabItem.key} onClick={() => setTab(tabItem.key)} className={`px-4 py-2 rounded-md text-xs font-bold transition-all ${tab === tabItem.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+              {tabItem.icon}{tabItem.label}
             </button>
           ))}
         </div>
@@ -160,9 +157,8 @@ const AdminDashboard = () => {
         ) : tab === "analytics" ? (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Monthly creation chart */}
               <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="text-sm font-bold mb-4">📈 Créations mensuelles</h3>
+                <h3 className="text-sm font-bold mb-4">{t("admin.monthlyCreations")}</h3>
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={analytics.monthlyData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 100% / 0.05)" />
@@ -170,14 +166,13 @@ const AdminDashboard = () => {
                     <YAxis tick={{ fontSize: 10, fill: "hsl(30, 7%, 40%)" }} allowDecimals={false} />
                     <Tooltip contentStyle={tooltipStyle} labelStyle={{ color: "hsl(36, 20%, 93%)" }} />
                     <Bar dataKey="plans" name="Business Plans" fill="hsl(43, 55%, 54%)" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="users" name="Utilisateurs" fill="hsl(155, 62%, 53%)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="users" name={t("admin.users")} fill="hsl(155, 62%, 53%)" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
 
-              {/* Status pie chart */}
               <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="text-sm font-bold mb-4">📊 Répartition par statut</h3>
+                <h3 className="text-sm font-bold mb-4">{t("admin.statusDistribution")}</h3>
                 {analytics.statusData.length > 0 ? (
                   <ResponsiveContainer width="100%" height={220}>
                     <PieChart>
@@ -199,15 +194,14 @@ const AdminDashboard = () => {
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-16">Aucune donnée</p>
+                  <p className="text-sm text-muted-foreground text-center py-16">{t("admin.noData")}</p>
                 )}
               </div>
             </div>
 
-            {/* Sector distribution */}
             {analytics.sectorData.length > 0 && (
               <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="text-sm font-bold mb-4">🏢 Répartition par secteur</h3>
+                <h3 className="text-sm font-bold mb-4">{t("admin.sectorDistribution")}</h3>
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={analytics.sectorData} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 100% / 0.05)" />
@@ -225,12 +219,12 @@ const AdminDashboard = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-secondary text-xs text-muted-foreground uppercase tracking-wider">
-                  <th className="text-left px-4 py-3">Nom</th>
-                  <th className="text-left px-4 py-3">Utilisateur</th>
-                  <th className="text-left px-4 py-3 hidden md:table-cell">Secteur</th>
-                  <th className="text-center px-4 py-3">Progrès</th>
-                  <th className="text-center px-4 py-3">Statut</th>
-                  <th className="text-right px-4 py-3">Actions</th>
+                  <th className="text-left px-4 py-3">{t("admin.name")}</th>
+                  <th className="text-left px-4 py-3">{t("admin.user")}</th>
+                  <th className="text-left px-4 py-3 hidden md:table-cell">{t("admin.sectorCol")}</th>
+                  <th className="text-center px-4 py-3">{t("admin.progress")}</th>
+                  <th className="text-center px-4 py-3">{t("admin.status")}</th>
+                  <th className="text-right px-4 py-3">{t("admin.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -261,8 +255,8 @@ const AdminDashboard = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-secondary text-xs text-muted-foreground uppercase tracking-wider">
-                  <th className="text-left px-4 py-3">Nom</th>
-                  <th className="text-left px-4 py-3">Date d'inscription</th>
+                  <th className="text-left px-4 py-3">{t("admin.name")}</th>
+                  <th className="text-left px-4 py-3">{t("admin.registrationDate")}</th>
                   <th className="text-center px-4 py-3">Business Plans</th>
                 </tr>
               </thead>
@@ -276,7 +270,7 @@ const AdminDashboard = () => {
                       {u.display_name || "—"}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground text-xs">
-                      {new Date(u.created_at).toLocaleDateString("fr-FR")}
+                      {new Date(u.created_at).toLocaleDateString(dateLocale)}
                     </td>
                     <td className="px-4 py-3 text-center text-xs">
                       {plans.filter((p) => p.user_id === u.user_id).length}
@@ -292,9 +286,9 @@ const AdminDashboard = () => {
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={(open) => !open && setDeleteId(null)}
-        title="Supprimer ce business plan ?"
-        description="Cette action est irréversible."
-        confirmLabel="Supprimer"
+        title={t("common.confirmDelete")}
+        description={t("common.irreversible")}
+        confirmLabel={t("common.deleteConfirm")}
         variant="destructive"
         onConfirm={() => { if (deleteId) handleDeletePlan(deleteId); }}
       />

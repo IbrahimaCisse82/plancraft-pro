@@ -266,7 +266,7 @@ const Dashboard = () => {
                   <option>Industrie / Manufacture</option>
                   <option>Énergie</option>
                   <option>Immobilier</option>
-                  <option>{lang === "fr" ? "Autre" : "Other"}</option>
+                  <option>{t("dashboard.other")}</option>
                 </select>
               </div>
               <div>
