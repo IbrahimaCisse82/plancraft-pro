@@ -252,7 +252,7 @@ const Dashboard = () => {
                   onChange={(e) => setNewSecteur(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground outline-none focus:border-primary transition-colors"
                 >
-                  <option value="">— {lang === "fr" ? "Sélectionner un secteur" : "Select a sector"} —</option>
+                  <option value="">— {t("dashboard.selectSector")} —</option>
                   <option>Agroalimentaire</option>
                   <option>Commerce</option>
                   <option>Services</option>
