@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Search, Check } from "lucide-react";
 import { BP_SECTIONS } from "@/components/editor/sectionConfig";
+import { useI18n } from "@/contexts/I18nContext";
 import type { BPContent } from "@/types/businessPlan";
 
 interface Props {
@@ -12,6 +13,8 @@ interface Props {
 }
 
 const EditorSidebar = ({ content, activeSection, sidebarSearch, onSearchChange, onSelectSection }: Props) => {
+  const { t } = useI18n();
+
   const filledCount = BP_SECTIONS.filter((s) => {
     const val = content[s.id];
     if (!val) return false;
@@ -54,13 +57,13 @@ const EditorSidebar = ({ content, activeSection, sidebarSearch, onSearchChange, 
           type="text"
           value={sidebarSearch}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Rechercher dans le plan…"
+          placeholder={t("editor.searchPlan")}
           className="w-full pl-8 pr-3 py-1.5 bg-secondary border border-border rounded-lg text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
         />
       </div>
       <div className="flex items-center justify-between mb-3">
         <span className="text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">
-          Sections ({filledCount}/{BP_SECTIONS.length})
+          {t("editor.sections")} ({filledCount}/{BP_SECTIONS.length})
         </span>
         <span className="text-[0.6rem] text-primary font-bold">
           {Math.round((filledCount / BP_SECTIONS.length) * 100)}%

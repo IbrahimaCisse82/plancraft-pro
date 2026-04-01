@@ -1,41 +1,10 @@
 import { useState, useEffect } from "react";
 import { X, ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/contexts/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 
-interface Step {
-  title: string;
-  description: string;
-  icon: string;
-}
-
-const STEPS: Step[] = [
-  {
-    title: "Bienvenue sur PlanCraft Pro ! 🎉",
-    description: "Créez des business plans professionnels en quelques minutes grâce à notre éditeur intelligent.",
-    icon: "🚀",
-  },
-  {
-    title: "Créez votre premier plan",
-    description: "Cliquez sur « + Nouveau Business Plan » pour démarrer. Choisissez un nom, un secteur et une devise.",
-    icon: "📋",
-  },
-  {
-    title: "19 sections structurées",
-    description: "Parcourez les sections narratives, financières et SWOT. Les tableaux financiers calculent automatiquement les totaux.",
-    icon: "📊",
-  },
-  {
-    title: "Assistant IA intégré",
-    description: "L'assistant IA vous aide à rédiger chaque section. Posez-lui des questions ou demandez-lui de générer du contenu.",
-    icon: "🤖",
-  },
-  {
-    title: "Exportez et partagez",
-    description: "Exportez en PDF, Word ou Excel. Partagez un lien public en lecture seule avec vos partenaires.",
-    icon: "📤",
-  },
-];
+const STEP_ICONS = ["🚀", "📋", "📊", "🤖", "📤"];
 
 interface Props {
   forceShow?: boolean;
@@ -43,8 +12,17 @@ interface Props {
 
 const OnboardingTour = ({ forceShow = false }: Props) => {
   const { user, profile } = useAuth();
+  const { t } = useI18n();
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(0);
+
+  const steps = [
+    { title: t("onboarding.step1.title"), description: t("onboarding.step1.desc"), icon: STEP_ICONS[0] },
+    { title: t("onboarding.step2.title"), description: t("onboarding.step2.desc"), icon: STEP_ICONS[1] },
+    { title: t("onboarding.step3.title"), description: t("onboarding.step3.desc"), icon: STEP_ICONS[2] },
+    { title: t("onboarding.step4.title"), description: t("onboarding.step4.desc"), icon: STEP_ICONS[3] },
+    { title: t("onboarding.step5.title"), description: t("onboarding.step5.desc"), icon: STEP_ICONS[4] },
+  ];
 
   useEffect(() => {
     if (forceShow) {
@@ -52,7 +30,6 @@ const OnboardingTour = ({ forceShow = false }: Props) => {
       setStep(0);
       return;
     }
-    // Show only if profile loaded and onboarding not done
     if (profile && !(profile as any).onboarding_done) {
       const t = setTimeout(() => setVisible(true), 800);
       return () => clearTimeout(t);
@@ -61,7 +38,6 @@ const OnboardingTour = ({ forceShow = false }: Props) => {
 
   const dismiss = async () => {
     setVisible(false);
-    // Persist in DB
     if (user) {
       await supabase
         .from("profiles")
@@ -71,7 +47,7 @@ const OnboardingTour = ({ forceShow = false }: Props) => {
   };
 
   const next = () => {
-    if (step < STEPS.length - 1) setStep(step + 1);
+    if (step < steps.length - 1) setStep(step + 1);
     else dismiss();
   };
 
@@ -81,36 +57,33 @@ const OnboardingTour = ({ forceShow = false }: Props) => {
 
   if (!visible) return null;
 
-  const current = STEPS[step];
+  const current = steps[step];
 
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-background/80 backdrop-blur-sm">
       <div className="bg-card border border-border rounded-2xl w-[480px] max-w-[95vw] shadow-[0_24px_80px_rgba(0,0,0,0.6)] overflow-hidden">
-        {/* Progress bar */}
         <div className="h-1 bg-secondary">
           <div
             className="h-full bg-gradient-to-r from-primary to-[hsl(var(--gold-light))] transition-all duration-300"
-            style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+            style={{ width: `${((step + 1) / steps.length) * 100}%` }}
           />
         </div>
 
         <div className="p-8">
-          {/* Close button */}
           <div className="flex justify-between items-start mb-6">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Sparkles className="w-3.5 h-3.5 text-primary" />
-              <span>Étape {step + 1} / {STEPS.length}</span>
+              <span>{t("onboarding.step", { current: String(step + 1), total: String(steps.length) })}</span>
             </div>
             <button
               onClick={dismiss}
               className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-              aria-label="Fermer"
+              aria-label={t("onboarding.close")}
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Content */}
           <div className="text-center">
             <div className="text-5xl mb-4">{current.icon}</div>
             <h3 className="font-display text-2xl font-bold mb-3">{current.title}</h3>
@@ -119,7 +92,6 @@ const OnboardingTour = ({ forceShow = false }: Props) => {
             </p>
           </div>
 
-          {/* Navigation */}
           <div className="flex items-center justify-between mt-8">
             <button
               onClick={prev}
@@ -127,11 +99,11 @@ const OnboardingTour = ({ forceShow = false }: Props) => {
               className="flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-semibold text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
-              Précédent
+              {t("onboarding.previous")}
             </button>
 
             <div className="flex gap-1.5">
-              {STEPS.map((_, i) => (
+              {steps.map((_, i) => (
                 <div
                   key={i}
                   className={`w-2 h-2 rounded-full transition-all ${i === step ? "bg-primary w-5" : "bg-secondary"}`}
@@ -143,7 +115,7 @@ const OnboardingTour = ({ forceShow = false }: Props) => {
               onClick={next}
               className="flex items-center gap-1 px-5 py-2 bg-primary rounded-lg text-xs font-bold text-primary-foreground hover:opacity-90 transition-all"
             >
-              {step === STEPS.length - 1 ? "Commencer" : "Suivant"}
+              {step === steps.length - 1 ? t("onboarding.start") : t("onboarding.next")}
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>

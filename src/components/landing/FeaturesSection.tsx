@@ -1,16 +1,18 @@
 import { useEffect, useRef } from "react";
-
-const features = [
-  { icon: "✦", title: "Génération IA section par section", desc: "L'IA rédige la vision, la stratégie, l'analyse de marché et les risques en fonction de votre secteur et contexte réel." },
-  { icon: "📊", title: "11 tableaux financiers automatiques", desc: "Plan de financement, compte d'exploitation 5 ans, flux de trésorerie, VAN/TRI, bilan prévisionnel — tout calculé et lié." },
-  { icon: "💹", title: "Calculs financiers rigoureux", desc: "TRI Newton-Raphson, VAN au CMPC, BFR réel, trésorerie mensuelle et trimestrielle. Pas d'approximations." },
-  { icon: "📄", title: "Export Word & PDF professionnel", desc: "Document complet avec table des matières, numérotation, page de garde — prêt à remettre à la banque." },
-  { icon: "📋", title: "Fiche synthèse banquier", desc: "Vue condensée avec tous les ratios clés, verdicts ✓/✗ et note méthodologique — ce que le banquier lit en 30 secondes." },
-  { icon: "💾", title: "Multi-projets dans le cloud", desc: "Créez et gérez plusieurs business plans depuis n'importe quel appareil. Vos données sont sécurisées et accessibles partout." },
-];
+import { useI18n } from "@/contexts/I18nContext";
 
 const FeaturesSection = () => {
+  const { t } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
+
+  const features = [
+    { icon: "✦", title: t("features.1.title"), desc: t("features.1.desc") },
+    { icon: "📊", title: t("features.2.title"), desc: t("features.2.desc") },
+    { icon: "💹", title: t("features.3.title"), desc: t("features.3.desc") },
+    { icon: "📄", title: t("features.4.title"), desc: t("features.4.desc") },
+    { icon: "📋", title: t("features.5.title"), desc: t("features.5.desc") },
+    { icon: "💾", title: t("features.6.title"), desc: t("features.6.desc") },
+  ];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -23,12 +25,12 @@ const FeaturesSection = () => {
 
   return (
     <section id="fonctionnalites" className="py-24 px-5 md:px-12 max-w-[1200px] mx-auto" ref={ref}>
-      <div className="text-[0.68rem] font-bold text-gold-light uppercase tracking-[2px] mb-3">Fonctionnalités</div>
-      <h2 className="font-display text-[clamp(2rem,4vw,3.2rem)] font-bold leading-tight mb-4">
-        Tout ce dont vous avez<br />besoin pour convaincre
+      <div className="text-[0.68rem] font-bold text-gold-light uppercase tracking-[2px] mb-3">{t("features.label")}</div>
+      <h2 className="font-display text-[clamp(2rem,4vw,3.2rem)] font-bold leading-tight mb-4 whitespace-pre-line">
+        {t("features.heading")}
       </h2>
       <p className="text-sm text-secondary-foreground max-w-[520px] leading-relaxed">
-        De la rédaction assistée aux tableaux financiers automatiques — PlanCraft Pro couvre chaque étape du dossier bancaire.
+        {t("features.subtitle")}
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-16">

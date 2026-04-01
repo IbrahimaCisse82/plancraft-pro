@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/contexts/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import TopBar from "@/components/shared/TopBar";
@@ -8,11 +9,11 @@ import { profileSchema } from "@/lib/validation";
 
 const ProfilePage = () => {
   const { user, profile, refreshProfile, loading } = useAuth();
+  const { t } = useI18n();
   const [displayName, setDisplayName] = useState(profile?.display_name || "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Sync display name when profile loads after mount
   useEffect(() => {
     if (profile?.display_name && !displayName) {
       setDisplayName(profile.display_name);
@@ -39,9 +40,9 @@ const ProfilePage = () => {
       .eq("user_id", user.id);
     setSaving(false);
     if (dbError) {
-      toast.error("Erreur : " + dbError.message);
+      toast.error(t("profile.error") + dbError.message);
     } else {
-      toast.success("Profil mis à jour !");
+      toast.success(t("profile.saved"));
       await refreshProfile();
     }
   };
@@ -53,7 +54,7 @@ const ProfilePage = () => {
       <TopBar showHome showDashboard />
 
       <div className="max-w-lg mx-auto px-5 py-12">
-        <h1 className="font-display text-3xl font-bold mb-8">Mon Profil</h1>
+        <h1 className="font-display text-3xl font-bold mb-8">{t("profile.title")}</h1>
 
         <div className="flex items-center gap-4 mb-8">
           <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold">
@@ -68,13 +69,13 @@ const ProfilePage = () => {
         <form onSubmit={handleSave} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-secondary-foreground mb-1.5">
-              Nom d'affichage
+              {t("profile.displayName")}
             </label>
             <input
               type="text"
               value={displayName}
               onChange={(e) => { setDisplayName(e.target.value); setError(""); }}
-              placeholder="Votre nom"
+              placeholder={t("profile.namePlaceholder")}
               maxLength={100}
               className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
             />
@@ -82,14 +83,14 @@ const ProfilePage = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-secondary-foreground mb-1.5">Email</label>
+            <label className="block text-xs font-bold text-secondary-foreground mb-1.5">{t("profile.emailLabel")}</label>
             <input
               type="email"
               value={user?.email || ""}
               disabled
               className="w-full px-3.5 py-2.5 bg-secondary/50 border border-border rounded-lg text-sm text-muted-foreground cursor-not-allowed"
             />
-            <p className="text-[0.65rem] text-muted-foreground mt-1">L'email ne peut pas être modifié.</p>
+            <p className="text-[0.65rem] text-muted-foreground mt-1">{t("profile.emailHint")}</p>
           </div>
 
           <button
@@ -97,7 +98,7 @@ const ProfilePage = () => {
             disabled={saving || !displayName.trim()}
             className="px-6 py-2.5 bg-primary rounded-lg text-sm font-bold text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50"
           >
-            {saving ? "Sauvegarde…" : "Sauvegarder"}
+            {saving ? t("profile.saving") : t("profile.save")}
           </button>
         </form>
       </div>
