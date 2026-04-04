@@ -1,14 +1,20 @@
 import jsPDF from "jspdf";
-import { BP_SECTIONS } from "@/components/editor/sectionConfig";
+import { BP_SECTIONS, resolveSection } from "@/components/editor/sectionConfig";
 import { isComputedRow } from "@/lib/financialFormulas";
 import type { BusinessPlan } from "@/types/businessPlan";
 
-export const exportBusinessPlanPDF = (plan: BusinessPlan, content: Record<string, any>) => {
+export const exportBusinessPlanPDF = (
+  plan: BusinessPlan,
+  content: Record<string, any>,
+  t?: (key: string) => string
+) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
   const maxWidth = pageWidth - margin * 2;
   let y = 20;
+
+  const label = (key: string, fallback: string) => t ? t(key) : fallback;
 
   const addPage = () => {
     doc.addPage();
@@ -38,10 +44,11 @@ export const exportBusinessPlanPDF = (plan: BusinessPlan, content: Record<string
 
   y += 10;
   doc.setFontSize(10);
-  doc.text(`Devise : ${plan.devise}`, pageWidth / 2, y, { align: "center" });
+  doc.text(`${label("export.currency", "Devise")} : ${plan.devise}`, pageWidth / 2, y, { align: "center" });
 
   y += 8;
-  doc.text(`Généré le ${new Date().toLocaleDateString("fr-FR")}`, pageWidth / 2, y, { align: "center" });
+  const dateStr = new Date().toLocaleDateString("fr-FR");
+  doc.text(`${label("export.generatedOn", "Généré le")} ${dateStr}`, pageWidth / 2, y, { align: "center" });
 
   doc.setTextColor(0, 0, 0);
 
@@ -50,12 +57,14 @@ export const exportBusinessPlanPDF = (plan: BusinessPlan, content: Record<string
     const val = content[section.id];
     if (!val) return;
 
+    const resolved = t ? resolveSection(section, t) : { title: section.titleKey };
+
     addPage();
 
     // Section title
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text(`${section.icon} ${section.title}`, margin, y);
+    doc.text(`${section.icon} ${resolved.title}`, margin, y);
     y += 10;
 
     doc.setDrawColor(200, 180, 120);
@@ -82,7 +91,7 @@ export const exportBusinessPlanPDF = (plan: BusinessPlan, content: Record<string
       doc.setFont("helvetica", "bold");
       doc.setFillColor(245, 240, 224);
       doc.rect(margin, y - 3, maxWidth, 8, "F");
-      doc.text("Poste", margin + 1, y + 2);
+      doc.text(label("export.post", "Poste"), margin + 1, y + 2);
       columns.forEach((col, i) => {
         doc.text(col, margin + 62 + i * colWidth, y + 2);
       });
@@ -94,7 +103,6 @@ export const exportBusinessPlanPDF = (plan: BusinessPlan, content: Record<string
         checkPageBreak(8);
 
         if (isSeparator(row)) {
-          // Render as section header
           doc.setFont("helvetica", "bold");
           doc.setFontSize(8);
           doc.setFillColor(235, 235, 235);
@@ -132,10 +140,10 @@ export const exportBusinessPlanPDF = (plan: BusinessPlan, content: Record<string
     } else if (section.type === "swot" && typeof val === "object") {
       doc.setFontSize(10);
       const quadrants = [
-        { key: "forces", label: "Forces" },
-        { key: "faiblesses", label: "Faiblesses" },
-        { key: "opportunites", label: "Opportunités" },
-        { key: "menaces", label: "Menaces" },
+        { key: "forces", label: t ? t("swot.strengths") : "Forces" },
+        { key: "faiblesses", label: t ? t("swot.weaknesses") : "Faiblesses" },
+        { key: "opportunites", label: t ? t("swot.opportunities") : "Opportunités" },
+        { key: "menaces", label: t ? t("swot.threats") : "Menaces" },
       ];
 
       quadrants.forEach((q) => {

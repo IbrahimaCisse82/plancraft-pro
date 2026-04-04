@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Search, Check } from "lucide-react";
-import { BP_SECTIONS } from "@/components/editor/sectionConfig";
+import { BP_SECTIONS, resolveSection } from "@/components/editor/sectionConfig";
 import { useI18n } from "@/contexts/I18nContext";
 import type { BPContent } from "@/types/businessPlan";
 
@@ -28,7 +28,8 @@ const EditorSidebar = ({ content, activeSection, sidebarSearch, onSearchChange, 
     const q = sidebarSearch.toLowerCase();
     const matches = new Set<string>();
     BP_SECTIONS.forEach((section) => {
-      if (section.title.toLowerCase().includes(q)) {
+      const title = resolveSection(section, t).title;
+      if (title.toLowerCase().includes(q)) {
         matches.add(section.id);
         return;
       }
@@ -43,7 +44,7 @@ const EditorSidebar = ({ content, activeSection, sidebarSearch, onSearchChange, 
       }
     });
     return matches;
-  }, [sidebarSearch, content]);
+  }, [sidebarSearch, content, t]);
 
   const filteredSections = sidebarSearch.trim()
     ? BP_SECTIONS.filter((s) => searchMatchingSections.has(s.id))
@@ -97,7 +98,7 @@ const EditorSidebar = ({ content, activeSection, sidebarSearch, onSearchChange, 
               }`}
             >
               <span className="text-base shrink-0">{section.icon}</span>
-              <span className="truncate font-medium">{section.title}</span>
+              <span className="truncate font-medium">{resolveSection(section, t).title}</span>
               {isFilled && <Check className="w-3 h-3 text-success ml-auto shrink-0" />}
             </button>
           );

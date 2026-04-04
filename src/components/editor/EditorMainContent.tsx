@@ -1,4 +1,4 @@
-import { BP_SECTIONS, SectionConfig } from "@/components/editor/sectionConfig";
+import { BP_SECTIONS, resolveSection } from "@/components/editor/sectionConfig";
 import { useI18n } from "@/contexts/I18nContext";
 import NarrativeSection from "@/components/editor/NarrativeSection";
 import FinancialSection from "@/components/editor/FinancialSection";
@@ -20,32 +20,37 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
   const { t } = useI18n();
   const currentSection = BP_SECTIONS.find((s) => s.id === activeSection)!;
   const currentIdx = BP_SECTIONS.findIndex((s) => s.id === activeSection);
+  const resolved = resolveSection(currentSection, t);
 
-  const renderSection = (section: SectionConfig) => {
-    switch (section.type) {
+  const renderSection = () => {
+    switch (currentSection.type) {
       case "narrative":
         return (
           <NarrativeSection
-            section={section}
-            value={content[section.id] || ""}
-            onChange={(val) => onSectionChange(section.id, val)}
+            section={currentSection}
+            value={content[currentSection.id] || ""}
+            onChange={(val) => onSectionChange(currentSection.id, val)}
+            hint={resolved.hint}
+            placeholder={resolved.placeholder}
           />
         );
       case "financial":
         return (
           <FinancialSection
-            section={section}
-            value={content[section.id] || {}}
-            onChange={(val) => onSectionChange(section.id, val)}
+            section={currentSection}
+            value={content[currentSection.id] || {}}
+            onChange={(val) => onSectionChange(currentSection.id, val)}
             devise={plan.devise}
+            hint={resolved.hint}
           />
         );
       case "swot":
         return (
           <SwotSection
-            section={section}
-            value={content[section.id] || { forces: "", faiblesses: "", opportunites: "", menaces: "" }}
-            onChange={(val) => onSectionChange(section.id, val)}
+            section={currentSection}
+            value={content[currentSection.id] || { forces: "", faiblesses: "", opportunites: "", menaces: "" }}
+            onChange={(val) => onSectionChange(currentSection.id, val)}
+            hint={resolved.hint}
           />
         );
     }
@@ -57,6 +62,9 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
     ? t("editor.swot")
     : t("editor.narrative");
 
+  const prevSection = currentIdx > 0 ? BP_SECTIONS[currentIdx - 1] : null;
+  const nextSection = currentIdx < BP_SECTIONS.length - 1 ? BP_SECTIONS[currentIdx + 1] : null;
+
   return (
     <>
       <main className="flex-1 overflow-y-auto">
@@ -64,7 +72,7 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-2">
               <span className="text-2xl">{currentSection.icon}</span>
-              <h2 className="font-display text-xl sm:text-2xl font-bold">{currentSection.title}</h2>
+              <h2 className="font-display text-xl sm:text-2xl font-bold">{resolved.title}</h2>
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="uppercase tracking-wider font-bold">
@@ -75,25 +83,25 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
             </div>
           </div>
 
-          {renderSection(currentSection)}
+          {renderSection()}
 
           <div className="flex justify-between mt-8 pt-6 border-t border-border">
-            {currentIdx > 0 ? (
+            {prevSection ? (
               <button
-                onClick={() => onNavigate(BP_SECTIONS[currentIdx - 1].id)}
+                onClick={() => onNavigate(prevSection.id)}
                 className="px-3 sm:px-4 py-2 bg-secondary border border-border rounded-lg text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
               >
-                ← <span className="hidden sm:inline">{BP_SECTIONS[currentIdx - 1].title}</span>
+                ← <span className="hidden sm:inline">{resolveSection(prevSection, t).title}</span>
                 <span className="sm:hidden">{t("editor.previous")}</span>
               </button>
             ) : <div />}
 
-            {currentIdx < BP_SECTIONS.length - 1 ? (
+            {nextSection ? (
               <button
-                onClick={() => onNavigate(BP_SECTIONS[currentIdx + 1].id)}
+                onClick={() => onNavigate(nextSection.id)}
                 className="px-3 sm:px-4 py-2 bg-primary rounded-lg text-xs font-bold text-primary-foreground hover:opacity-90 transition-all"
               >
-                <span className="hidden sm:inline">{BP_SECTIONS[currentIdx + 1].title}</span>
+                <span className="hidden sm:inline">{resolveSection(nextSection, t).title}</span>
                 <span className="sm:hidden">{t("editor.next")}</span> →
               </button>
             ) : (
@@ -110,8 +118,8 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
 
       <AIAssistantPanel
         key={currentSection.id}
-        sectionTitle={currentSection.title}
-        sectionHint={currentSection.hint}
+        sectionTitle={resolved.title}
+        sectionHint={resolved.hint}
         currentContent={
           currentSection.type === "narrative"
             ? content[currentSection.id] || ""

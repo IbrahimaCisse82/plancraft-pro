@@ -1,22 +1,27 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { SectionConfig } from "./sectionConfig";
 import FinancialChart from "./FinancialChart";
 import { applyFormulas, isComputedRow } from "@/lib/financialFormulas";
+import { useI18n } from "@/contexts/I18nContext";
 
 interface Props {
   section: SectionConfig;
   value: Record<string, Record<string, string>>;
   onChange: (value: Record<string, Record<string, string>>) => void;
   devise: string;
+  hint?: string;
 }
 
 const formatNumber = (val: string): string => {
   return val.replace(/[^\d-]/g, "");
 };
 
-const FinancialSection = ({ section, value, onChange, devise }: Props) => {
+const FinancialSection = ({ section, value, onChange, devise, hint }: Props) => {
+  const { t } = useI18n();
   const rows = section.rows || [];
   const columns = section.columns || [];
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
 
   // Apply formulas to get computed values
   const computedData = useMemo(
@@ -26,9 +31,8 @@ const FinancialSection = ({ section, value, onChange, devise }: Props) => {
 
   // Sync computed values back to parent when inputs change
   useEffect(() => {
-    const formulaKeys = Object.keys(computedData);
     let hasChanges = false;
-    for (const row of formulaKeys) {
+    for (const row of Object.keys(computedData)) {
       if (!isComputedRow(section.id, row)) continue;
       for (const col of columns) {
         if (computedData[row]?.[col] !== value[row]?.[col]) {
@@ -39,9 +43,9 @@ const FinancialSection = ({ section, value, onChange, devise }: Props) => {
       if (hasChanges) break;
     }
     if (hasChanges) {
-      onChange(computedData);
+      onChangeRef.current(computedData);
     }
-  }, [computedData]);
+  }, [computedData, section.id, columns, value]);
 
   const handleCell = (row: string, col: string, cellValue: string) => {
     const sanitized = formatNumber(cellValue);
@@ -67,9 +71,9 @@ const FinancialSection = ({ section, value, onChange, devise }: Props) => {
 
   return (
     <div>
-      {section.hint && (
+      {hint && (
         <div className="mb-4 px-4 py-3 bg-primary/5 border border-primary/10 rounded-lg text-xs text-muted-foreground leading-relaxed">
-          💡 {section.hint}
+          💡 {hint}
         </div>
       )}
       <div className="overflow-x-auto border border-border rounded-lg">
@@ -77,11 +81,11 @@ const FinancialSection = ({ section, value, onChange, devise }: Props) => {
           <thead>
             <tr className="bg-secondary">
               <th className="text-left px-3 py-2.5 text-xs font-bold text-secondary-foreground border-b border-border min-w-[180px] sticky left-0 bg-secondary z-10">
-                Poste
+                {t("editor.post")}
               </th>
               {columns.map((col) => (
                 <th key={col} className="text-right px-3 py-2.5 text-xs font-bold text-secondary-foreground border-b border-border min-w-[100px]">
-                  {col} {currencySymbol && !["Effectif", "Taux de marge (%)", "Durée (années)", "Taux d'intérêt (%)"].includes(col) ? `(${currencySymbol})` : ""}
+                  {col} {currencySymbol && !["Effectif", "Taux de marge (%)", "Durée (années)", "Taux d'intérêt (%)", "Salaire mensuel"].includes(col) ? `(${currencySymbol})` : ""}
                 </th>
               ))}
             </tr>
@@ -118,7 +122,7 @@ const FinancialSection = ({ section, value, onChange, devise }: Props) => {
                     {row}
                     {computed && (
                       <span className="ml-1.5 text-[0.6rem] text-muted-foreground font-normal">
-                        (auto)
+                        {t("editor.auto")}
                       </span>
                     )}
                   </td>

@@ -2,11 +2,11 @@ export type SectionType = "narrative" | "financial" | "swot";
 
 export interface SectionConfig {
   id: string;
-  title: string;
+  titleKey: string;
   icon: string;
   type: SectionType;
-  placeholder?: string;
-  hint?: string;
+  placeholderKey?: string;
+  hintKey?: string;
   fields?: FinancialField[];
   rows?: string[];
   columns?: string[];
@@ -18,85 +18,86 @@ export interface FinancialField {
   type: "number" | "text";
 }
 
+// Translation keys are in I18nContext — titles/hints/placeholders are resolved at render time
 export const BP_SECTIONS: SectionConfig[] = [
   {
     id: "resume",
-    title: "Résumé exécutif",
+    titleKey: "section.resume.title",
     icon: "📝",
     type: "narrative",
-    placeholder: "Décrivez votre projet en quelques paragraphes clés…",
-    hint: "C'est la section la plus lue par les investisseurs. Résumez votre projet, votre marché cible, votre avantage concurrentiel et vos besoins de financement.",
+    placeholderKey: "section.resume.placeholder",
+    hintKey: "section.resume.hint",
   },
   {
     id: "presentation",
-    title: "Présentation du projet",
+    titleKey: "section.presentation.title",
     icon: "🎯",
     type: "narrative",
-    placeholder: "Décrivez votre projet, sa vision, sa mission et ses objectifs…",
-    hint: "Incluez : nom du projet, forme juridique, localisation, date de création prévue, vision et mission.",
+    placeholderKey: "section.presentation.placeholder",
+    hintKey: "section.presentation.hint",
   },
   {
     id: "promoteur",
-    title: "Présentation du promoteur",
+    titleKey: "section.promoteur.title",
     icon: "👤",
     type: "narrative",
-    placeholder: "Présentez le(s) porteur(s) de projet, leur parcours et motivations…",
-    hint: "Parcours professionnel, compétences clés, motivation, rôle dans le projet.",
+    placeholderKey: "section.promoteur.placeholder",
+    hintKey: "section.promoteur.hint",
   },
   {
     id: "marche",
-    title: "Étude de marché",
+    titleKey: "section.marche.title",
     icon: "📊",
     type: "narrative",
-    placeholder: "Analysez votre marché : taille, tendances, segmentation, clients cibles…",
-    hint: "Taille du marché, tendances, segmentation clients, comportement d'achat, réglementation.",
+    placeholderKey: "section.marche.placeholder",
+    hintKey: "section.marche.hint",
   },
   {
     id: "concurrence",
-    title: "Analyse de la concurrence",
+    titleKey: "section.concurrence.title",
     icon: "⚔️",
     type: "narrative",
-    placeholder: "Identifiez vos concurrents directs et indirects, leurs forces et faiblesses…",
-    hint: "Concurrents directs/indirects, parts de marché, positionnement, avantages concurrentiels.",
+    placeholderKey: "section.concurrence.placeholder",
+    hintKey: "section.concurrence.hint",
   },
   {
     id: "strategie_commerciale",
-    title: "Stratégie commerciale",
+    titleKey: "section.strategie_commerciale.title",
     icon: "💼",
     type: "narrative",
-    placeholder: "Décrivez votre offre de produits/services, votre politique de prix…",
-    hint: "Offre produits/services, politique de prix, canaux de distribution, force de vente.",
+    placeholderKey: "section.strategie_commerciale.placeholder",
+    hintKey: "section.strategie_commerciale.hint",
   },
   {
     id: "marketing",
-    title: "Stratégie marketing",
+    titleKey: "section.marketing.title",
     icon: "📣",
     type: "narrative",
-    placeholder: "Détaillez votre plan marketing : communication, promotion, branding…",
-    hint: "Mix marketing (4P), stratégie de communication, budget marketing, actions prévues.",
+    placeholderKey: "section.marketing.placeholder",
+    hintKey: "section.marketing.hint",
   },
   {
     id: "operations",
-    title: "Plan opérationnel",
+    titleKey: "section.operations.title",
     icon: "⚙️",
     type: "narrative",
-    placeholder: "Décrivez le fonctionnement quotidien de votre activité…",
-    hint: "Processus de production/service, fournisseurs, logistique, technologie, localisation.",
+    placeholderKey: "section.operations.placeholder",
+    hintKey: "section.operations.hint",
   },
   {
     id: "rh",
-    title: "Ressources humaines",
+    titleKey: "section.rh.title",
     icon: "👥",
     type: "narrative",
-    placeholder: "Détaillez votre organisation et vos besoins en personnel…",
-    hint: "Organigramme, postes clés, profils recherchés, politique salariale, plan de recrutement.",
+    placeholderKey: "section.rh.placeholder",
+    hintKey: "section.rh.hint",
   },
   {
     id: "investissements",
-    title: "Plan d'investissement",
+    titleKey: "section.investissements.title",
     icon: "🏗️",
     type: "financial",
-    hint: "Listez tous les investissements nécessaires au démarrage et leur coût.",
+    hintKey: "section.investissements.hint",
     rows: [
       "Terrain / Local",
       "Aménagement / Travaux",
@@ -113,10 +114,10 @@ export const BP_SECTIONS: SectionConfig[] = [
   },
   {
     id: "plan_financement",
-    title: "Plan de financement",
+    titleKey: "section.plan_financement.title",
     icon: "🏦",
     type: "financial",
-    hint: "Détaillez les sources de financement (apports, emprunts, subventions) face aux emplois (investissements, BFR).",
+    hintKey: "section.plan_financement.hint",
     rows: [
       "--- EMPLOIS ---",
       "Investissements",
@@ -137,10 +138,10 @@ export const BP_SECTIONS: SectionConfig[] = [
   },
   {
     id: "bilan_previsionnel",
-    title: "Bilan prévisionnel",
+    titleKey: "section.bilan_previsionnel.title",
     icon: "📋",
     type: "financial",
-    hint: "Projetez l'actif et le passif de votre entreprise sur 3 ans.",
+    hintKey: "section.bilan_previsionnel.hint",
     rows: [
       "--- ACTIF IMMOBILISÉ ---",
       "Immobilisations incorporelles",
@@ -169,10 +170,10 @@ export const BP_SECTIONS: SectionConfig[] = [
   },
   {
     id: "seuil_rentabilite",
-    title: "Seuil de rentabilité",
+    titleKey: "section.seuil_rentabilite.title",
     icon: "📉",
     type: "financial",
-    hint: "Calculez votre point mort : le chiffre d'affaires minimum pour couvrir toutes vos charges.",
+    hintKey: "section.seuil_rentabilite.hint",
     rows: [
       "Chiffre d'affaires",
       "Charges variables",
@@ -186,10 +187,10 @@ export const BP_SECTIONS: SectionConfig[] = [
   },
   {
     id: "amortissement_emprunts",
-    title: "Tableau d'amortissement des emprunts",
+    titleKey: "section.amortissement_emprunts.title",
     icon: "🏛️",
     type: "financial",
-    hint: "Détaillez le remboursement de chaque emprunt : capital, intérêts, annuités.",
+    hintKey: "section.amortissement_emprunts.hint",
     rows: [
       "Capital emprunté",
       "Taux d'intérêt (%)",
@@ -203,10 +204,10 @@ export const BP_SECTIONS: SectionConfig[] = [
   },
   {
     id: "charges_personnel",
-    title: "Charges du personnel",
+    titleKey: "section.charges_personnel.title",
     icon: "💼",
     type: "financial",
-    hint: "Détaillez les salaires bruts, charges sociales et coût total par poste.",
+    hintKey: "section.charges_personnel.hint",
     rows: [
       "Gérant / Directeur",
       "Responsable commercial",
@@ -224,10 +225,10 @@ export const BP_SECTIONS: SectionConfig[] = [
   },
   {
     id: "compte_resultat",
-    title: "Compte de résultat prévisionnel",
+    titleKey: "section.compte_resultat.title",
     icon: "📈",
     type: "financial",
-    hint: "Projetez vos revenus et charges sur 3 ans.",
+    hintKey: "section.compte_resultat.hint",
     rows: [
       "Chiffre d'affaires",
       "Achats de marchandises",
@@ -250,10 +251,10 @@ export const BP_SECTIONS: SectionConfig[] = [
   },
   {
     id: "tresorerie",
-    title: "Plan de trésorerie",
+    titleKey: "section.tresorerie.title",
     icon: "💰",
     type: "financial",
-    hint: "Suivez mois par mois vos encaissements et décaissements pour la première année.",
+    hintKey: "section.tresorerie.hint",
     rows: [
       "Solde initial",
       "Encaissements ventes",
@@ -273,17 +274,30 @@ export const BP_SECTIONS: SectionConfig[] = [
   },
   {
     id: "swot",
-    title: "Analyse SWOT",
+    titleKey: "section.swot.title",
     icon: "🔄",
     type: "swot",
-    hint: "Forces, Faiblesses, Opportunités et Menaces de votre projet.",
+    hintKey: "section.swot.hint",
   },
   {
     id: "risques",
-    title: "Analyse des risques",
+    titleKey: "section.risques.title",
     icon: "⚠️",
     type: "narrative",
-    placeholder: "Identifiez les risques potentiels et les mesures d'atténuation…",
-    hint: "Risques commerciaux, financiers, opérationnels, réglementaires. Mesures préventives.",
+    placeholderKey: "section.risques.placeholder",
+    hintKey: "section.risques.hint",
   },
 ];
+
+/**
+ * Helper: resolve translated title/hint/placeholder from a section config.
+ * Use in components: const title = resolveSection(section, t).title;
+ */
+export const resolveSection = (
+  section: SectionConfig,
+  t: (key: string) => string
+) => ({
+  title: t(section.titleKey),
+  hint: section.hintKey ? t(section.hintKey) : undefined,
+  placeholder: section.placeholderKey ? t(section.placeholderKey) : undefined,
+});

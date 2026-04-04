@@ -5,7 +5,7 @@ import { useBusinessPlans } from "@/hooks/useBusinessPlans";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useI18n } from "@/contexts/I18nContext";
 import { Trash2, Archive, MoreVertical, ArchiveRestore, Search, Copy } from "lucide-react";
-import { createPlanSchema } from "@/lib/validation";
+import { createI18nSchemas } from "@/lib/validation";
 import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
@@ -38,8 +38,10 @@ const Dashboard = () => {
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+  const schemas = createI18nSchemas(t);
+
   const handleCreate = async () => {
-    const result = createPlanSchema.safeParse({ name: newName, secteur: newSecteur || undefined, devise: newDevise });
+    const result = schemas.createPlan.safeParse({ name: newName, secteur: newSecteur || undefined, devise: newDevise });
     if (!result.success) {
       setFormErrors(Object.fromEntries(result.error.errors.map(e => [e.path[0], e.message])));
       return;
@@ -253,19 +255,14 @@ const Dashboard = () => {
                   className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground outline-none focus:border-primary transition-colors"
                 >
                   <option value="">— {t("dashboard.selectSector")} —</option>
-                  <option>Agroalimentaire</option>
-                  <option>Commerce</option>
-                  <option>Services</option>
-                  <option>Technologie / IT</option>
-                  <option>BTP / Construction</option>
-                  <option>Éducation / Formation</option>
-                  <option>Santé</option>
-                  <option>Transport / Logistique</option>
-                  <option>Tourisme / Hôtellerie</option>
-                  <option>Agriculture</option>
-                  <option>Industrie / Manufacture</option>
-                  <option>Énergie</option>
-                  <option>Immobilier</option>
+                  {[
+                    "sector.agri", "sector.commerce", "sector.services", "sector.tech",
+                    "sector.btp", "sector.education", "sector.health", "sector.transport",
+                    "sector.tourism", "sector.agriculture", "sector.industry", "sector.energy",
+                    "sector.realestate",
+                  ].map((key) => (
+                    <option key={key} value={t(key)}>{t(key)}</option>
+                  ))}
                   <option>{t("dashboard.other")}</option>
                 </select>
               </div>
