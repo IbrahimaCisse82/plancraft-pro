@@ -5,7 +5,7 @@ import { useBusinessPlans } from "@/hooks/useBusinessPlans";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useI18n } from "@/contexts/I18nContext";
 import { Trash2, Archive, MoreVertical, ArchiveRestore, Search, Copy } from "lucide-react";
-import { createPlanSchema } from "@/lib/validation";
+import { createI18nSchemas } from "@/lib/validation";
 import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
