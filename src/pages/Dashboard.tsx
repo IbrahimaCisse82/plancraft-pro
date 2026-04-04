@@ -255,19 +255,14 @@ const Dashboard = () => {
                   className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground outline-none focus:border-primary transition-colors"
                 >
                   <option value="">— {t("dashboard.selectSector")} —</option>
-                  <option>Agroalimentaire</option>
-                  <option>Commerce</option>
-                  <option>Services</option>
-                  <option>Technologie / IT</option>
-                  <option>BTP / Construction</option>
-                  <option>Éducation / Formation</option>
-                  <option>Santé</option>
-                  <option>Transport / Logistique</option>
-                  <option>Tourisme / Hôtellerie</option>
-                  <option>Agriculture</option>
-                  <option>Industrie / Manufacture</option>
-                  <option>Énergie</option>
-                  <option>Immobilier</option>
+                  {[
+                    "sector.agri", "sector.commerce", "sector.services", "sector.tech",
+                    "sector.btp", "sector.education", "sector.health", "sector.transport",
+                    "sector.tourism", "sector.agriculture", "sector.industry", "sector.energy",
+                    "sector.realestate",
+                  ].map((key) => (
+                    <option key={key} value={t(key)}>{t(key)}</option>
+                  ))}
                   <option>{t("dashboard.other")}</option>
                 </select>
               </div>
