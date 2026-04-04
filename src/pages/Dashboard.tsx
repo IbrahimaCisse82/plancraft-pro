@@ -38,8 +38,10 @@ const Dashboard = () => {
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+  const schemas = createI18nSchemas(t);
+
   const handleCreate = async () => {
-    const result = createPlanSchema.safeParse({ name: newName, secteur: newSecteur || undefined, devise: newDevise });
+    const result = schemas.createPlan.safeParse({ name: newName, secteur: newSecteur || undefined, devise: newDevise });
     if (!result.success) {
       setFormErrors(Object.fromEntries(result.error.errors.map(e => [e.path[0], e.message])));
       return;
