@@ -44,6 +44,21 @@ const translations: Translations = {
   "dashboard.selectSector": { fr: "Sélectionner un secteur", en: "Select a sector" },
   "dashboard.other": { fr: "Autre", en: "Other" },
 
+  // Sectors
+  "sector.agri": { fr: "Agroalimentaire", en: "Agrifood" },
+  "sector.commerce": { fr: "Commerce", en: "Commerce" },
+  "sector.services": { fr: "Services", en: "Services" },
+  "sector.tech": { fr: "Technologie / IT", en: "Technology / IT" },
+  "sector.btp": { fr: "BTP / Construction", en: "Construction" },
+  "sector.education": { fr: "Éducation / Formation", en: "Education / Training" },
+  "sector.health": { fr: "Santé", en: "Healthcare" },
+  "sector.transport": { fr: "Transport / Logistique", en: "Transport / Logistics" },
+  "sector.tourism": { fr: "Tourisme / Hôtellerie", en: "Tourism / Hospitality" },
+  "sector.agriculture": { fr: "Agriculture", en: "Agriculture" },
+  "sector.industry": { fr: "Industrie / Manufacture", en: "Industry / Manufacturing" },
+  "sector.energy": { fr: "Énergie", en: "Energy" },
+  "sector.realestate": { fr: "Immobilier", en: "Real Estate" },
+
   // Editor
   "editor.save": { fr: "Sauvegarder", en: "Save" },
   "editor.saving": { fr: "Sauvegarde…", en: "Saving…" },
@@ -57,6 +72,76 @@ const translations: Translations = {
   "editor.sectionOf": { fr: "Section {current} sur {total}", en: "Section {current} of {total}" },
   "editor.searchPlan": { fr: "Rechercher dans le plan…", en: "Search in plan…" },
   "editor.sections": { fr: "Sections", en: "Sections" },
+  "editor.post": { fr: "Poste", en: "Item" },
+  "editor.auto": { fr: "(auto)", en: "(auto)" },
+
+  // Section titles
+  "section.resume.title": { fr: "Résumé exécutif", en: "Executive Summary" },
+  "section.resume.placeholder": { fr: "Décrivez votre projet en quelques paragraphes clés…", en: "Describe your project in a few key paragraphs…" },
+  "section.resume.hint": { fr: "C'est la section la plus lue par les investisseurs. Résumez votre projet, votre marché cible, votre avantage concurrentiel et vos besoins de financement.", en: "This is the section most read by investors. Summarize your project, target market, competitive advantage and funding needs." },
+
+  "section.presentation.title": { fr: "Présentation du projet", en: "Project Presentation" },
+  "section.presentation.placeholder": { fr: "Décrivez votre projet, sa vision, sa mission et ses objectifs…", en: "Describe your project, its vision, mission and objectives…" },
+  "section.presentation.hint": { fr: "Incluez : nom du projet, forme juridique, localisation, date de création prévue, vision et mission.", en: "Include: project name, legal form, location, planned creation date, vision and mission." },
+
+  "section.promoteur.title": { fr: "Présentation du promoteur", en: "Promoter Presentation" },
+  "section.promoteur.placeholder": { fr: "Présentez le(s) porteur(s) de projet, leur parcours et motivations…", en: "Introduce the project leader(s), their background and motivations…" },
+  "section.promoteur.hint": { fr: "Parcours professionnel, compétences clés, motivation, rôle dans le projet.", en: "Professional background, key skills, motivation, role in the project." },
+
+  "section.marche.title": { fr: "Étude de marché", en: "Market Study" },
+  "section.marche.placeholder": { fr: "Analysez votre marché : taille, tendances, segmentation, clients cibles…", en: "Analyze your market: size, trends, segmentation, target clients…" },
+  "section.marche.hint": { fr: "Taille du marché, tendances, segmentation clients, comportement d'achat, réglementation.", en: "Market size, trends, client segmentation, purchasing behavior, regulation." },
+
+  "section.concurrence.title": { fr: "Analyse de la concurrence", en: "Competitive Analysis" },
+  "section.concurrence.placeholder": { fr: "Identifiez vos concurrents directs et indirects, leurs forces et faiblesses…", en: "Identify your direct and indirect competitors, their strengths and weaknesses…" },
+  "section.concurrence.hint": { fr: "Concurrents directs/indirects, parts de marché, positionnement, avantages concurrentiels.", en: "Direct/indirect competitors, market share, positioning, competitive advantages." },
+
+  "section.strategie_commerciale.title": { fr: "Stratégie commerciale", en: "Sales Strategy" },
+  "section.strategie_commerciale.placeholder": { fr: "Décrivez votre offre de produits/services, votre politique de prix…", en: "Describe your product/service offering, pricing policy…" },
+  "section.strategie_commerciale.hint": { fr: "Offre produits/services, politique de prix, canaux de distribution, force de vente.", en: "Product/service offering, pricing policy, distribution channels, sales force." },
+
+  "section.marketing.title": { fr: "Stratégie marketing", en: "Marketing Strategy" },
+  "section.marketing.placeholder": { fr: "Détaillez votre plan marketing : communication, promotion, branding…", en: "Detail your marketing plan: communication, promotion, branding…" },
+  "section.marketing.hint": { fr: "Mix marketing (4P), stratégie de communication, budget marketing, actions prévues.", en: "Marketing mix (4P), communication strategy, marketing budget, planned actions." },
+
+  "section.operations.title": { fr: "Plan opérationnel", en: "Operational Plan" },
+  "section.operations.placeholder": { fr: "Décrivez le fonctionnement quotidien de votre activité…", en: "Describe the daily operations of your business…" },
+  "section.operations.hint": { fr: "Processus de production/service, fournisseurs, logistique, technologie, localisation.", en: "Production/service process, suppliers, logistics, technology, location." },
+
+  "section.rh.title": { fr: "Ressources humaines", en: "Human Resources" },
+  "section.rh.placeholder": { fr: "Détaillez votre organisation et vos besoins en personnel…", en: "Detail your organization and staffing needs…" },
+  "section.rh.hint": { fr: "Organigramme, postes clés, profils recherchés, politique salariale, plan de recrutement.", en: "Organization chart, key positions, desired profiles, salary policy, recruitment plan." },
+
+  "section.investissements.title": { fr: "Plan d'investissement", en: "Investment Plan" },
+  "section.investissements.hint": { fr: "Listez tous les investissements nécessaires au démarrage et leur coût.", en: "List all investments needed for startup and their cost." },
+
+  "section.plan_financement.title": { fr: "Plan de financement", en: "Financing Plan" },
+  "section.plan_financement.hint": { fr: "Détaillez les sources de financement (apports, emprunts, subventions) face aux emplois (investissements, BFR).", en: "Detail funding sources (contributions, loans, subsidies) against uses (investments, working capital)." },
+
+  "section.bilan_previsionnel.title": { fr: "Bilan prévisionnel", en: "Projected Balance Sheet" },
+  "section.bilan_previsionnel.hint": { fr: "Projetez l'actif et le passif de votre entreprise sur 3 ans.", en: "Project your company's assets and liabilities over 3 years." },
+
+  "section.seuil_rentabilite.title": { fr: "Seuil de rentabilité", en: "Break-Even Analysis" },
+  "section.seuil_rentabilite.hint": { fr: "Calculez votre point mort : le chiffre d'affaires minimum pour couvrir toutes vos charges.", en: "Calculate your break-even point: the minimum revenue to cover all expenses." },
+
+  "section.amortissement_emprunts.title": { fr: "Tableau d'amortissement des emprunts", en: "Loan Amortization Schedule" },
+  "section.amortissement_emprunts.hint": { fr: "Détaillez le remboursement de chaque emprunt : capital, intérêts, annuités.", en: "Detail the repayment of each loan: principal, interest, installments." },
+
+  "section.charges_personnel.title": { fr: "Charges du personnel", en: "Personnel Costs" },
+  "section.charges_personnel.hint": { fr: "Détaillez les salaires bruts, charges sociales et coût total par poste.", en: "Detail gross salaries, social charges and total cost per position." },
+
+  "section.compte_resultat.title": { fr: "Compte de résultat prévisionnel", en: "Projected Income Statement" },
+  "section.compte_resultat.hint": { fr: "Projetez vos revenus et charges sur 3 ans.", en: "Project your revenue and expenses over 3 years." },
+
+  "section.tresorerie.title": { fr: "Plan de trésorerie", en: "Cash Flow Plan" },
+  "section.tresorerie.hint": { fr: "Suivez mois par mois vos encaissements et décaissements pour la première année.", en: "Track your monthly receipts and disbursements for the first year." },
+
+  "section.swot.title": { fr: "Analyse SWOT", en: "SWOT Analysis" },
+  "section.swot.hint": { fr: "Forces, Faiblesses, Opportunités et Menaces de votre projet.", en: "Strengths, Weaknesses, Opportunities and Threats of your project." },
+
+  "section.risques.title": { fr: "Analyse des risques", en: "Risk Analysis" },
+  "section.risques.placeholder": { fr: "Identifiez les risques potentiels et les mesures d'atténuation…", en: "Identify potential risks and mitigation measures…" },
+  "section.risques.hint": { fr: "Risques commerciaux, financiers, opérationnels, réglementaires. Mesures préventives.", en: "Commercial, financial, operational, regulatory risks. Preventive measures." },
 
   // Share
   "share.button": { fr: "Partager", en: "Share" },
@@ -92,17 +177,14 @@ const translations: Translations = {
   "ai.newConversation": { fr: "Nouvelle conversation", en: "New conversation" },
   "ai.stop": { fr: "Arrêter", en: "Stop" },
   "ai.send": { fr: "Envoyer", en: "Send" },
-  // AI quick prompts - financial
   "ai.financial.1": { fr: "Aide-moi à remplir ce tableau", en: "Help me fill in this table" },
   "ai.financial.2": { fr: "Quels montants sont réalistes ?", en: "What amounts are realistic?" },
   "ai.financial.3": { fr: "Explique chaque ligne du tableau", en: "Explain each row of the table" },
   "ai.financial.4": { fr: "Donne un exemple chiffré pour mon secteur", en: "Give a numerical example for my sector" },
-  // AI quick prompts - swot
   "ai.swot.1": { fr: "Analyse les forces de mon projet", en: "Analyze my project's strengths" },
   "ai.swot.2": { fr: "Identifie les faiblesses possibles", en: "Identify possible weaknesses" },
   "ai.swot.3": { fr: "Quelles opportunités exploiter ?", en: "What opportunities to exploit?" },
   "ai.swot.4": { fr: "Quelles menaces anticiper ?", en: "What threats to anticipate?" },
-  // AI quick prompts - narrative
   "ai.narrative.1": { fr: "Rédige cette section pour moi", en: "Write this section for me" },
   "ai.narrative.2": { fr: "Améliore le texte existant", en: "Improve the existing text" },
   "ai.narrative.3": { fr: "Donne-moi un plan détaillé", en: "Give me a detailed outline" },
@@ -313,11 +395,39 @@ const translations: Translations = {
   "auth.pill4": { fr: "☁️ Multi-appareils", en: "☁️ Multi-device" },
   "auth.pill5": { fr: "🔒 Données sécurisées", en: "🔒 Secure data" },
 
+  // Shared plan page
+  "shared.readOnly": { fr: "Consultation en lecture seule", en: "Read-only view" },
+  "shared.accessDenied": { fr: "Accès refusé", en: "Access denied" },
+  "shared.invalidLink": { fr: "Ce lien de partage est invalide ou expiré.", en: "This share link is invalid or expired." },
+  "shared.planNotFound": { fr: "Business plan introuvable.", en: "Business plan not found." },
+  "shared.invalidUrl": { fr: "Lien invalide", en: "Invalid link" },
+  "shared.generatedWith": { fr: "Généré avec", en: "Generated with" },
+
+  // Export
+  "export.generatedOn": { fr: "Généré le", en: "Generated on" },
+  "export.currency": { fr: "Devise", en: "Currency" },
+  "export.sector": { fr: "Secteur", en: "Sector" },
+  "export.post": { fr: "Poste", en: "Item" },
+
+  // Validation
+  "validation.emailInvalid": { fr: "Adresse email invalide", en: "Invalid email address" },
+  "validation.emailTooLong": { fr: "Email trop long", en: "Email too long" },
+  "validation.passwordMin": { fr: "Le mot de passe doit contenir au moins 6 caractères", en: "Password must be at least 6 characters" },
+  "validation.passwordMax": { fr: "Mot de passe trop long", en: "Password too long" },
+  "validation.nameTooLong": { fr: "Nom trop long", en: "Name too long" },
+  "validation.nameRequired": { fr: "Le nom est requis", en: "Name is required" },
+  "validation.nameEmpty": { fr: "Le nom ne peut pas être vide", en: "Name cannot be empty" },
+  "validation.sectorTooLong": { fr: "Secteur trop long", en: "Sector too long" },
+  "validation.currencyRequired": { fr: "La devise est requise", en: "Currency is required" },
+
   // Common
   "common.loading": { fr: "Chargement…", en: "Loading…" },
   "common.confirmDelete": { fr: "Supprimer ce business plan ?", en: "Delete this business plan?" },
   "common.irreversible": { fr: "Cette action est irréversible. Toutes les données seront perdues.", en: "This action is irreversible. All data will be lost." },
   "common.deleteConfirm": { fr: "Supprimer définitivement", en: "Delete permanently" },
+  "common.saveError": { fr: "Erreur de sauvegarde", en: "Save error" },
+  "common.loadError": { fr: "Erreur lors du chargement des business plans", en: "Error loading business plans" },
+  "common.notFound": { fr: "Business plan introuvable", en: "Business plan not found" },
 };
 
 interface I18nContextType {

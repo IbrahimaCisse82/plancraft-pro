@@ -4,25 +4,22 @@ interface Props {
   section: SectionConfig;
   value: string;
   onChange: (value: string) => void;
+  hint?: string;
+  placeholder?: string;
 }
 
-const NarrativeSection = ({ section, value, onChange }: Props) => {
-  const handleInsertText = (text: string) => {
-    const newValue = value ? value + "\n\n" + text : text;
-    onChange(newValue);
-  };
-
+const NarrativeSection = ({ section, value, onChange, hint, placeholder }: Props) => {
   return (
     <div>
-      {section.hint && (
+      {hint && (
         <div className="mb-4 px-4 py-3 bg-primary/5 border border-primary/10 rounded-lg text-xs text-muted-foreground leading-relaxed">
-          💡 {section.hint}
+          💡 {hint}
         </div>
       )}
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={section.placeholder}
+        placeholder={placeholder}
         className="w-full min-h-[320px] p-4 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors resize-y leading-relaxed"
       />
     </div>

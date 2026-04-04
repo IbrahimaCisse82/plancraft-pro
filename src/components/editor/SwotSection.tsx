@@ -12,9 +12,10 @@ interface Props {
   section: SectionConfig;
   value: SwotData;
   onChange: (value: SwotData) => void;
+  hint?: string;
 }
 
-const SwotSection = ({ section, value, onChange }: Props) => {
+const SwotSection = ({ section, value, onChange, hint }: Props) => {
   const { t } = useI18n();
 
   const quadrants = [
@@ -26,9 +27,9 @@ const SwotSection = ({ section, value, onChange }: Props) => {
 
   return (
     <div>
-      {section.hint && (
+      {hint && (
         <div className="mb-4 px-4 py-3 bg-primary/5 border border-primary/10 rounded-lg text-xs text-muted-foreground leading-relaxed">
-          💡 {section.hint}
+          💡 {hint}
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

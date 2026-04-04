@@ -12,14 +12,19 @@ import {
   WidthType,
 } from "docx";
 import { saveAs } from "file-saver";
-import { BP_SECTIONS } from "@/components/editor/sectionConfig";
+import { BP_SECTIONS, resolveSection } from "@/components/editor/sectionConfig";
 import { isComputedRow } from "@/lib/financialFormulas";
 import type { BusinessPlan } from "@/types/businessPlan";
 
 const isSeparator = (row: string) => row.startsWith("---");
 const separatorLabel = (row: string) => row.replace(/^-+\s*/, "").replace(/\s*-+$/, "");
 
-export const exportBusinessPlanDOCX = async (plan: BusinessPlan, content: Record<string, any>) => {
+export const exportBusinessPlanDOCX = async (
+  plan: BusinessPlan,
+  content: Record<string, any>,
+  t?: (key: string) => string
+) => {
+  const label = (key: string, fallback: string) => t ? t(key) : fallback;
   const children: Paragraph[] = [];
 
   // Title page
@@ -42,14 +47,14 @@ export const exportBusinessPlanDOCX = async (plan: BusinessPlan, content: Record
     new Paragraph({
       alignment: AlignmentType.CENTER,
       spacing: { after: 100 },
-      children: [new TextRun({ text: `Devise : ${plan.devise}`, size: 20, color: "888888", font: "Calibri" })],
+      children: [new TextRun({ text: `${label("export.currency", "Devise")} : ${plan.devise}`, size: 20, color: "888888", font: "Calibri" })],
     })
   );
   children.push(
     new Paragraph({
       alignment: AlignmentType.CENTER,
       spacing: { after: 600 },
-      children: [new TextRun({ text: `Généré le ${new Date().toLocaleDateString("fr-FR")}`, size: 20, color: "888888", font: "Calibri" })],
+      children: [new TextRun({ text: `${label("export.generatedOn", "Généré le")} ${new Date().toLocaleDateString("fr-FR")}`, size: 20, color: "888888", font: "Calibri" })],
     })
   );
 
@@ -60,12 +65,14 @@ export const exportBusinessPlanDOCX = async (plan: BusinessPlan, content: Record
     const val = content[section.id];
     if (!val) return;
 
+    const resolved = t ? resolveSection(section, t) : { title: section.titleKey };
+
     // Section heading
     tables.push(
       new Paragraph({
         heading: HeadingLevel.HEADING_1,
         spacing: { before: 400, after: 100 },
-        children: [new TextRun({ text: `${section.icon} ${section.title}`, bold: true, size: 32, font: "Calibri" })],
+        children: [new TextRun({ text: `${section.icon} ${resolved.title}`, bold: true, size: 32, font: "Calibri" })],
         border: { bottom: { style: BorderStyle.SINGLE, size: 1, color: "C8B478" } },
         pageBreakBefore: true,
       })
@@ -84,10 +91,9 @@ export const exportBusinessPlanDOCX = async (plan: BusinessPlan, content: Record
       const rows = section.rows || [];
       const columns = section.columns || [];
 
-      // Header row
       const headerCells = [
         new TableCell({
-          children: [new Paragraph({ children: [new TextRun({ text: "Poste", bold: true, size: 18, font: "Calibri" })] })],
+          children: [new Paragraph({ children: [new TextRun({ text: label("export.post", "Poste"), bold: true, size: 18, font: "Calibri" })] })],
           width: { size: 3000, type: WidthType.DXA },
           shading: { fill: "F5F0E0" },
         }),
@@ -103,7 +109,6 @@ export const exportBusinessPlanDOCX = async (plan: BusinessPlan, content: Record
 
       const dataRows = rows.map((row) => {
         if (isSeparator(row)) {
-          // Separator row spans all columns
           return new TableRow({
             children: [
               new TableCell({
@@ -158,10 +163,10 @@ export const exportBusinessPlanDOCX = async (plan: BusinessPlan, content: Record
       );
     } else if (section.type === "swot" && typeof val === "object") {
       const quadrants = [
-        { key: "forces", label: "Forces" },
-        { key: "faiblesses", label: "Faiblesses" },
-        { key: "opportunites", label: "Opportunités" },
-        { key: "menaces", label: "Menaces" },
+        { key: "forces", label: t ? t("swot.strengths") : "Forces" },
+        { key: "faiblesses", label: t ? t("swot.weaknesses") : "Faiblesses" },
+        { key: "opportunites", label: t ? t("swot.opportunities") : "Opportunités" },
+        { key: "menaces", label: t ? t("swot.threats") : "Menaces" },
       ];
 
       quadrants.forEach((q) => {

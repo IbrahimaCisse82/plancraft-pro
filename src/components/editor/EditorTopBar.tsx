@@ -59,7 +59,7 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
         <span className="text-[0.6rem] text-muted-foreground font-mono hidden sm:inline">{plan.devise}</span>
 
         <button
-          onClick={() => exportBusinessPlanPDF(plan, content)}
+          onClick={() => exportBusinessPlanPDF(plan, content, t)}
           className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
           aria-label="PDF"
         >
@@ -68,7 +68,7 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
         </button>
 
         <button
-          onClick={() => exportBusinessPlanDOCX(plan, content)}
+          onClick={() => exportBusinessPlanDOCX(plan, content, t)}
           className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
           aria-label="DOCX"
         >
@@ -77,12 +77,12 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
         </button>
 
         <button
-          onClick={() => exportBusinessPlanXLSX(plan, content)}
+          onClick={() => exportBusinessPlanXLSX(plan, content, t)}
           className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
-          aria-label="XLSX"
+          aria-label="CSV"
         >
           <Download className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">XLSX</span>
+          <span className="hidden sm:inline">CSV</span>
         </button>
 
         <VersionHistoryPanel planId={plan.id} content={content} onRestore={onRestore} />

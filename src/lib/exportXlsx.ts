@@ -1,4 +1,4 @@
-import { BP_SECTIONS } from "@/components/editor/sectionConfig";
+import { BP_SECTIONS, resolveSection } from "@/components/editor/sectionConfig";
 import { isComputedRow } from "@/lib/financialFormulas";
 import type { BusinessPlan } from "@/types/businessPlan";
 
@@ -6,7 +6,12 @@ import type { BusinessPlan } from "@/types/businessPlan";
  * Export financial tables as a CSV file (Excel-compatible).
  * Uses CSV with UTF-8 BOM for proper French character support in Excel.
  */
-export const exportBusinessPlanXLSX = (plan: BusinessPlan, content: Record<string, any>) => {
+export const exportBusinessPlanXLSX = (
+  plan: BusinessPlan,
+  content: Record<string, any>,
+  t?: (key: string) => string
+) => {
+  const label = (key: string, fallback: string) => t ? t(key) : fallback;
   const financialSections = BP_SECTIONS.filter(s => s.type === "financial");
   const lines: string[] = [];
 
@@ -28,24 +33,25 @@ export const exportBusinessPlanXLSX = (plan: BusinessPlan, content: Record<strin
 
   // Header
   lines.push(`${escapeCsv(plan.name)} - Business Plan`);
-  lines.push(`Devise: ${plan.devise}`);
-  lines.push(`Secteur: ${plan.secteur || "—"}`);
-  lines.push(`Généré le ${new Date().toLocaleDateString("fr-FR")}`);
+  lines.push(`${label("export.currency", "Devise")}: ${plan.devise}`);
+  lines.push(`${label("export.sector", "Secteur")}: ${plan.secteur || "—"}`);
+  lines.push(`${label("export.generatedOn", "Généré le")} ${new Date().toLocaleDateString("fr-FR")}`);
   lines.push("");
 
   financialSections.forEach((section) => {
     const val = content[section.id];
     if (!val || typeof val !== "object") return;
 
+    const resolved = t ? resolveSection(section, t) : { title: section.titleKey };
     const rows = section.rows || [];
     const columns = section.columns || [];
 
     // Section title
     lines.push("");
-    lines.push(escapeCsv(`${section.icon} ${section.title}`));
+    lines.push(escapeCsv(`${section.icon} ${resolved.title}`));
 
     // Header row
-    lines.push(["Poste", ...columns].map(escapeCsv).join(","));
+    lines.push([label("export.post", "Poste"), ...columns].map(escapeCsv).join(","));
 
     // Data rows
     rows.forEach((row) => {
