@@ -1,6 +1,7 @@
 /**
  * Auto-calculation formulas for financial tables.
  * Each section defines computed rows as functions of other rows.
+ * Includes VAN (NPV), TRI (IRR) and cross-table linking.
  */
 
 type RowData = Record<string, Record<string, string>>;
@@ -14,15 +15,58 @@ const num = (val: string | undefined): number => {
 const sumRows = (data: RowData, rows: string[], col: string): number =>
   rows.reduce((acc, row) => acc + num(data[row]?.[col]), 0);
 
-type FormulaMap = Record<string, Record<string, (data: RowData, col: string) => number>>;
+type FormulaMap = Record<string, Record<string, (data: RowData, col: string, allContent?: Record<string, any>) => number>>;
+
+// ── VAN (NPV) Calculation ──
+export const calculateNPV = (cashFlows: number[], discountRate: number): number => {
+  if (discountRate <= -1) return NaN;
+  return cashFlows.reduce((npv, cf, t) => {
+    if (t === 0) return npv + cf; // Initial investment (negative)
+    return npv + cf / Math.pow(1 + discountRate, t);
+  }, 0);
+};
+
+// ── TRI (IRR) Calculation using Newton-Raphson ──
+export const calculateIRR = (cashFlows: number[], maxIterations = 100, tolerance = 1e-7): number => {
+  // Check if there are sign changes (required for IRR to exist)
+  const hasPositive = cashFlows.some(cf => cf > 0);
+  const hasNegative = cashFlows.some(cf => cf < 0);
+  if (!hasPositive || !hasNegative) return NaN;
+
+  let rate = 0.1; // Initial guess 10%
+  
+  for (let i = 0; i < maxIterations; i++) {
+    let npv = 0;
+    let dnpv = 0; // derivative
+    
+    for (let t = 0; t < cashFlows.length; t++) {
+      const factor = Math.pow(1 + rate, t);
+      npv += cashFlows[t] / factor;
+      if (t > 0) {
+        dnpv -= t * cashFlows[t] / Math.pow(1 + rate, t + 1);
+      }
+    }
+    
+    if (Math.abs(dnpv) < 1e-15) break;
+    
+    const newRate = rate - npv / dnpv;
+    if (Math.abs(newRate - rate) < tolerance) return newRate;
+    rate = newRate;
+    
+    // Prevent divergence
+    if (rate < -0.99) rate = -0.5;
+    if (rate > 10) rate = 5;
+  }
+  
+  return rate;
+};
 
 export const FORMULAS: FormulaMap = {
   // ── Plan d'investissement ──
-  investissements: {
-    // No computed rows currently — user fills all manually
-  },
+  investissements: {},
 
   // ── Compte de résultat prévisionnel ──
+  // Cross-table: "Charges de personnel" auto-fed from charges_personnel section
   compte_resultat: {
     "Marge brute": (d, c) =>
       num(d["Chiffre d'affaires"]?.[c]) - num(d["Achats de marchandises"]?.[c]),
@@ -181,6 +225,89 @@ export const FORMULAS: FormulaMap = {
 };
 
 /**
+ * Apply cross-table linking before formulas.
+ * - charges_personnel.Total charges du personnel → compte_resultat.Charges de personnel
+ * - investissements total → plan_financement.Investissements
+ */
+export const applyCrossTableLinks = (
+  allContent: Record<string, any>
+): Record<string, any> => {
+  const result = { ...allContent };
+
+  // Link: charges_personnel → compte_resultat
+  const chargesPerso = result["charges_personnel"];
+  if (chargesPerso && typeof chargesPerso === "object") {
+    const cr = { ...(result["compte_resultat"] || {}) };
+    const yearCols = ["Année 1", "Année 2", "Année 3"];
+    const totalRow = chargesPerso["Total charges du personnel"];
+    if (totalRow) {
+      if (!cr["Charges de personnel"]) cr["Charges de personnel"] = {};
+      cr["Charges de personnel"] = { ...cr["Charges de personnel"] };
+      for (const col of yearCols) {
+        if (totalRow[col]) {
+          cr["Charges de personnel"][col] = totalRow[col];
+        }
+      }
+      result["compte_resultat"] = cr;
+    }
+  }
+
+  // Link: investissements total → plan_financement.Investissements
+  const invest = result["investissements"];
+  if (invest && typeof invest === "object") {
+    const pf = { ...(result["plan_financement"] || {}) };
+    // Sum all investment rows from "Montant" column
+    const investRows = [
+      "Terrain / Local", "Aménagement / Travaux", "Équipements / Matériel",
+      "Véhicules", "Mobilier de bureau", "Matériel informatique",
+      "Frais d'établissement", "Stock initial", "Trésorerie de départ", "Divers / Imprévus",
+    ];
+    const totalInvest = investRows.reduce((s, r) => s + num(invest[r]?.["Montant"]), 0);
+    if (totalInvest > 0) {
+      if (!pf["Investissements"]) pf["Investissements"] = {};
+      pf["Investissements"] = { ...pf["Investissements"], "Année 1": String(totalInvest) };
+      result["plan_financement"] = pf;
+    }
+  }
+
+  return result;
+};
+
+/**
+ * Calculate VAN and TRI from the compte_resultat data.
+ * Returns { van, tri, cashFlows } or null if insufficient data.
+ */
+export const calculateFinancialRatios = (
+  allContent: Record<string, any>,
+  discountRate = 0.10
+): { van: number; tri: number; cashFlows: number[] } | null => {
+  const cr = allContent["compte_resultat"];
+  const invest = allContent["investissements"];
+  if (!cr || !invest) return null;
+
+  // Initial investment (negative)
+  const investRows = [
+    "Terrain / Local", "Aménagement / Travaux", "Équipements / Matériel",
+    "Véhicules", "Mobilier de bureau", "Matériel informatique",
+    "Frais d'établissement", "Stock initial", "Trésorerie de départ", "Divers / Imprévus",
+  ];
+  const totalInvest = investRows.reduce((s, r) => s + num(invest[r]?.["Montant"]), 0);
+  if (totalInvest === 0) return null;
+
+  const years = ["Année 1", "Année 2", "Année 3"];
+  const netResults = years.map(y => num(cr["Résultat net"]?.[y]));
+  const amortissements = years.map(y => num(cr["Amortissements"]?.[y]));
+
+  // Cash flows = Résultat net + Amortissements (simplified)
+  const cashFlows = [-totalInvest, ...netResults.map((nr, i) => nr + amortissements[i])];
+
+  const van = calculateNPV(cashFlows, discountRate);
+  const tri = calculateIRR(cashFlows);
+
+  return { van, tri, cashFlows };
+};
+
+/**
  * Apply formulas to compute calculated cells.
  * Returns a new data object with computed values injected.
  */
@@ -209,12 +336,15 @@ export const applyFormulas = (
   if (sectionId === "tresorerie") {
     if (!result["Solde cumulé"]) result["Solde cumulé"] = {};
     const cumRow = { ...result["Solde cumulé"] };
+    let runningTotal = 0;
     for (let i = 0; i < columns.length; i++) {
       const col = columns[i];
-      const soldeInitial = i === 0 ? num(result["Solde initial"]?.[col]) : 0;
-      const prevCumule = i > 0 ? num(cumRow[columns[i - 1]]) : soldeInitial;
+      if (i === 0) {
+        runningTotal = num(result["Solde initial"]?.[col]);
+      }
       const soldeMensuel = num(result["Solde mensuel"]?.[col]);
-      cumRow[col] = String(prevCumule + soldeMensuel);
+      runningTotal += soldeMensuel;
+      cumRow[col] = String(runningTotal);
     }
     result["Solde cumulé"] = cumRow;
   }

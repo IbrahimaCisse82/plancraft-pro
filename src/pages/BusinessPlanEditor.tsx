@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { BP_SECTIONS } from "@/components/editor/sectionConfig";
@@ -8,6 +8,7 @@ import EditorSidebar from "@/components/editor/EditorSidebar";
 import EditorMainContent from "@/components/editor/EditorMainContent";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { FullPageSpinner } from "@/components/shared/LoadingSpinner";
+import { applyCrossTableLinks } from "@/lib/financialFormulas";
 import type { BusinessPlan, BPContent } from "@/types/businessPlan";
 
 const BusinessPlanEditor = () => {
@@ -41,11 +42,15 @@ const BusinessPlanEditor = () => {
     fetchPlan();
   }, [id, navigate]);
 
-  const handleSectionChange = (sectionId: string, value: any) => {
-    const next = { ...content, [sectionId]: value };
-    setContent(next);
-    scheduleAutoSave(next);
-  };
+  const handleSectionChange = useCallback((sectionId: string, value: any) => {
+    setContent(prev => {
+      const next = { ...prev, [sectionId]: value };
+      // Apply cross-table links
+      const linked = applyCrossTableLinks(next);
+      scheduleAutoSave(linked);
+      return linked;
+    });
+  }, [scheduleAutoSave]);
 
   const handleRestoreVersion = (restoredContent: Record<string, any>) => {
     setContent(restoredContent);

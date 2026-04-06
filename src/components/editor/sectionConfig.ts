@@ -1,4 +1,4 @@
-export type SectionType = "narrative" | "financial" | "swot";
+export type SectionType = "narrative" | "financial" | "swot" | "banker_summary";
 
 export interface SectionConfig {
   id: string;
@@ -271,6 +271,13 @@ export const BP_SECTIONS: SectionConfig[] = [
       "Solde cumulé",
     ],
     columns: ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12"],
+  },
+  {
+    id: "synthese_banquier",
+    titleKey: "section.synthese_banquier.title",
+    icon: "🏦",
+    type: "banker_summary" as SectionType,
+    hintKey: "section.synthese_banquier.hint",
   },
   {
     id: "swot",

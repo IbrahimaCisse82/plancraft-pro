@@ -3,6 +3,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import NarrativeSection from "@/components/editor/NarrativeSection";
 import FinancialSection from "@/components/editor/FinancialSection";
 import SwotSection from "@/components/editor/SwotSection";
+import BankerSummary from "@/components/editor/BankerSummary";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
 import type { BusinessPlan, BPContent } from "@/types/businessPlan";
 import { toast } from "sonner";
@@ -53,6 +54,20 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
             hint={resolved.hint}
           />
         );
+      case "banker_summary":
+        return (
+          <div>
+            {resolved.hint && (
+              <div className="mb-4 px-4 py-3 bg-primary/5 border border-primary/10 rounded-lg text-xs text-muted-foreground leading-relaxed">
+                💡 {resolved.hint}
+              </div>
+            )}
+            <div className="mb-3 px-4 py-2 bg-accent/30 border border-accent/20 rounded-lg text-xs text-foreground leading-relaxed">
+              {t("banker.crossTableNote")}
+            </div>
+            <BankerSummary content={content} devise={plan.devise} />
+          </div>
+        );
     }
   };
 
@@ -60,6 +75,8 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
     ? t("editor.financial")
     : currentSection.type === "swot"
     ? t("editor.swot")
+    : currentSection.type === "banker_summary"
+    ? t("section.synthese_banquier.title")
     : t("editor.narrative");
 
   const prevSection = currentIdx > 0 ? BP_SECTIONS[currentIdx - 1] : null;
@@ -116,25 +133,27 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
         </div>
       </main>
 
-      <AIAssistantPanel
-        key={currentSection.id}
-        sectionTitle={resolved.title}
-        sectionHint={resolved.hint}
-        currentContent={
-          currentSection.type === "narrative"
-            ? content[currentSection.id] || ""
-            : JSON.stringify(content[currentSection.id] || {}, null, 2)
-        }
-        planName={plan.name}
-        secteur={plan.secteur || undefined}
-        devise={plan.devise}
-        sectionType={currentSection.type}
-        onInsertText={
-          currentSection.type === "narrative"
-            ? (text) => onSectionChange(currentSection.id, (content[currentSection.id] || "") + "\n\n" + text)
-            : undefined
-        }
-      />
+      {currentSection.type !== "banker_summary" && (
+        <AIAssistantPanel
+          key={currentSection.id}
+          sectionTitle={resolved.title}
+          sectionHint={resolved.hint}
+          currentContent={
+            currentSection.type === "narrative"
+              ? content[currentSection.id] || ""
+              : JSON.stringify(content[currentSection.id] || {}, null, 2)
+          }
+          planName={plan.name}
+          secteur={plan.secteur || undefined}
+          devise={plan.devise}
+          sectionType={currentSection.type}
+          onInsertText={
+            currentSection.type === "narrative"
+              ? (text) => onSectionChange(currentSection.id, (content[currentSection.id] || "") + "\n\n" + text)
+              : undefined
+          }
+        />
+      )}
     </>
   );
 };
