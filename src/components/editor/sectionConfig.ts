@@ -1,4 +1,4 @@
-export type SectionType = "narrative" | "financial" | "swot";
+export type SectionType = "narrative" | "financial" | "swot" | "banker_summary";
 
 export interface SectionConfig {
   id: string;
