@@ -42,11 +42,15 @@ const BusinessPlanEditor = () => {
     fetchPlan();
   }, [id, navigate]);
 
-  const handleSectionChange = (sectionId: string, value: any) => {
-    const next = { ...content, [sectionId]: value };
-    setContent(next);
-    scheduleAutoSave(next);
-  };
+  const handleSectionChange = useCallback((sectionId: string, value: any) => {
+    setContent(prev => {
+      const next = { ...prev, [sectionId]: value };
+      // Apply cross-table links
+      const linked = applyCrossTableLinks(next);
+      scheduleAutoSave(linked);
+      return linked;
+    });
+  }, [scheduleAutoSave]);
 
   const handleRestoreVersion = (restoredContent: Record<string, any>) => {
     setContent(restoredContent);
