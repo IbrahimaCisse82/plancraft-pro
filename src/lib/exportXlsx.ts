@@ -1,10 +1,10 @@
+import * as XLSX from "xlsx";
 import { BP_SECTIONS, resolveSection } from "@/components/editor/sectionConfig";
 import { isComputedRow } from "@/lib/financialFormulas";
 import type { BusinessPlan } from "@/types/businessPlan";
 
 /**
- * Export financial tables as a CSV file (Excel-compatible).
- * Uses CSV with UTF-8 BOM for proper French character support in Excel.
+ * Export financial tables as a real XLSX file.
  */
 export const exportBusinessPlanXLSX = (
   plan: BusinessPlan,
@@ -13,30 +13,27 @@ export const exportBusinessPlanXLSX = (
 ) => {
   const label = (key: string, fallback: string) => t ? t(key) : fallback;
   const financialSections = BP_SECTIONS.filter(s => s.type === "financial");
-  const lines: string[] = [];
-
-  const escapeCsv = (val: string) => {
-    if (val.includes(",") || val.includes('"') || val.includes("\n")) {
-      return `"${val.replace(/"/g, '""')}"`;
-    }
-    return val;
-  };
-
-  const formatNum = (val: string) => {
-    if (!val) return "";
-    const n = parseInt(val, 10);
-    return isNaN(n) ? val : n.toLocaleString("fr-FR");
-  };
+  const wb = XLSX.utils.book_new();
 
   const isSeparator = (row: string) => row.startsWith("---");
   const separatorLabel = (row: string) => row.replace(/^-+\s*/, "").replace(/\s*-+$/, "");
 
-  // Header
-  lines.push(`${escapeCsv(plan.name)} - Business Plan`);
-  lines.push(`${label("export.currency", "Devise")}: ${plan.devise}`);
-  lines.push(`${label("export.sector", "Secteur")}: ${plan.secteur || "—"}`);
-  lines.push(`${label("export.generatedOn", "Généré le")} ${new Date().toLocaleDateString("fr-FR")}`);
-  lines.push("");
+  const formatNum = (val: string) => {
+    if (!val) return "";
+    const n = parseInt(val, 10);
+    return isNaN(n) ? val : n;
+  };
+
+  // Summary sheet
+  const summaryData = [
+    [plan.name, "Business Plan"],
+    [`${label("export.currency", "Devise")}`, plan.devise],
+    [`${label("export.sector", "Secteur")}`, plan.secteur || "—"],
+    [`${label("export.generatedOn", "Généré le")}`, new Date().toLocaleDateString("fr-FR")],
+  ];
+  const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
+  summaryWs["!cols"] = [{ wch: 20 }, { wch: 30 }];
+  XLSX.utils.book_append_sheet(wb, summaryWs, "Résumé");
 
   financialSections.forEach((section) => {
     const val = content[section.id];
@@ -46,37 +43,36 @@ export const exportBusinessPlanXLSX = (
     const rows = section.rows || [];
     const columns = section.columns || [];
 
-    // Section title
-    lines.push("");
-    lines.push(escapeCsv(`${section.icon} ${resolved.title}`));
+    const data: any[][] = [];
 
     // Header row
-    lines.push([label("export.post", "Poste"), ...columns].map(escapeCsv).join(","));
+    data.push([label("export.post", "Poste"), ...columns]);
 
     // Data rows
     rows.forEach((row) => {
       if (isSeparator(row)) {
-        lines.push(escapeCsv(separatorLabel(row).toUpperCase()));
+        data.push([separatorLabel(row).toUpperCase(), ...columns.map(() => "")]);
         return;
       }
 
       const computed = isComputedRow(section.id, row);
-      const rowLabel = computed ? `${row} (auto)` : row;
+      const rowLabel = computed ? `${row} ★` : row;
       const cells = columns.map((col) => formatNum(val[row]?.[col] || ""));
-      lines.push([escapeCsv(rowLabel), ...cells.map(escapeCsv)].join(","));
+      data.push([rowLabel, ...cells]);
     });
 
-    lines.push("");
+    const ws = XLSX.utils.aoa_to_sheet(data);
+
+    // Set column widths
+    ws["!cols"] = [
+      { wch: 35 },
+      ...columns.map(() => ({ wch: 15 })),
+    ];
+
+    // Truncate sheet name to 31 chars (Excel limit)
+    const sheetName = (resolved.title || section.id).substring(0, 31);
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
   });
 
-  // UTF-8 BOM for Excel compatibility
-  const BOM = "\uFEFF";
-  const csvContent = BOM + lines.join("\n");
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${plan.name.replace(/\s+/g, "_")}_Financier.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  XLSX.writeFile(wb, `${plan.name.replace(/\s+/g, "_")}_Financier.xlsx`);
 };
