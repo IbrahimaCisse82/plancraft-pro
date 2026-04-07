@@ -18,7 +18,7 @@ const formatNumber = (val: string): string => {
 };
 
 const FinancialSection = ({ section, value, onChange, devise, hint }: Props) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const rows = section.rows || [];
   const columns = section.columns || [];
   const onChangeRef = useRef(onChange);
