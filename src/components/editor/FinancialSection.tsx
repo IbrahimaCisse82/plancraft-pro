@@ -100,7 +100,7 @@ const FinancialSection = ({ section, value, onChange, devise, hint }: Props) => 
                       colSpan={columns.length + 1}
                       className="px-3 py-2 text-xs font-bold text-primary uppercase tracking-wider border-b border-border/50"
                     >
-                      {separatorLabel(row)}
+                      {translateRowLabel(row, lang).replace(/^-+\s*/, "").replace(/\s*-+$/, "") || separatorLabel(row)}
                     </td>
                   </tr>
                 );
