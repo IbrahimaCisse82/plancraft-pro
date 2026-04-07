@@ -3,6 +3,7 @@ import { SectionConfig } from "./sectionConfig";
 import FinancialChart from "./FinancialChart";
 import { applyFormulas, isComputedRow } from "@/lib/financialFormulas";
 import { useI18n } from "@/contexts/I18nContext";
+import { translateRowLabel, translateColumnLabel } from "@/lib/financialRowLabels";
 
 interface Props {
   section: SectionConfig;
