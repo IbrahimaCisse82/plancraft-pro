@@ -86,7 +86,7 @@ const FinancialSection = ({ section, value, onChange, devise, hint }: Props) => 
               </th>
               {columns.map((col) => (
                 <th key={col} className="text-right px-3 py-2.5 text-xs font-bold text-secondary-foreground border-b border-border min-w-[100px]">
-                  {col} {currencySymbol && !["Effectif", "Taux de marge (%)", "Durée (années)", "Taux d'intérêt (%)", "Salaire mensuel"].includes(col) ? `(${currencySymbol})` : ""}
+                  {translateColumnLabel(col, lang)} {currencySymbol && !["Effectif", "Taux de marge (%)", "Durée (années)", "Taux d'intérêt (%)", "Salaire mensuel"].includes(col) ? `(${currencySymbol})` : ""}
                 </th>
               ))}
             </tr>
