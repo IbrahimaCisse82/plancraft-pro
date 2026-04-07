@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { calculateFinancialRatios } from "@/lib/financialFormulas";
 import { useI18n } from "@/contexts/I18nContext";
+import BankerCharts from "./BankerCharts";
 
 interface Props {
   content: Record<string, any>;
@@ -205,6 +206,8 @@ const BankerSummary = ({ content, devise }: Props) => {
       <div className="mt-4 text-[0.65rem] text-muted-foreground leading-relaxed px-2">
         {t("banker.methodology")}
       </div>
+
+      <BankerCharts content={content} devise={devise} />
     </div>
   );
 };

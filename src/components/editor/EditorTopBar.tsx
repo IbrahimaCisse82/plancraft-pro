@@ -6,6 +6,7 @@ import { exportBusinessPlanDOCX } from "@/lib/exportDocx";
 import { exportBusinessPlanXLSX } from "@/lib/exportXlsx";
 import VersionHistoryPanel from "@/components/editor/VersionHistoryPanel";
 import ShareButton from "@/components/editor/ShareButton";
+import ImportExcelButton from "@/components/editor/ImportExcelButton";
 import type { BusinessPlan, BPContent } from "@/types/businessPlan";
 
 interface Props {
@@ -17,9 +18,10 @@ interface Props {
   onToggleSidebar: () => void;
   onSave: () => void;
   onRestore: (content: BPContent) => void;
+  onImportSection: (sectionId: string, data: Record<string, Record<string, string>>) => void;
 }
 
-const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSidebar, onSave, onRestore }: Props) => {
+const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSidebar, onSave, onRestore, onImportSection }: Props) => {
   const { t } = useI18n();
 
   return (
@@ -79,11 +81,13 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
         <button
           onClick={() => exportBusinessPlanXLSX(plan, content, t)}
           className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
-          aria-label="CSV"
+          aria-label="XLSX"
         >
           <Download className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">CSV</span>
+          <span className="hidden sm:inline">XLSX</span>
         </button>
+
+        <ImportExcelButton onImport={onImportSection} />
 
         <VersionHistoryPanel planId={plan.id} content={content} onRestore={onRestore} />
 

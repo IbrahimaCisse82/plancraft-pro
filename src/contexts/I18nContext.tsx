@@ -456,6 +456,17 @@ const translations: Translations = {
   "banker.verdictCol": { fr: "Verdict", en: "Verdict" },
   "banker.methodology": { fr: "Méthodologie : VAN calculée au taux d'actualisation de 10%. TRI calculé par méthode Newton-Raphson. DSCR = (Résultat net + Amortissements) / Annuité de remboursement. Apport personnel minimum recommandé : 20% de l'investissement total.", en: "Methodology: NPV calculated at 10% discount rate. IRR calculated using Newton-Raphson method. DSCR = (Net Result + Depreciation) / Annual Repayment. Recommended minimum personal contribution: 20% of total investment." },
   "banker.crossTableNote": { fr: "⚡ Liaison inter-tableaux active : les charges du personnel et les investissements alimentent automatiquement les autres tableaux.", en: "⚡ Cross-table linking active: personnel costs and investments automatically feed into other tables." },
+  "banker.revenueEvolution": { fr: "Évolution CA & Résultat", en: "Revenue & Result Evolution" },
+  "banker.cashEvolution": { fr: "Trésorerie mensuelle", en: "Monthly Cash Flow" },
+  "banker.cumulBalance": { fr: "Solde cumulé", en: "Cumulative Balance" },
+  "banker.receipts": { fr: "Encaissements", en: "Receipts" },
+  "banker.disbursements": { fr: "Décaissements", en: "Disbursements" },
+
+  // Import
+  "import.button": { fr: "Importer", en: "Import" },
+  "import.success": { fr: "{count} section(s) importée(s) depuis Excel", en: "{count} section(s) imported from Excel" },
+  "import.noMatch": { fr: "Aucune section financière correspondante trouvée dans le fichier", en: "No matching financial section found in the file" },
+  "import.error": { fr: "Erreur lors de l'import du fichier Excel", en: "Error importing Excel file" },
 
   // Common
   "common.loading": { fr: "Chargement…", en: "Loading…" },

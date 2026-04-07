@@ -57,6 +57,16 @@ const BusinessPlanEditor = () => {
     saveContent(restoredContent);
   };
 
+  const handleImportSection = (sectionId: string, data: Record<string, Record<string, string>>) => {
+    setContent(prev => {
+      const merged = { ...prev };
+      merged[sectionId] = { ...(merged[sectionId] || {}), ...data };
+      const linked = applyCrossTableLinks(merged);
+      scheduleAutoSave(linked);
+      return linked;
+    });
+  };
+
   if (loading) return <FullPageSpinner />;
   if (!plan) return null;
 
@@ -71,6 +81,7 @@ const BusinessPlanEditor = () => {
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         onSave={() => saveContent(content)}
         onRestore={handleRestoreVersion}
+        onImportSection={handleImportSection}
       />
 
       <div className="flex flex-1 overflow-hidden relative">

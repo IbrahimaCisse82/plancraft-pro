@@ -3,6 +3,7 @@ import { SectionConfig } from "./sectionConfig";
 import FinancialChart from "./FinancialChart";
 import { applyFormulas, isComputedRow } from "@/lib/financialFormulas";
 import { useI18n } from "@/contexts/I18nContext";
+import { translateRowLabel, translateColumnLabel } from "@/lib/financialRowLabels";
 
 interface Props {
   section: SectionConfig;
@@ -17,7 +18,7 @@ const formatNumber = (val: string): string => {
 };
 
 const FinancialSection = ({ section, value, onChange, devise, hint }: Props) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const rows = section.rows || [];
   const columns = section.columns || [];
   const onChangeRef = useRef(onChange);
@@ -85,7 +86,7 @@ const FinancialSection = ({ section, value, onChange, devise, hint }: Props) => 
               </th>
               {columns.map((col) => (
                 <th key={col} className="text-right px-3 py-2.5 text-xs font-bold text-secondary-foreground border-b border-border min-w-[100px]">
-                  {col} {currencySymbol && !["Effectif", "Taux de marge (%)", "Durée (années)", "Taux d'intérêt (%)", "Salaire mensuel"].includes(col) ? `(${currencySymbol})` : ""}
+                  {translateColumnLabel(col, lang)} {currencySymbol && !["Effectif", "Taux de marge (%)", "Durée (années)", "Taux d'intérêt (%)", "Salaire mensuel"].includes(col) ? `(${currencySymbol})` : ""}
                 </th>
               ))}
             </tr>
@@ -99,7 +100,7 @@ const FinancialSection = ({ section, value, onChange, devise, hint }: Props) => 
                       colSpan={columns.length + 1}
                       className="px-3 py-2 text-xs font-bold text-primary uppercase tracking-wider border-b border-border/50"
                     >
-                      {separatorLabel(row)}
+                      {translateRowLabel(row, lang).replace(/^-+\s*/, "").replace(/\s*-+$/, "") || separatorLabel(row)}
                     </td>
                   </tr>
                 );
@@ -119,7 +120,7 @@ const FinancialSection = ({ section, value, onChange, devise, hint }: Props) => 
                   } hover:bg-primary/5 transition-colors`}
                 >
                   <td className={`px-3 py-2 text-xs font-medium border-b border-border/50 sticky left-0 bg-inherit z-10 ${computed ? "text-primary" : "text-foreground"}`}>
-                    {row}
+                    {translateRowLabel(row, lang)}
                     {computed && (
                       <span className="ml-1.5 text-[0.6rem] text-muted-foreground font-normal">
                         {t("editor.auto")}
