@@ -81,11 +81,13 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
         <button
           onClick={() => exportBusinessPlanXLSX(plan, content, t)}
           className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
-          aria-label="CSV"
+          aria-label="XLSX"
         >
           <Download className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">CSV</span>
+          <span className="hidden sm:inline">XLSX</span>
         </button>
+
+        <ImportExcelButton onImport={onImportSection} />
 
         <VersionHistoryPanel planId={plan.id} content={content} onRestore={onRestore} />
 
