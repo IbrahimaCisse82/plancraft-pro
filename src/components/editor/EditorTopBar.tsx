@@ -18,9 +18,10 @@ interface Props {
   onToggleSidebar: () => void;
   onSave: () => void;
   onRestore: (content: BPContent) => void;
+  onImportSection: (sectionId: string, data: Record<string, Record<string, string>>) => void;
 }
 
-const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSidebar, onSave, onRestore }: Props) => {
+const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSidebar, onSave, onRestore, onImportSection }: Props) => {
   const { t } = useI18n();
 
   return (
