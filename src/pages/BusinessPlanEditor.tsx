@@ -81,6 +81,7 @@ const BusinessPlanEditor = () => {
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         onSave={() => saveContent(content)}
         onRestore={handleRestoreVersion}
+        onImportSection={handleImportSection}
       />
 
       <div className="flex flex-1 overflow-hidden relative">
