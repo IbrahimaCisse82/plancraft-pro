@@ -32,7 +32,7 @@ describe("calculateIRR", () => {
   it("returns correct IRR for standard project", () => {
     const cf = [-100000, 40000, 50000, 60000];
     const irr = calculateIRR(cf);
-    expect(irr).toBeCloseTo(0.187, 2);
+    expect(irr).toBeCloseTo(0.216, 2);
   });
 
   it("returns NaN when no sign change", () => {
