@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import { BP_SECTIONS, resolveSection } from "@/components/editor/sectionConfig";
-import { isComputedRow } from "@/lib/financialFormulas";
+import { isComputedRow, calculateFinancialRatios } from "@/lib/financialFormulas";
 import type { BusinessPlan } from "@/types/businessPlan";
 
 export const exportBusinessPlanPDF = (
