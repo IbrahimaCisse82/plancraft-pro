@@ -120,7 +120,7 @@ const FinancialSection = ({ section, value, onChange, devise, hint }: Props) => 
                   } hover:bg-primary/5 transition-colors`}
                 >
                   <td className={`px-3 py-2 text-xs font-medium border-b border-border/50 sticky left-0 bg-inherit z-10 ${computed ? "text-primary" : "text-foreground"}`}>
-                    {row}
+                    {translateRowLabel(row, lang)}
                     {computed && (
                       <span className="ml-1.5 text-[0.6rem] text-muted-foreground font-normal">
                         {t("editor.auto")}
