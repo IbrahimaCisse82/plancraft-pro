@@ -205,6 +205,8 @@ const BankerSummary = ({ content, devise }: Props) => {
       <div className="mt-4 text-[0.65rem] text-muted-foreground leading-relaxed px-2">
         {t("banker.methodology")}
       </div>
+
+      <BankerCharts content={content} devise={devise} />
     </div>
   );
 };
