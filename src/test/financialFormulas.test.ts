@@ -11,7 +11,7 @@ describe("calculateNPV", () => {
   it("returns correct NPV for simple cash flows", () => {
     const cf = [-100000, 40000, 50000, 60000];
     const npv = calculateNPV(cf, 0.10);
-    expect(npv).toBeCloseTo(20788, -1);
+    expect(npv).toBeCloseTo(22765, -1);
   });
 
   it("returns negative NPV for unprofitable project", () => {
