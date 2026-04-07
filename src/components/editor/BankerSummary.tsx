@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { calculateFinancialRatios } from "@/lib/financialFormulas";
 import { useI18n } from "@/contexts/I18nContext";
+import BankerCharts from "./BankerCharts";
 
 interface Props {
   content: Record<string, any>;
