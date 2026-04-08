@@ -35,6 +35,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [plans, setPlans] = useState<BPRow[]>([]);
+  const [shareViews, setShareViews] = useState<{ plan_id: string; created_at: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"analytics" | "plans" | "users">("analytics");
   const [deleteId, setDeleteId] = useState<string | null>(null);
