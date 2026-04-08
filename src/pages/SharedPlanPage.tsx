@@ -41,6 +41,13 @@ const SharedPlanPage = () => {
 
       setPlan(planData);
       setLoading(false);
+
+      // Log view (fire-and-forget)
+      supabase.from("share_views").insert({
+        plan_id: planId,
+        token: token,
+        viewer_user_agent: navigator.userAgent,
+      }).then(() => {});
     };
     fetchSharedPlan();
   }, [token, t]);
