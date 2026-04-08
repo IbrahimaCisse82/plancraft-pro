@@ -142,7 +142,7 @@ const AdminDashboard = () => {
         <h1 className="font-display text-4xl font-bold mb-2">{t("admin.title")}</h1>
         <p className="text-sm text-muted-foreground mb-8">{t("admin.subtitle")}</p>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
           {[
             { val: users.length, label: t("admin.users"), icon: <Users className="w-4 h-4" /> },
             { val: plans.length, label: t("admin.businessPlans"), icon: <FileText className="w-4 h-4" /> },
