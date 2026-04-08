@@ -4,6 +4,7 @@ import NarrativeSection from "@/components/editor/NarrativeSection";
 import FinancialSection from "@/components/editor/FinancialSection";
 import SwotSection from "@/components/editor/SwotSection";
 import BankerSummary from "@/components/editor/BankerSummary";
+import FinancialValidation from "@/components/editor/FinancialValidation";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
 import type { BusinessPlan, BPContent } from "@/types/businessPlan";
 import { toast } from "sonner";
