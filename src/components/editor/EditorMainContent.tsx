@@ -4,6 +4,7 @@ import NarrativeSection from "@/components/editor/NarrativeSection";
 import FinancialSection from "@/components/editor/FinancialSection";
 import SwotSection from "@/components/editor/SwotSection";
 import BankerSummary from "@/components/editor/BankerSummary";
+import FinancialValidation from "@/components/editor/FinancialValidation";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
 import type { BusinessPlan, BPContent } from "@/types/businessPlan";
 import { toast } from "sonner";
@@ -65,6 +66,7 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
             <div className="mb-3 px-4 py-2 bg-accent/30 border border-accent/20 rounded-lg text-xs text-foreground leading-relaxed">
               {t("banker.crossTableNote")}
             </div>
+            <FinancialValidation content={content} />
             <BankerSummary content={content} devise={plan.devise} />
           </div>
         );

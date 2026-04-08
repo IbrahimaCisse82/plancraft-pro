@@ -255,6 +255,61 @@ export const exportBusinessPlanPDF = (
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text(`${label("banker.score", "Score de bankabilité")} : ${score}% (${passCount}/${summaryRows.length})`, margin, y);
+
+    // ── Mini bar chart: Revenue evolution ──
+    y += 15;
+    const years = ["Année 1", "Année 2", "Année 3"];
+    const caValues = years.map(yr => num(cr?.["Chiffre d'affaires"]?.[yr]));
+    const rnValues = years.map(yr => num(cr?.["Résultat net"]?.[yr]));
+    const maxVal = Math.max(...caValues, ...rnValues, 1);
+
+    if (caValues.some(v => v > 0)) {
+      checkPageBreak(60);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "bold");
+      doc.text(`📈 ${label("banker.revenueEvolution", "Évolution CA & Résultat")}`, margin, y);
+      y += 6;
+
+      const chartX = margin;
+      const chartW = maxWidth * 0.6;
+      const chartH = 40;
+      const barW = chartW / (years.length * 3);
+
+      for (let i = 0; i < years.length; i++) {
+        const x = chartX + i * (chartW / years.length) + barW * 0.5;
+
+        // CA bar (gold)
+        const caH = (caValues[i] / maxVal) * chartH;
+        doc.setFillColor(200, 170, 90);
+        doc.rect(x, y + chartH - caH, barW, caH, "F");
+
+        // RN bar (green/red)
+        const rnH = Math.abs(rnValues[i] / maxVal) * chartH;
+        if (rnValues[i] >= 0) {
+          doc.setFillColor(34, 139, 34);
+        } else {
+          doc.setFillColor(220, 38, 38);
+        }
+        doc.rect(x + barW + 2, y + chartH - rnH, barW, rnH, "F");
+
+        // Year label
+        doc.setFontSize(7);
+        doc.setFont("helvetica", "normal");
+        doc.text(`A${i + 1}`, x + barW * 0.5, y + chartH + 5);
+      }
+
+      // Legend
+      const legendX = chartX + chartW + 10;
+      doc.setFillColor(200, 170, 90);
+      doc.rect(legendX, y, 6, 4, "F");
+      doc.setFontSize(7);
+      doc.text("CA", legendX + 8, y + 3);
+      doc.setFillColor(34, 139, 34);
+      doc.rect(legendX, y + 7, 6, 4, "F");
+      doc.text("RN", legendX + 8, y + 10);
+
+      y += chartH + 12;
+    }
   }
 
   doc.save(`${plan.name.replace(/\s+/g, "_")}_BusinessPlan.pdf`);

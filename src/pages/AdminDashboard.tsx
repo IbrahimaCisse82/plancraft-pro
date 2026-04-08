@@ -4,8 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/contexts/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Users, FileText, Eye, Trash2, TrendingUp, BarChart3 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend } from "recharts";
+import { Users, FileText, Eye, Trash2, TrendingUp, BarChart3, Share2 } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend, LineChart, Line } from "recharts";
 import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
@@ -35,6 +35,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [plans, setPlans] = useState<BPRow[]>([]);
+  const [shareViews, setShareViews] = useState<{ plan_id: string; created_at: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"analytics" | "plans" | "users">("analytics");
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -44,12 +45,14 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!isAdmin) { navigate("/dashboard"); return; }
     const fetch = async () => {
-      const [usersRes, plansRes] = await Promise.all([
+      const [usersRes, plansRes, viewsRes] = await Promise.all([
         supabase.from("profiles").select("user_id, display_name, avatar_url, created_at").order("created_at", { ascending: false }),
         supabase.from("business_plans").select("id, name, secteur, statut, progress, user_id, created_at").order("created_at", { ascending: false }),
+        supabase.from("share_views").select("plan_id, created_at").order("created_at", { ascending: false }).limit(500),
       ]);
       if (usersRes.data) setUsers(usersRes.data);
       if (plansRes.data) setPlans(plansRes.data);
+      if (viewsRes.data) setShareViews(viewsRes.data);
       setLoading(false);
     };
     fetch();
@@ -101,8 +104,22 @@ const AdminDashboard = () => {
 
     const completionRate = plans.length ? Math.round((plans.filter(p => p.statut === "finalise").length / plans.length) * 100) : 0;
 
-    return { avgProgress, statusData, sectorData, monthlyData, completionRate };
-  }, [plans, users, t, dateLocale]);
+    // Share view trends (last 7 days)
+    const viewTrend = [];
+    const now2 = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now2);
+      d.setDate(d.getDate() - i);
+      const dayStr = d.toLocaleDateString(dateLocale, { weekday: "short", day: "numeric" });
+      const count = shareViews.filter(v => {
+        const vd = new Date(v.created_at);
+        return vd.toDateString() === d.toDateString();
+      }).length;
+      viewTrend.push({ day: dayStr, views: count });
+    }
+
+    return { avgProgress, statusData, sectorData, monthlyData, completionRate, viewTrend, totalViews: shareViews.length };
+  }, [plans, users, shareViews, t, dateLocale]);
 
   const statusColors: Record<string, string> = {
     brouillon: "bg-secondary text-muted-foreground",
@@ -125,13 +142,14 @@ const AdminDashboard = () => {
         <h1 className="font-display text-4xl font-bold mb-2">{t("admin.title")}</h1>
         <p className="text-sm text-muted-foreground mb-8">{t("admin.subtitle")}</p>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
           {[
             { val: users.length, label: t("admin.users"), icon: <Users className="w-4 h-4" /> },
             { val: plans.length, label: t("admin.businessPlans"), icon: <FileText className="w-4 h-4" /> },
             { val: plans.filter(p => p.statut === "finalise").length, label: t("admin.finalized") },
             { val: `${analytics.avgProgress}%`, label: t("admin.avgProgress") },
             { val: `${analytics.completionRate}%`, label: t("admin.completionRate"), icon: <TrendingUp className="w-4 h-4" /> },
+            { val: analytics.totalViews, label: t("admin.shareViews"), icon: <Share2 className="w-4 h-4" /> },
           ].map((stat) => (
             <div key={stat.label} className="bg-card border border-border rounded-lg p-5">
               <div className="font-display text-3xl font-bold text-[hsl(var(--gold-light))]">{stat.val}</div>
@@ -210,6 +228,21 @@ const AdminDashboard = () => {
                     <Tooltip contentStyle={tooltipStyle} labelStyle={{ color: "hsl(36, 20%, 93%)" }} />
                     <Bar dataKey="value" name="Plans" fill="hsl(217, 90%, 64%)" radius={[0, 4, 4, 0]} />
                   </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
+            {analytics.viewTrend.some(d => d.views > 0) && (
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="text-sm font-bold mb-4">👁️ {t("admin.shareViewTrend")}</h3>
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart data={analytics.viewTrend}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 100% / 0.05)" />
+                    <XAxis dataKey="day" tick={{ fontSize: 11, fill: "hsl(30, 7%, 40%)" }} />
+                    <YAxis tick={{ fontSize: 10, fill: "hsl(30, 7%, 40%)" }} allowDecimals={false} />
+                    <Tooltip contentStyle={tooltipStyle} labelStyle={{ color: "hsl(36, 20%, 93%)" }} />
+                    <Line type="monotone" dataKey="views" name={t("admin.shareViews")} stroke="hsl(43, 55%, 54%)" strokeWidth={2.5} dot={{ r: 3 }} />
+                  </LineChart>
                 </ResponsiveContainer>
               </div>
             )}
