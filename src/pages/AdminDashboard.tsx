@@ -149,6 +149,7 @@ const AdminDashboard = () => {
             { val: plans.filter(p => p.statut === "finalise").length, label: t("admin.finalized") },
             { val: `${analytics.avgProgress}%`, label: t("admin.avgProgress") },
             { val: `${analytics.completionRate}%`, label: t("admin.completionRate"), icon: <TrendingUp className="w-4 h-4" /> },
+            { val: analytics.totalViews, label: t("admin.shareViews"), icon: <Share2 className="w-4 h-4" /> },
           ].map((stat) => (
             <div key={stat.label} className="bg-card border border-border rounded-lg p-5">
               <div className="font-display text-3xl font-bold text-[hsl(var(--gold-light))]">{stat.val}</div>
