@@ -104,8 +104,22 @@ const AdminDashboard = () => {
 
     const completionRate = plans.length ? Math.round((plans.filter(p => p.statut === "finalise").length / plans.length) * 100) : 0;
 
-    return { avgProgress, statusData, sectorData, monthlyData, completionRate };
-  }, [plans, users, t, dateLocale]);
+    // Share view trends (last 7 days)
+    const viewTrend = [];
+    const now2 = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now2);
+      d.setDate(d.getDate() - i);
+      const dayStr = d.toLocaleDateString(dateLocale, { weekday: "short", day: "numeric" });
+      const count = shareViews.filter(v => {
+        const vd = new Date(v.created_at);
+        return vd.toDateString() === d.toDateString();
+      }).length;
+      viewTrend.push({ day: dayStr, views: count });
+    }
+
+    return { avgProgress, statusData, sectorData, monthlyData, completionRate, viewTrend, totalViews: shareViews.length };
+  }, [plans, users, shareViews, t, dateLocale]);
 
   const statusColors: Record<string, string> = {
     brouillon: "bg-secondary text-muted-foreground",
