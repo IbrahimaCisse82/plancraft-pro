@@ -140,6 +140,33 @@ export type Database = {
         }
         Relationships: []
       }
+      share_views: {
+        Row: {
+          created_at: string
+          id: string
+          plan_id: string
+          token: string
+          viewer_ip: string | null
+          viewer_user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          plan_id: string
+          token: string
+          viewer_ip?: string | null
+          viewer_user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          plan_id?: string
+          token?: string
+          viewer_ip?: string | null
+          viewer_user_agent?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
