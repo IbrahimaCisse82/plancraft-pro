@@ -23,6 +23,8 @@ const BusinessPlanEditor = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarSearch, setSidebarSearch] = useState("");
   const { saving, saved, saveContent, scheduleAutoSave } = useAutoSave(id);
+  const presenceUsers = useRealtimePresence(id);
+  const { t } = useI18n();
 
   useEffect(() => {
     const fetchPlan = async () => {
