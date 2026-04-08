@@ -66,6 +66,7 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
             <div className="mb-3 px-4 py-2 bg-accent/30 border border-accent/20 rounded-lg text-xs text-foreground leading-relaxed">
               {t("banker.crossTableNote")}
             </div>
+            <FinancialValidation content={content} />
             <BankerSummary content={content} devise={plan.devise} />
           </div>
         );

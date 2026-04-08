@@ -9,6 +9,8 @@ import EditorMainContent from "@/components/editor/EditorMainContent";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { FullPageSpinner } from "@/components/shared/LoadingSpinner";
 import { applyCrossTableLinks } from "@/lib/financialFormulas";
+import { useRealtimePresence } from "@/hooks/useRealtimePresence";
+import { useI18n } from "@/contexts/I18nContext";
 import type { BusinessPlan, BPContent } from "@/types/businessPlan";
 
 const BusinessPlanEditor = () => {
