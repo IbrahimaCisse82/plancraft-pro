@@ -88,6 +88,26 @@ const BusinessPlanEditor = () => {
         onImportSection={handleImportSection}
       />
 
+      {presenceUsers.length > 0 && (
+        <div className="h-7 bg-accent/30 border-b border-border flex items-center px-4 gap-2">
+          <div className="flex -space-x-1.5">
+            {presenceUsers.map(u => (
+              <div
+                key={u.user_id}
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[0.5rem] font-bold text-primary-foreground border border-background"
+                style={{ backgroundColor: u.color }}
+                title={u.display_name}
+              >
+                {u.display_name.charAt(0).toUpperCase()}
+              </div>
+            ))}
+          </div>
+          <span className="text-[0.6rem] text-muted-foreground">
+            {presenceUsers.map(u => u.display_name).join(", ")} {t("presence.viewing")}
+          </span>
+        </div>
+      )}
+
       <div className="flex flex-1 overflow-hidden relative">
         {sidebarOpen && (
           <div
