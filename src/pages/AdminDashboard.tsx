@@ -45,12 +45,14 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!isAdmin) { navigate("/dashboard"); return; }
     const fetch = async () => {
-      const [usersRes, plansRes] = await Promise.all([
+      const [usersRes, plansRes, viewsRes] = await Promise.all([
         supabase.from("profiles").select("user_id, display_name, avatar_url, created_at").order("created_at", { ascending: false }),
         supabase.from("business_plans").select("id, name, secteur, statut, progress, user_id, created_at").order("created_at", { ascending: false }),
+        supabase.from("share_views").select("plan_id, created_at").order("created_at", { ascending: false }).limit(500),
       ]);
       if (usersRes.data) setUsers(usersRes.data);
       if (plansRes.data) setPlans(plansRes.data);
+      if (viewsRes.data) setShareViews(viewsRes.data);
       setLoading(false);
     };
     fetch();
