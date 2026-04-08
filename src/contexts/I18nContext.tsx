@@ -309,6 +309,8 @@ const translations: Translations = {
   "admin.archived": { fr: "Archivés", en: "Archived" },
   "admin.deleted": { fr: "Supprimé", en: "Deleted" },
   "admin.undefined": { fr: "Non défini", en: "Undefined" },
+  "admin.shareViews": { fr: "Vues partagées", en: "Share Views" },
+  "admin.shareViewTrend": { fr: "Vues des liens partagés (7 jours)", en: "Share link views (7 days)" },
 
   // Landing - Hero
   "hero.badge": { fr: "✦ Propulsé par l'Intelligence Artificielle", en: "✦ Powered by Artificial Intelligence" },

@@ -231,6 +231,21 @@ const AdminDashboard = () => {
                 </ResponsiveContainer>
               </div>
             )}
+
+            {analytics.viewTrend.some(d => d.views > 0) && (
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="text-sm font-bold mb-4">👁️ {t("admin.shareViewTrend")}</h3>
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart data={analytics.viewTrend}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 100% / 0.05)" />
+                    <XAxis dataKey="day" tick={{ fontSize: 11, fill: "hsl(30, 7%, 40%)" }} />
+                    <YAxis tick={{ fontSize: 10, fill: "hsl(30, 7%, 40%)" }} allowDecimals={false} />
+                    <Tooltip contentStyle={tooltipStyle} labelStyle={{ color: "hsl(36, 20%, 93%)" }} />
+                    <Line type="monotone" dataKey="views" name={t("admin.shareViews")} stroke="hsl(43, 55%, 54%)" strokeWidth={2.5} dot={{ r: 3 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
         ) : tab === "plans" ? (
           <div className="bg-card border border-border rounded-xl overflow-x-auto">
