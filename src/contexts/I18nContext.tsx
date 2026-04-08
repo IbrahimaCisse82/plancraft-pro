@@ -468,6 +468,26 @@ const translations: Translations = {
   "import.noMatch": { fr: "Aucune section financière correspondante trouvée dans le fichier", en: "No matching financial section found in the file" },
   "import.error": { fr: "Erreur lors de l'import du fichier Excel", en: "Error importing Excel file" },
 
+  // Financial Validation
+  "validation.title": { fr: "Diagnostic financier", en: "Financial Diagnostic" },
+  "validation.zeroRevenue": { fr: "Le chiffre d'affaires Année 1 est à 0", en: "Year 1 revenue is 0" },
+  "validation.revenueDrop": { fr: "Le CA baisse fortement entre Année 2 et 3", en: "Revenue drops sharply between Year 2 and 3" },
+  "validation.chargesExceedMargin": { fr: "Les charges dépassent la marge brute en Année 1", en: "Expenses exceed gross margin in Year 1" },
+  "validation.alwaysLoss": { fr: "Résultat net négatif sur les 3 années — projet non viable en l'état", en: "Net result negative for all 3 years — project not viable as-is" },
+  "validation.lossY1": { fr: "Résultat net négatif en Année 1 (fréquent au démarrage)", en: "Net result negative in Year 1 (common at startup)" },
+  "validation.noInvestment": { fr: "Aucun investissement renseigné", en: "No investments entered" },
+  "validation.noFinancing": { fr: "Aucune source de financement renseignée", en: "No funding sources entered" },
+  "validation.lowContribution": { fr: "Apport personnel < 10% — risque de refus bancaire", en: "Personal contribution < 10% — bank rejection risk" },
+  "validation.negativeBfr": { fr: "Le BFR est négatif — vérifiez vos hypothèses", en: "Working capital is negative — check your assumptions" },
+  "validation.breakEvenTooHigh": { fr: "Le seuil de rentabilité est plus de 2× le CA prévu", en: "Break-even is more than 2× projected revenue" },
+  "validation.cashNegative6m": { fr: "Trésorerie négative 6+ mois — risque de cessation de paiement", en: "Negative cash flow for 6+ months — risk of insolvency" },
+  "validation.cashNegative3m": { fr: "Trésorerie négative pendant 3+ mois", en: "Negative cash flow for 3+ months" },
+  "validation.unbalancedSheet": { fr: "Bilan non équilibré (Actif ≠ Passif)", en: "Unbalanced sheet (Assets ≠ Liabilities)" },
+  "validation.allGood": { fr: "Tous les indicateurs financiers sont cohérents ✓", en: "All financial indicators are consistent ✓" },
+
+  // Presence
+  "presence.viewing": { fr: "consulte aussi ce plan", en: "also viewing this plan" },
+
   // Common
   "common.loading": { fr: "Chargement…", en: "Loading…" },
   "common.confirmDelete": { fr: "Supprimer ce business plan ?", en: "Delete this business plan?" },
