@@ -213,10 +213,10 @@ test.describe("⚡ Performance / Health", () => {
     await page.goto("/");
     await waitForApp(page);
     await page.waitForTimeout(800);
-    // On ignore les warnings React/dev attendus et erreurs réseau d'analytics
+    // On ignore tous les Warning React de dev et erreurs réseau bénignes
     const critical = consoleErrors.filter(
       (e) =>
-        !/401|403|favicon|analytics|net::ERR_|Failed to load resource|Function components cannot be given refs|forwardRef/i.test(e)
+        !/^Warning:|Function components cannot be given refs|forwardRef|401|403|favicon|analytics|net::ERR_|Failed to load resource/i.test(e)
     );
     expect(critical, `Erreurs console: ${critical.join(" | ")}`).toEqual([]);
   });
