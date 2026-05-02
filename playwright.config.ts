@@ -9,17 +9,14 @@ export default defineConfig({
     baseURL: process.env.E2E_BASE_URL || "http://localhost:8080",
     trace: "off",
     headless: true,
+    launchOptions: {
+      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
+    },
   },
   projects: [
     {
       name: "chromium",
-      use: {
-        ...devices["Desktop Chrome"],
-        launchOptions: {
-          executablePath:
-            process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
-        },
-      },
+      use: { ...devices["Desktop Chrome"], channel: undefined },
     },
   ],
   webServer: process.env.E2E_BASE_URL
