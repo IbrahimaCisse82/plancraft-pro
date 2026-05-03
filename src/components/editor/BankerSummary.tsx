@@ -210,6 +210,8 @@ const BankerSummary = ({ content, devise, planName = "" }: Props) => {
       </div>
 
       <BankerCharts content={content} devise={devise} />
+
+      <BceaoSection content={content} devise={devise} planName={planName} />
     </div>
   );
 };
