@@ -67,7 +67,7 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
               {t("banker.crossTableNote")}
             </div>
             <FinancialValidation content={content} />
-            <BankerSummary content={content} devise={plan.devise} />
+            <BankerSummary content={content} devise={plan.devise} planName={plan.name} />
           </div>
         );
     }
