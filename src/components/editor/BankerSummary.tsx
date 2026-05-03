@@ -2,10 +2,12 @@ import { useMemo } from "react";
 import { calculateFinancialRatios } from "@/lib/financialFormulas";
 import { useI18n } from "@/contexts/I18nContext";
 import BankerCharts from "./BankerCharts";
+import BceaoSection from "./BceaoSection";
 
 interface Props {
   content: Record<string, any>;
   devise: string;
+  planName?: string;
 }
 
 const num = (val: string | undefined): number => {
