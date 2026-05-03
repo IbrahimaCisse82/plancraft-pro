@@ -24,7 +24,7 @@ const Verdict = ({ ok }: { ok: boolean }) => (
   </span>
 );
 
-const BankerSummary = ({ content, devise }: Props) => {
+const BankerSummary = ({ content, devise, planName = "" }: Props) => {
   const { t } = useI18n();
   const currencySymbol = devise.includes("FCFA") ? "FCFA" : devise.includes("EUR") ? "€" : devise.includes("USD") ? "$" : devise.includes("MAD") ? "MAD" : "";
 
