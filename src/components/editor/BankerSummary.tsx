@@ -2,10 +2,12 @@ import { useMemo } from "react";
 import { calculateFinancialRatios } from "@/lib/financialFormulas";
 import { useI18n } from "@/contexts/I18nContext";
 import BankerCharts from "./BankerCharts";
+import BceaoSection from "./BceaoSection";
 
 interface Props {
   content: Record<string, any>;
   devise: string;
+  planName?: string;
 }
 
 const num = (val: string | undefined): number => {
@@ -22,7 +24,7 @@ const Verdict = ({ ok }: { ok: boolean }) => (
   </span>
 );
 
-const BankerSummary = ({ content, devise }: Props) => {
+const BankerSummary = ({ content, devise, planName = "" }: Props) => {
   const { t } = useI18n();
   const currencySymbol = devise.includes("FCFA") ? "FCFA" : devise.includes("EUR") ? "€" : devise.includes("USD") ? "$" : devise.includes("MAD") ? "MAD" : "";
 
@@ -208,6 +210,8 @@ const BankerSummary = ({ content, devise }: Props) => {
       </div>
 
       <BankerCharts content={content} devise={devise} />
+
+      <BceaoSection content={content} devise={devise} planName={planName} />
     </div>
   );
 };
