@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { Save, ChevronLeft, Check, Download, Menu, X } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Save, ChevronLeft, Check, Download, Menu, X, Lock } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { exportBusinessPlanPDF } from "@/lib/exportPdf";
 import { exportBusinessPlanDOCX } from "@/lib/exportDocx";
@@ -7,6 +7,8 @@ import { exportBusinessPlanXLSX } from "@/lib/exportXlsx";
 import VersionHistoryPanel from "@/components/editor/VersionHistoryPanel";
 import ShareButton from "@/components/editor/ShareButton";
 import ImportExcelButton from "@/components/editor/ImportExcelButton";
+import { usePlan } from "@/hooks/usePlan";
+import { toast } from "sonner";
 import type { BusinessPlan, BPContent } from "@/types/businessPlan";
 
 interface Props {
@@ -22,7 +24,28 @@ interface Props {
 }
 
 const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSidebar, onSave, onRestore, onImportSection }: Props) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const navigate = useNavigate();
+  const { limits, plan: tier } = usePlan();
+
+  const requirePro = (feature: string) => {
+    toast.error(
+      lang === "fr"
+        ? `${feature} : réservé aux plans Pro et Business (actuel : ${tier.toUpperCase()}).`
+        : `${feature}: Pro and Business plans only (current: ${tier.toUpperCase()}).`,
+      {
+        action: {
+          label: lang === "fr" ? "Passer Pro" : "Upgrade",
+          onClick: () => navigate("/#tarifs"),
+        },
+      }
+    );
+  };
+
+  const canDocx = limits.exports.includes("docx");
+  const canXlsx = limits.exports.includes("xlsx");
+  const canShare = limits.publicSharing;
+  const canVersion = limits.versionHistory;
 
   return (
     <div className="sticky top-0 z-50 h-[52px] bg-card border-b border-border flex items-center px-4 gap-3 shrink-0">
@@ -70,28 +93,58 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
         </button>
 
         <button
-          onClick={() => exportBusinessPlanDOCX(plan, content, t)}
-          className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
+          onClick={() => canDocx ? exportBusinessPlanDOCX(plan, content, t) : requirePro("Export Word")}
+          className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+            canDocx
+              ? "bg-secondary border border-border text-secondary-foreground hover:border-primary hover:text-primary"
+              : "bg-secondary/50 border border-dashed border-border text-muted-foreground"
+          }`}
           aria-label="DOCX"
         >
-          <Download className="w-3.5 h-3.5" />
+          {canDocx ? <Download className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
           <span className="hidden sm:inline">DOCX</span>
         </button>
 
         <button
-          onClick={() => exportBusinessPlanXLSX(plan, content, t)}
-          className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
+          onClick={() => canXlsx ? exportBusinessPlanXLSX(plan, content, t) : requirePro("Export Excel")}
+          className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+            canXlsx
+              ? "bg-secondary border border-border text-secondary-foreground hover:border-primary hover:text-primary"
+              : "bg-secondary/50 border border-dashed border-border text-muted-foreground"
+          }`}
           aria-label="XLSX"
         >
-          <Download className="w-3.5 h-3.5" />
+          {canXlsx ? <Download className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
           <span className="hidden sm:inline">XLSX</span>
         </button>
 
         <ImportExcelButton onImport={onImportSection} />
 
-        <VersionHistoryPanel planId={plan.id} content={content} onRestore={onRestore} />
+        {canVersion ? (
+          <VersionHistoryPanel planId={plan.id} content={content} onRestore={onRestore} />
+        ) : (
+          <button
+            onClick={() => requirePro(lang === "fr" ? "Historique des versions" : "Version history")}
+            className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary/50 border border-dashed border-border rounded-md text-xs font-semibold text-muted-foreground"
+            aria-label="Versions"
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{lang === "fr" ? "Versions" : "Versions"}</span>
+          </button>
+        )}
 
-        <ShareButton planId={plan.id} />
+        {canShare ? (
+          <ShareButton planId={plan.id} />
+        ) : (
+          <button
+            onClick={() => requirePro(lang === "fr" ? "Partage public" : "Public sharing")}
+            className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary/50 border border-dashed border-border rounded-md text-xs font-semibold text-muted-foreground"
+            aria-label="Share"
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{lang === "fr" ? "Partager" : "Share"}</span>
+          </button>
+        )}
 
         <button
           onClick={onSave}
