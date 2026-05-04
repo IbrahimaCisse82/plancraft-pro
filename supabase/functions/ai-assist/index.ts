@@ -1,10 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+const ALLOWED_MODELS: Record<string, { id: string; cost: number }> = {
+  "gemini-flash": { id: "google/gemini-3-flash-preview", cost: 1 },
+  "gemini-pro": { id: "google/gemini-2.5-pro", cost: 1 },
+  "gpt-5-mini": { id: "openai/gpt-5-mini", cost: 2 },
+  "gpt-5": { id: "openai/gpt-5", cost: 2 },
+};
+const DEFAULT_MODEL_KEY = "gemini-flash";
 
 const SYSTEM_PROMPT = `Tu es un expert en rédaction de business plans professionnels, spécialisé pour les marchés africains et francophones.
 
@@ -40,8 +49,33 @@ serve(async (req) => {
   }
 
   try {
+    // ── Auth: identify the calling user (verify_jwt=false, we validate manually) ──
+    const authHeader = req.headers.get("Authorization") || "";
+    const jwt = authHeader.replace(/^Bearer\s+/i, "").trim();
+    if (!jwt) {
+      return new Response(JSON.stringify({ error: "Authentification requise" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${jwt}` } },
+    });
+    const { data: userData, error: userErr } = await userClient.auth.getUser();
+    if (userErr || !userData?.user) {
+      return new Response(JSON.stringify({ error: "Session invalide" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const body = await req.json();
-    const { messages, sectionTitle, sectionHint, currentContent, planName, secteur, devise } = body;
+    const { messages, sectionTitle, sectionHint, currentContent, planName, secteur, devise, model: modelKey } = body;
+
+    // Resolve & validate model choice (server-side, never trust client)
+    const chosen = ALLOWED_MODELS[typeof modelKey === "string" ? modelKey : DEFAULT_MODEL_KEY] ?? ALLOWED_MODELS[DEFAULT_MODEL_KEY];
 
     // ── Input validation ──
     if (!Array.isArray(messages) || messages.length === 0) {
@@ -123,6 +157,30 @@ serve(async (req) => {
       })),
     ];
 
+    // ── Quota check & consumption (server-side, atomic) ──
+    const { data: quota, error: quotaErr } = await userClient.rpc("consume_ai_credit", {
+      _cost: chosen.cost,
+    });
+    if (quotaErr) {
+      console.error("consume_ai_credit error:", quotaErr);
+      return new Response(JSON.stringify({ error: "Erreur quota IA" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const q = quota as { allowed: boolean; reason?: string; plan?: string; used?: number; limit?: number };
+    if (!q?.allowed) {
+      return new Response(
+        JSON.stringify({
+          error: q?.reason === "quota_exceeded"
+            ? `Quota IA mensuel atteint (${q.used}/${q.limit}). Passez au plan supérieur pour continuer.`
+            : "Quota IA indisponible.",
+          quota: q,
+        }),
+        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -130,7 +188,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: chosen.id,
         messages: allMessages,
         stream: true,
       }),
