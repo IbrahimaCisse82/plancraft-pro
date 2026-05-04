@@ -10,11 +10,14 @@ import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import OnboardingTour from "@/components/onboarding/OnboardingTour";
+import { usePlan } from "@/hooks/usePlan";
+import { toast } from "sonner";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { t, lang } = useI18n();
   const { plans, loading, stats, createPlan, archivePlan, deletePlan, duplicatePlan } = useBusinessPlans();
+  const { plan: userPlan, limits, usage, refresh: refreshPlan } = usePlan();
 
   const statusConfig = {
     brouillon: { label: lang === "fr" ? "Brouillon" : "Draft", className: "bg-secondary text-muted-foreground" },
@@ -81,11 +84,49 @@ const Dashboard = () => {
             <p className="text-sm text-secondary-foreground mt-1">{t("dashboard.subtitle")}</p>
           </div>
           <button
-            onClick={() => setShowModal(true)}
+            onClick={() => {
+              const activeCount = plans.filter(p => p.statut !== "archive").length;
+              if (limits.maxPlans !== -1 && activeCount >= limits.maxPlans) {
+                toast.error(
+                  lang === "fr"
+                    ? `Limite atteinte : plan ${userPlan.toUpperCase()} = ${limits.maxPlans} business plans max. Passez au plan supérieur.`
+                    : `Limit reached: ${userPlan.toUpperCase()} plan = ${limits.maxPlans} business plans max. Upgrade your plan.`
+                );
+                navigate("/#tarifs");
+                return;
+              }
+              setShowModal(true);
+            }}
             className="flex items-center gap-2 px-6 py-2.5 bg-primary rounded-lg text-sm font-bold text-primary-foreground hover:opacity-90 hover:-translate-y-0.5 transition-all"
           >
             {t("dashboard.newPlan")}
           </button>
+        </div>
+
+        {/* Plan badge + AI usage */}
+        <div className="mb-6 flex flex-wrap items-center gap-3 text-xs">
+          <span className="px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary font-bold uppercase tracking-wider">
+            {lang === "fr" ? "Plan" : "Plan"} {userPlan}
+          </span>
+          <span className="text-muted-foreground">
+            {lang === "fr" ? "IA ce mois" : "AI this month"} :{" "}
+            <span className="font-semibold text-foreground">
+              {usage.used} / {usage.limit === 100000 ? "∞" : usage.limit}
+            </span>
+          </span>
+          {limits.maxPlans !== -1 && (
+            <span className="text-muted-foreground">
+              {lang === "fr" ? "Plans" : "Plans"} :{" "}
+              <span className="font-semibold text-foreground">
+                {plans.filter(p => p.statut !== "archive").length} / {limits.maxPlans}
+              </span>
+            </span>
+          )}
+          {userPlan === "free" && (
+            <Link to="/#tarifs" className="text-primary font-bold hover:underline ml-auto">
+              ✨ {lang === "fr" ? "Passer au plan Pro" : "Upgrade to Pro"}
+            </Link>
+          )}
         </div>
 
         {/* Stats */}
