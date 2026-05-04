@@ -157,6 +157,30 @@ serve(async (req) => {
       })),
     ];
 
+    // ── Quota check & consumption (server-side, atomic) ──
+    const { data: quota, error: quotaErr } = await userClient.rpc("consume_ai_credit", {
+      _cost: chosen.cost,
+    });
+    if (quotaErr) {
+      console.error("consume_ai_credit error:", quotaErr);
+      return new Response(JSON.stringify({ error: "Erreur quota IA" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const q = quota as { allowed: boolean; reason?: string; plan?: string; used?: number; limit?: number };
+    if (!q?.allowed) {
+      return new Response(
+        JSON.stringify({
+          error: q?.reason === "quota_exceeded"
+            ? `Quota IA mensuel atteint (${q.used}/${q.limit}). Passez au plan supérieur pour continuer.`
+            : "Quota IA indisponible.",
+          quota: q,
+        }),
+        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -164,7 +188,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: chosen.id,
         messages: allMessages,
         stream: true,
       }),
