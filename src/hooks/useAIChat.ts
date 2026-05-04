@@ -106,6 +106,7 @@ export function useAIChat(opts: UseAIChatOptions) {
           }
         }
       }
+      opts.onQuotaUpdate?.();
     } catch (e: any) {
       if (e.name !== "AbortError") {
         upsert("❌ Une erreur est survenue.");
