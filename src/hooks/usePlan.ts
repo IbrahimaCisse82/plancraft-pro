@@ -83,6 +83,9 @@ export function usePlan() {
 
   useEffect(() => {
     refresh();
+    const handler = () => refresh();
+    window.addEventListener("ai-quota-updated", handler);
+    return () => window.removeEventListener("ai-quota-updated", handler);
   }, [refresh]);
 
   const limits = PLAN_LIMITS[plan];

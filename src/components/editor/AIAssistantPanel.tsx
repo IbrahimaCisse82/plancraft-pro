@@ -57,6 +57,10 @@ const AIAssistantPanel = ({
     planName,
     secteur,
     devise,
+    onQuotaUpdate: () => {
+      // Trigger a refresh event listened by Dashboard / usePlan
+      window.dispatchEvent(new CustomEvent("ai-quota-updated"));
+    },
   });
 
   useEffect(() => {
