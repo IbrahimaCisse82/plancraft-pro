@@ -49,8 +49,33 @@ serve(async (req) => {
   }
 
   try {
+    // ── Auth: identify the calling user (verify_jwt=false, we validate manually) ──
+    const authHeader = req.headers.get("Authorization") || "";
+    const jwt = authHeader.replace(/^Bearer\s+/i, "").trim();
+    if (!jwt) {
+      return new Response(JSON.stringify({ error: "Authentification requise" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${jwt}` } },
+    });
+    const { data: userData, error: userErr } = await userClient.auth.getUser();
+    if (userErr || !userData?.user) {
+      return new Response(JSON.stringify({ error: "Session invalide" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const body = await req.json();
-    const { messages, sectionTitle, sectionHint, currentContent, planName, secteur, devise } = body;
+    const { messages, sectionTitle, sectionHint, currentContent, planName, secteur, devise, model: modelKey } = body;
+
+    // Resolve & validate model choice (server-side, never trust client)
+    const chosen = ALLOWED_MODELS[typeof modelKey === "string" ? modelKey : DEFAULT_MODEL_KEY] ?? ALLOWED_MODELS[DEFAULT_MODEL_KEY];
 
     // ── Input validation ──
     if (!Array.isArray(messages) || messages.length === 0) {
