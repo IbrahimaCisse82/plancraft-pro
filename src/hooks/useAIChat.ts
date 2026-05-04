@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -9,6 +10,8 @@ interface UseAIChatOptions {
   planName: string;
   secteur?: string;
   devise?: string;
+  model?: "gemini-flash" | "gemini-pro" | "gpt-5-mini" | "gpt-5";
+  onQuotaUpdate?: () => void;
 }
 
 const AI_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assist`;
