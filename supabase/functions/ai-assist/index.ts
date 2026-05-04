@@ -1,10 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+const ALLOWED_MODELS: Record<string, { id: string; cost: number }> = {
+  "gemini-flash": { id: "google/gemini-3-flash-preview", cost: 1 },
+  "gemini-pro": { id: "google/gemini-2.5-pro", cost: 1 },
+  "gpt-5-mini": { id: "openai/gpt-5-mini", cost: 2 },
+  "gpt-5": { id: "openai/gpt-5", cost: 2 },
+};
+const DEFAULT_MODEL_KEY = "gemini-flash";
 
 const SYSTEM_PROMPT = `Tu es un expert en rédaction de business plans professionnels, spécialisé pour les marchés africains et francophones.
 
