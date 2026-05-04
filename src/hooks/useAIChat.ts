@@ -44,11 +44,20 @@ export function useAIChat(opts: UseAIChatOptions) {
       const controller = new AbortController();
       abortRef.current = controller;
 
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) {
+        upsert("❌ Vous devez être connecté pour utiliser l'assistant IA.");
+        setIsLoading(false);
+        return;
+      }
+
       const resp = await fetch(AI_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         },
         body: JSON.stringify({
           messages: newMessages,
@@ -58,6 +67,7 @@ export function useAIChat(opts: UseAIChatOptions) {
           planName: opts.planName,
           secteur: opts.secteur,
           devise: opts.devise,
+          model: opts.model,
         }),
         signal: controller.signal,
       });
