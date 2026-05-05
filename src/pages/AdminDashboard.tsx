@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/contexts/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Users, FileText, Eye, Trash2, TrendingUp, BarChart3, Share2 } from "lucide-react";
+import { Users, FileText, Eye, Trash2, TrendingUp, BarChart3, Share2, AlertTriangle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend, LineChart, Line } from "recharts";
 import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
@@ -36,9 +36,11 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [plans, setPlans] = useState<BPRow[]>([]);
   const [shareViews, setShareViews] = useState<{ plan_id: string; created_at: string }[]>([]);
+  const [errorLogs, setErrorLogs] = useState<ErrorLogRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"analytics" | "plans" | "users">("analytics");
+  const [tab, setTab] = useState<"analytics" | "plans" | "users" | "logs">("analytics");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [logFilter, setLogFilter] = useState<"all" | "error" | "warning" | "info">("all");
 
   const dateLocale = lang === "fr" ? "fr-FR" : "en-US";
 
