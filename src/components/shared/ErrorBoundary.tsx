@@ -1,5 +1,6 @@
 import { Component, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { logError } from "@/lib/errorLogger";
 
 interface Props {
   children: ReactNode;
@@ -23,6 +24,11 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("ErrorBoundary caught:", error, errorInfo);
+    logError({
+      message: error.message || "Unknown React error",
+      stack: error.stack,
+      context: { componentStack: errorInfo.componentStack?.slice(0, 2000) },
+    });
   }
 
   render() {
