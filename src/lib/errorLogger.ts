@@ -27,14 +27,14 @@ export const logError = async (payload: LogPayload): Promise<void> => {
     const { data: { user } } = await supabase.auth.getUser();
 
     await supabase.from("error_logs").insert({
-      user_id: user?.id ?? null,
+      user_id: user?.id,
       source: payload.source || "client",
       level: payload.level || "error",
       message: String(payload.message).slice(0, 4000),
-      stack: payload.stack ? String(payload.stack).slice(0, 8000) : null,
-      route: typeof window !== "undefined" ? window.location.pathname : null,
-      context: payload.context || {},
-      user_agent: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 500) : null,
+      stack: payload.stack ? String(payload.stack).slice(0, 8000) : undefined,
+      route: typeof window !== "undefined" ? window.location.pathname : undefined,
+      context: (payload.context || {}) as never,
+      user_agent: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 500) : undefined,
     });
   } catch {
     /* swallow — never let logger crash the app */
