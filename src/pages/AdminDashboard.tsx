@@ -27,6 +27,18 @@ type BPRow = {
   created_at: string;
 };
 
+type ErrorLogRow = {
+  id: string;
+  level: string;
+  source: string;
+  message: string;
+  stack: string | null;
+  route: string | null;
+  user_id: string | null;
+  user_agent: string | null;
+  created_at: string;
+};
+
 const PIE_COLORS = ["hsl(43, 55%, 54%)", "hsl(155, 62%, 53%)", "hsl(2, 82%, 60%)"];
 
 const AdminDashboard = () => {
