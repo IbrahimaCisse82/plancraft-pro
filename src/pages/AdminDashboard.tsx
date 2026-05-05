@@ -326,7 +326,7 @@ const AdminDashboard = () => {
               </tbody>
             </table>
           </div>
-        ) : (
+        ) : tab === "users" ? (
           <div className="bg-card border border-border rounded-xl overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -355,6 +355,74 @@ const AdminDashboard = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-muted-foreground mr-2">{lang === "fr" ? "Filtre :" : "Filter:"}</span>
+              {(["all", "error", "warning", "info"] as const).map(f => (
+                <button key={f} onClick={() => setLogFilter(f)}
+                  className={`px-3 py-1 rounded-md text-[0.65rem] font-bold uppercase transition-all ${
+                    logFilter === f ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
+                  }`}>
+                  {f === "all" ? (lang === "fr" ? "Tous" : "All") : f}
+                </button>
+              ))}
+              <span className="ml-auto text-[0.65rem] text-muted-foreground">
+                {filteredLogs.length} {lang === "fr" ? "entrées" : "entries"}
+              </span>
+              {filteredLogs.length > 0 && (
+                <button onClick={handleClearLogs}
+                  className="flex items-center gap-1 px-2 py-1 rounded-md bg-destructive/10 text-destructive text-[0.65rem] font-bold hover:bg-destructive/20">
+                  <Trash2 className="w-3 h-3" />{lang === "fr" ? "Vider" : "Clear"}
+                </button>
+              )}
+            </div>
+
+            {filteredLogs.length === 0 ? (
+              <div className="bg-card border border-border rounded-xl p-12 text-center text-sm text-muted-foreground">
+                {lang === "fr" ? "Aucun log enregistré ✓" : "No logs recorded ✓"}
+              </div>
+            ) : (
+              <div className="bg-card border border-border rounded-xl overflow-hidden">
+                <div className="max-h-[600px] overflow-y-auto">
+                  {filteredLogs.map(log => (
+                    <details key={log.id} className="border-b border-border/50 group">
+                      <summary className="px-4 py-3 cursor-pointer hover:bg-secondary/30 flex items-start gap-3">
+                        <span className={`px-2 py-0.5 rounded-full text-[0.55rem] font-bold uppercase shrink-0 mt-0.5 ${
+                          log.level === "error" ? "bg-destructive/15 text-destructive" :
+                          log.level === "warning" ? "bg-[hsl(43,55%,54%)]/15 text-[hsl(43,55%,54%)]" :
+                          "bg-secondary text-muted-foreground"
+                        }`}>{log.level}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-medium truncate">{log.message}</div>
+                          <div className="text-[0.6rem] text-muted-foreground mt-0.5 flex gap-2 flex-wrap">
+                            <span>{new Date(log.created_at).toLocaleString(dateLocale)}</span>
+                            {log.route && <span>· {log.route}</span>}
+                            {log.user_id && <span>· user {log.user_id.slice(0, 8)}</span>}
+                            <span>· {log.source}</span>
+                          </div>
+                        </div>
+                        <button onClick={(e) => { e.preventDefault(); handleDeleteLog(log.id); }}
+                          className="p-1 rounded text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100">
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </summary>
+                      {(log.stack || log.user_agent) && (
+                        <div className="px-4 pb-3 pl-14 space-y-2">
+                          {log.stack && (
+                            <pre className="text-[0.6rem] bg-secondary/50 border border-border rounded p-2 overflow-x-auto whitespace-pre-wrap break-words max-h-48 overflow-y-auto">{log.stack}</pre>
+                          )}
+                          {log.user_agent && (
+                            <div className="text-[0.6rem] text-muted-foreground italic truncate">UA: {log.user_agent}</div>
+                          )}
+                        </div>
+                      )}
+                    </details>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
