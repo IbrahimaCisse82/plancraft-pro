@@ -469,6 +469,12 @@ const translations: Translations = {
   "import.success": { fr: "{count} section(s) importée(s) depuis Excel", en: "{count} section(s) imported from Excel" },
   "import.noMatch": { fr: "Aucune section financière correspondante trouvée dans le fichier", en: "No matching financial section found in the file" },
   "import.error": { fr: "Erreur lors de l'import du fichier Excel", en: "Error importing Excel file" },
+  "import.previewTitle": { fr: "Aperçu et mapping de l'import Excel", en: "Preview & map Excel import" },
+  "import.previewDesc": { fr: "Vérifiez la correspondance des feuilles, colonnes et lignes avant l'import.", en: "Check the mapping of sheets, columns and rows before importing." },
+  "import.target": { fr: "Cible :", en: "Target:" },
+  "import.skipSheet": { fr: "— Ignorer cette feuille —", en: "— Skip this sheet —" },
+  "import.skip": { fr: "— Ignorer —", en: "— Skip —" },
+  "import.confirm": { fr: "Importer la sélection", en: "Import selection" },
 
   // Financial Validation
   "validation.title": { fr: "Diagnostic financier", en: "Financial Diagnostic" },
