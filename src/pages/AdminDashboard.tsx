@@ -195,14 +195,20 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        <div className="flex gap-1 mb-6 bg-secondary p-1 rounded-lg w-fit">
+        <div className="flex gap-1 mb-6 bg-secondary p-1 rounded-lg w-fit flex-wrap">
           {([
             { key: "analytics" as const, label: t("admin.analytics"), icon: <BarChart3 className="w-3.5 h-3.5 inline mr-1.5" /> },
             { key: "plans" as const, label: t("admin.businessPlans"), icon: <FileText className="w-3.5 h-3.5 inline mr-1.5" /> },
             { key: "users" as const, label: t("admin.users"), icon: <Users className="w-3.5 h-3.5 inline mr-1.5" /> },
+            { key: "logs" as const, label: lang === "fr" ? "Logs" : "Logs", icon: <AlertTriangle className="w-3.5 h-3.5 inline mr-1.5" /> },
           ]).map(tabItem => (
-            <button key={tabItem.key} onClick={() => setTab(tabItem.key)} className={`px-4 py-2 rounded-md text-xs font-bold transition-all ${tab === tabItem.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+            <button key={tabItem.key} onClick={() => setTab(tabItem.key)} className={`px-4 py-2 rounded-md text-xs font-bold transition-all relative ${tab === tabItem.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
               {tabItem.icon}{tabItem.label}
+              {tabItem.key === "logs" && errorCount24h > 0 && (
+                <span className="ml-1.5 inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-destructive text-destructive-foreground text-[0.6rem] font-bold">
+                  {errorCount24h}
+                </span>
+              )}
             </button>
           ))}
         </div>
