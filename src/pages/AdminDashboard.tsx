@@ -59,14 +59,16 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!isAdmin) { navigate("/dashboard"); return; }
     const fetch = async () => {
-      const [usersRes, plansRes, viewsRes] = await Promise.all([
+      const [usersRes, plansRes, viewsRes, logsRes] = await Promise.all([
         supabase.from("profiles").select("user_id, display_name, avatar_url, created_at").order("created_at", { ascending: false }),
         supabase.from("business_plans").select("id, name, secteur, statut, progress, user_id, created_at").order("created_at", { ascending: false }),
         supabase.from("share_views").select("plan_id, created_at").order("created_at", { ascending: false }).limit(500),
+        supabase.from("error_logs").select("id, level, source, message, stack, route, user_id, user_agent, created_at").order("created_at", { ascending: false }).limit(200),
       ]);
       if (usersRes.data) setUsers(usersRes.data);
       if (plansRes.data) setPlans(plansRes.data);
       if (viewsRes.data) setShareViews(viewsRes.data);
+      if (logsRes.data) setErrorLogs(logsRes.data as ErrorLogRow[]);
       setLoading(false);
     };
     fetch();
@@ -83,6 +85,27 @@ const AdminDashboard = () => {
     const u = users.find((u) => u.user_id === userId);
     return u?.display_name || userId.slice(0, 8);
   };
+
+  const handleDeleteLog = async (id: string) => {
+    const { error } = await supabase.from("error_logs").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else setErrorLogs(prev => prev.filter(l => l.id !== id));
+  };
+
+  const handleClearLogs = async () => {
+    if (!confirm(lang === "fr" ? "Supprimer tous les logs affichés ?" : "Delete all displayed logs?")) return;
+    const ids = filteredLogs.map(l => l.id);
+    if (ids.length === 0) return;
+    const { error } = await supabase.from("error_logs").delete().in("id", ids);
+    if (error) toast.error(error.message);
+    else {
+      setErrorLogs(prev => prev.filter(l => !ids.includes(l.id)));
+      toast.success(lang === "fr" ? `${ids.length} log(s) supprimé(s)` : `${ids.length} log(s) deleted`);
+    }
+  };
+
+  const filteredLogs = logFilter === "all" ? errorLogs : errorLogs.filter(l => l.level === logFilter);
+  const errorCount24h = errorLogs.filter(l => l.level === "error" && Date.now() - new Date(l.created_at).getTime() < 86400000).length;
 
   const analytics = useMemo(() => {
     const avgProgress = plans.length ? Math.round(plans.reduce((s, p) => s + p.progress, 0) / plans.length) : 0;
