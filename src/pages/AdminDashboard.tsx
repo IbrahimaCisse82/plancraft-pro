@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/contexts/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Users, FileText, Eye, Trash2, TrendingUp, BarChart3, Share2 } from "lucide-react";
+import { Users, FileText, Eye, Trash2, TrendingUp, BarChart3, Share2, AlertTriangle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend, LineChart, Line } from "recharts";
 import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
@@ -27,6 +27,18 @@ type BPRow = {
   created_at: string;
 };
 
+type ErrorLogRow = {
+  id: string;
+  level: string;
+  source: string;
+  message: string;
+  stack: string | null;
+  route: string | null;
+  user_id: string | null;
+  user_agent: string | null;
+  created_at: string;
+};
+
 const PIE_COLORS = ["hsl(43, 55%, 54%)", "hsl(155, 62%, 53%)", "hsl(2, 82%, 60%)"];
 
 const AdminDashboard = () => {
@@ -36,23 +48,27 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [plans, setPlans] = useState<BPRow[]>([]);
   const [shareViews, setShareViews] = useState<{ plan_id: string; created_at: string }[]>([]);
+  const [errorLogs, setErrorLogs] = useState<ErrorLogRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"analytics" | "plans" | "users">("analytics");
+  const [tab, setTab] = useState<"analytics" | "plans" | "users" | "logs">("analytics");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [logFilter, setLogFilter] = useState<"all" | "error" | "warning" | "info">("all");
 
   const dateLocale = lang === "fr" ? "fr-FR" : "en-US";
 
   useEffect(() => {
     if (!isAdmin) { navigate("/dashboard"); return; }
     const fetch = async () => {
-      const [usersRes, plansRes, viewsRes] = await Promise.all([
+      const [usersRes, plansRes, viewsRes, logsRes] = await Promise.all([
         supabase.from("profiles").select("user_id, display_name, avatar_url, created_at").order("created_at", { ascending: false }),
         supabase.from("business_plans").select("id, name, secteur, statut, progress, user_id, created_at").order("created_at", { ascending: false }),
         supabase.from("share_views").select("plan_id, created_at").order("created_at", { ascending: false }).limit(500),
+        supabase.from("error_logs").select("id, level, source, message, stack, route, user_id, user_agent, created_at").order("created_at", { ascending: false }).limit(200),
       ]);
       if (usersRes.data) setUsers(usersRes.data);
       if (plansRes.data) setPlans(plansRes.data);
       if (viewsRes.data) setShareViews(viewsRes.data);
+      if (logsRes.data) setErrorLogs(logsRes.data as ErrorLogRow[]);
       setLoading(false);
     };
     fetch();
@@ -69,6 +85,27 @@ const AdminDashboard = () => {
     const u = users.find((u) => u.user_id === userId);
     return u?.display_name || userId.slice(0, 8);
   };
+
+  const handleDeleteLog = async (id: string) => {
+    const { error } = await supabase.from("error_logs").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else setErrorLogs(prev => prev.filter(l => l.id !== id));
+  };
+
+  const handleClearLogs = async () => {
+    if (!confirm(lang === "fr" ? "Supprimer tous les logs affichés ?" : "Delete all displayed logs?")) return;
+    const ids = filteredLogs.map(l => l.id);
+    if (ids.length === 0) return;
+    const { error } = await supabase.from("error_logs").delete().in("id", ids);
+    if (error) toast.error(error.message);
+    else {
+      setErrorLogs(prev => prev.filter(l => !ids.includes(l.id)));
+      toast.success(lang === "fr" ? `${ids.length} log(s) supprimé(s)` : `${ids.length} log(s) deleted`);
+    }
+  };
+
+  const filteredLogs = logFilter === "all" ? errorLogs : errorLogs.filter(l => l.level === logFilter);
+  const errorCount24h = errorLogs.filter(l => l.level === "error" && Date.now() - new Date(l.created_at).getTime() < 86400000).length;
 
   const analytics = useMemo(() => {
     const avgProgress = plans.length ? Math.round(plans.reduce((s, p) => s + p.progress, 0) / plans.length) : 0;
@@ -158,14 +195,20 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        <div className="flex gap-1 mb-6 bg-secondary p-1 rounded-lg w-fit">
+        <div className="flex gap-1 mb-6 bg-secondary p-1 rounded-lg w-fit flex-wrap">
           {([
             { key: "analytics" as const, label: t("admin.analytics"), icon: <BarChart3 className="w-3.5 h-3.5 inline mr-1.5" /> },
             { key: "plans" as const, label: t("admin.businessPlans"), icon: <FileText className="w-3.5 h-3.5 inline mr-1.5" /> },
             { key: "users" as const, label: t("admin.users"), icon: <Users className="w-3.5 h-3.5 inline mr-1.5" /> },
+            { key: "logs" as const, label: lang === "fr" ? "Logs" : "Logs", icon: <AlertTriangle className="w-3.5 h-3.5 inline mr-1.5" /> },
           ]).map(tabItem => (
-            <button key={tabItem.key} onClick={() => setTab(tabItem.key)} className={`px-4 py-2 rounded-md text-xs font-bold transition-all ${tab === tabItem.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+            <button key={tabItem.key} onClick={() => setTab(tabItem.key)} className={`px-4 py-2 rounded-md text-xs font-bold transition-all relative ${tab === tabItem.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
               {tabItem.icon}{tabItem.label}
+              {tabItem.key === "logs" && errorCount24h > 0 && (
+                <span className="ml-1.5 inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-destructive text-destructive-foreground text-[0.6rem] font-bold">
+                  {errorCount24h}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -283,7 +326,7 @@ const AdminDashboard = () => {
               </tbody>
             </table>
           </div>
-        ) : (
+        ) : tab === "users" ? (
           <div className="bg-card border border-border rounded-xl overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -312,6 +355,74 @@ const AdminDashboard = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-muted-foreground mr-2">{lang === "fr" ? "Filtre :" : "Filter:"}</span>
+              {(["all", "error", "warning", "info"] as const).map(f => (
+                <button key={f} onClick={() => setLogFilter(f)}
+                  className={`px-3 py-1 rounded-md text-[0.65rem] font-bold uppercase transition-all ${
+                    logFilter === f ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
+                  }`}>
+                  {f === "all" ? (lang === "fr" ? "Tous" : "All") : f}
+                </button>
+              ))}
+              <span className="ml-auto text-[0.65rem] text-muted-foreground">
+                {filteredLogs.length} {lang === "fr" ? "entrées" : "entries"}
+              </span>
+              {filteredLogs.length > 0 && (
+                <button onClick={handleClearLogs}
+                  className="flex items-center gap-1 px-2 py-1 rounded-md bg-destructive/10 text-destructive text-[0.65rem] font-bold hover:bg-destructive/20">
+                  <Trash2 className="w-3 h-3" />{lang === "fr" ? "Vider" : "Clear"}
+                </button>
+              )}
+            </div>
+
+            {filteredLogs.length === 0 ? (
+              <div className="bg-card border border-border rounded-xl p-12 text-center text-sm text-muted-foreground">
+                {lang === "fr" ? "Aucun log enregistré ✓" : "No logs recorded ✓"}
+              </div>
+            ) : (
+              <div className="bg-card border border-border rounded-xl overflow-hidden">
+                <div className="max-h-[600px] overflow-y-auto">
+                  {filteredLogs.map(log => (
+                    <details key={log.id} className="border-b border-border/50 group">
+                      <summary className="px-4 py-3 cursor-pointer hover:bg-secondary/30 flex items-start gap-3">
+                        <span className={`px-2 py-0.5 rounded-full text-[0.55rem] font-bold uppercase shrink-0 mt-0.5 ${
+                          log.level === "error" ? "bg-destructive/15 text-destructive" :
+                          log.level === "warning" ? "bg-[hsl(43,55%,54%)]/15 text-[hsl(43,55%,54%)]" :
+                          "bg-secondary text-muted-foreground"
+                        }`}>{log.level}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-medium truncate">{log.message}</div>
+                          <div className="text-[0.6rem] text-muted-foreground mt-0.5 flex gap-2 flex-wrap">
+                            <span>{new Date(log.created_at).toLocaleString(dateLocale)}</span>
+                            {log.route && <span>· {log.route}</span>}
+                            {log.user_id && <span>· user {log.user_id.slice(0, 8)}</span>}
+                            <span>· {log.source}</span>
+                          </div>
+                        </div>
+                        <button onClick={(e) => { e.preventDefault(); handleDeleteLog(log.id); }}
+                          className="p-1 rounded text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100">
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </summary>
+                      {(log.stack || log.user_agent) && (
+                        <div className="px-4 pb-3 pl-14 space-y-2">
+                          {log.stack && (
+                            <pre className="text-[0.6rem] bg-secondary/50 border border-border rounded p-2 overflow-x-auto whitespace-pre-wrap break-words max-h-48 overflow-y-auto">{log.stack}</pre>
+                          )}
+                          {log.user_agent && (
+                            <div className="text-[0.6rem] text-muted-foreground italic truncate">UA: {log.user_agent}</div>
+                          )}
+                        </div>
+                      )}
+                    </details>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
