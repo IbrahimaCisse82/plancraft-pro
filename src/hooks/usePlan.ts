@@ -11,6 +11,7 @@ export interface PlanLimits {
   publicSharing: boolean;
   versionHistory: boolean;
   bceaoSummary: boolean;
+  coachClients: boolean;
 }
 
 export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
@@ -21,6 +22,7 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
     publicSharing: false,
     versionHistory: false,
     bceaoSummary: false,
+    coachClients: false,
   },
   pro: {
     maxPlans: -1,
@@ -29,6 +31,7 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
     publicSharing: true,
     versionHistory: true,
     bceaoSummary: true,
+    coachClients: true,
   },
   business: {
     maxPlans: -1,
@@ -37,6 +40,7 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
     publicSharing: true,
     versionHistory: true,
     bceaoSummary: true,
+    coachClients: true,
   },
 };
 
