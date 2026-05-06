@@ -348,7 +348,6 @@ const Dashboard = () => {
                   <option>USD (Dollar US)</option>
                 </select>
               </div>
-              </div>
               {limits.coachClients && clients.length > 0 && (
                 <div>
                   <label className="block text-xs font-bold text-secondary-foreground mb-1.5">
@@ -364,6 +363,7 @@ const Dashboard = () => {
                   </select>
                 </div>
               )}
+            </div>
 
             <div className="flex gap-2.5 mt-6">
               <button onClick={() => setShowModal(false)} className="px-5 py-3 bg-secondary border border-border rounded-lg text-sm font-semibold text-secondary-foreground hover:border-destructive hover:text-destructive transition-all">
