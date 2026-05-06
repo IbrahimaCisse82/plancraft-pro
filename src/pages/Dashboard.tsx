@@ -1,5 +1,5 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBusinessPlans } from "@/hooks/useBusinessPlans";
 import { useClickOutside } from "@/hooks/useClickOutside";
