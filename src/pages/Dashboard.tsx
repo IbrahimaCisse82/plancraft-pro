@@ -60,18 +60,22 @@ const Dashboard = () => {
     }
     setFormErrors({});
     setCreating(true);
-    const ok = await createPlan(result.data.name, result.data.secteur || "", result.data.devise);
+    const ok = await createPlan(result.data.name, result.data.secteur || "", result.data.devise, newClientId || null);
     setCreating(false);
     if (ok) {
       setShowModal(false);
       setNewName("");
       setNewSecteur("");
       setNewDevise("FCFA (XOF)");
+      setNewClientId("");
     }
   };
 
+  const clientName = useCallback((id: string | null) => clients.find(c => c.id === id)?.name, [clients]);
+
   const filteredPlans = plans.filter((bp) => {
     if (filterStatus !== "all" && bp.statut !== filterStatus) return false;
+    if (filterClient && bp.client_id !== filterClient) return false;
     if (search && !bp.name.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
