@@ -185,6 +185,16 @@ const Dashboard = () => {
               </button>
             ))}
           </div>
+          {limits.coachClients && clients.length > 0 && (
+            <select
+              value={filterClient}
+              onChange={(e) => setFilterClient(e.target.value)}
+              className="px-3 py-2 bg-secondary border border-border rounded-lg text-xs text-foreground outline-none focus:border-primary"
+            >
+              <option value="">{lang === "fr" ? "Tous les clients" : "All clients"}</option>
+              {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          )}
         </div>
 
         {/* Loading */}
