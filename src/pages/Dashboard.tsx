@@ -1,23 +1,26 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useState, useCallback } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useCallback, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBusinessPlans } from "@/hooks/useBusinessPlans";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useI18n } from "@/contexts/I18nContext";
-import { Trash2, Archive, MoreVertical, ArchiveRestore, Search, Copy } from "lucide-react";
+import { Trash2, Archive, MoreVertical, ArchiveRestore, Search, Copy, Briefcase } from "lucide-react";
 import { createI18nSchemas } from "@/lib/validation";
 import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import OnboardingTour from "@/components/onboarding/OnboardingTour";
 import { usePlan } from "@/hooks/usePlan";
+import { useClients } from "@/hooks/useClients";
 import { toast } from "sonner";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t, lang } = useI18n();
   const { plans, loading, stats, createPlan, archivePlan, deletePlan, duplicatePlan } = useBusinessPlans();
   const { plan: userPlan, limits, usage, refresh: refreshPlan } = usePlan();
+  const { clients } = useClients();
 
   const statusConfig = {
     brouillon: { label: lang === "fr" ? "Brouillon" : "Draft", className: "bg-secondary text-muted-foreground" },
@@ -32,10 +35,16 @@ const Dashboard = () => {
   const [newName, setNewName] = useState("");
   const [newSecteur, setNewSecteur] = useState("");
   const [newDevise, setNewDevise] = useState("FCFA (XOF)");
+  const [newClientId, setNewClientId] = useState<string>("");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
   const [search, setSearch] = useState("");
+  const filterClient = searchParams.get("client") || "";
+  const setFilterClient = (id: string) => {
+    if (id) searchParams.set("client", id); else searchParams.delete("client");
+    setSearchParams(searchParams, { replace: true });
+  };
 
   const menuRef = useClickOutside<HTMLDivElement>(() => setOpenMenuId(null));
 
