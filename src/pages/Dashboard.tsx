@@ -255,7 +255,12 @@ const Dashboard = () => {
                     </div>
                   </div>
                   <div className="font-bold text-sm mb-1 truncate">{bp.name}</div>
-                  <div className="text-xs text-muted-foreground mb-3.5">{bp.secteur || "—"}</div>
+                  <div className="text-xs text-muted-foreground mb-2">{bp.secteur || "—"}</div>
+                  {bp.client_id && clientName(bp.client_id) && (
+                    <div className="inline-flex items-center gap-1 mb-3 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[0.6rem] font-bold">
+                      <Briefcase className="w-2.5 h-2.5" />{clientName(bp.client_id)}
+                    </div>
+                  )}
                   <div className="mb-3">
                     <div className="flex justify-between text-[0.65rem] text-muted-foreground mb-1.5">
                       <span>{t("dashboard.progression")}</span>
@@ -343,7 +348,22 @@ const Dashboard = () => {
                   <option>USD (Dollar US)</option>
                 </select>
               </div>
-            </div>
+              </div>
+              {limits.coachClients && clients.length > 0 && (
+                <div>
+                  <label className="block text-xs font-bold text-secondary-foreground mb-1.5">
+                    {lang === "fr" ? "Client (optionnel)" : "Client (optional)"}
+                  </label>
+                  <select
+                    value={newClientId}
+                    onChange={(e) => setNewClientId(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground outline-none focus:border-primary transition-colors"
+                  >
+                    <option value="">— {lang === "fr" ? "Aucun" : "None"} —</option>
+                    {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+              )}
 
             <div className="flex gap-2.5 mt-6">
               <button onClick={() => setShowModal(false)} className="px-5 py-3 bg-secondary border border-border rounded-lg text-sm font-semibold text-secondary-foreground hover:border-destructive hover:text-destructive transition-all">
