@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/contexts/I18nContext";
-import { Shield } from "lucide-react";
+import { Shield, Briefcase } from "lucide-react";
 import ThemeToggle from "@/components/shared/ThemeToggle";
 import LangToggle from "@/components/shared/LangToggle";
+import { usePlan } from "@/hooks/usePlan";
 
 interface Props {
   showAdmin?: boolean;
@@ -15,7 +16,8 @@ interface Props {
 
 const TopBar = ({ showAdmin = false, showDashboard = false, showHome = false, showLogout = true, children }: Props) => {
   const { isAdmin, profile, user, signOut } = useAuth();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const { limits } = usePlan();
   const navigate = useNavigate();
 
   const displayName = profile?.display_name || user?.email || (t("common.loading"));
@@ -60,6 +62,12 @@ const TopBar = ({ showAdmin = false, showDashboard = false, showHome = false, sh
         {showDashboard && (
           <Link to="/dashboard" className="px-4 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all">
             {t("nav.dashboard")}
+          </Link>
+        )}
+
+        {limits.coachClients && user && (
+          <Link to="/clients" className="hidden sm:flex items-center gap-1 px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all">
+            <Briefcase className="w-3 h-3" /> {lang === "fr" ? "Clients" : "Clients"}
           </Link>
         )}
 

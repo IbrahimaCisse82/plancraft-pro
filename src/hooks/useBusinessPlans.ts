@@ -10,6 +10,7 @@ export type BPRow = {
   statut: "brouillon" | "finalise" | "archive";
   progress: number;
   updated_at: string;
+  client_id: string | null;
 };
 
 export function useBusinessPlans() {
@@ -21,7 +22,7 @@ export function useBusinessPlans() {
     setLoading(true);
     const { data, error } = await supabase
       .from("business_plans")
-      .select("id, name, secteur, statut, progress, updated_at")
+      .select("id, name, secteur, statut, progress, updated_at, client_id")
       .order("updated_at", { ascending: false });
     if (error) {
       toast.error("Erreur lors du chargement des business plans");
@@ -35,13 +36,14 @@ export function useBusinessPlans() {
     fetchPlans();
   }, [fetchPlans]);
 
-  const createPlan = useCallback(async (name: string, secteur: string, devise: string) => {
+  const createPlan = useCallback(async (name: string, secteur: string, devise: string, clientId?: string | null) => {
     if (!user) return false;
     const { error } = await supabase.from("business_plans").insert({
       user_id: user.id,
       name: name.trim(),
       secteur: secteur.trim() || null,
       devise,
+      client_id: clientId || null,
     });
     if (error) {
       toast.error("Erreur : " + error.message);

@@ -1,23 +1,26 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBusinessPlans } from "@/hooks/useBusinessPlans";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useI18n } from "@/contexts/I18nContext";
-import { Trash2, Archive, MoreVertical, ArchiveRestore, Search, Copy } from "lucide-react";
+import { Trash2, Archive, MoreVertical, ArchiveRestore, Search, Copy, Briefcase } from "lucide-react";
 import { createI18nSchemas } from "@/lib/validation";
 import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import OnboardingTour from "@/components/onboarding/OnboardingTour";
 import { usePlan } from "@/hooks/usePlan";
+import { useClients } from "@/hooks/useClients";
 import { toast } from "sonner";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t, lang } = useI18n();
   const { plans, loading, stats, createPlan, archivePlan, deletePlan, duplicatePlan } = useBusinessPlans();
   const { plan: userPlan, limits, usage, refresh: refreshPlan } = usePlan();
+  const { clients } = useClients();
 
   const statusConfig = {
     brouillon: { label: lang === "fr" ? "Brouillon" : "Draft", className: "bg-secondary text-muted-foreground" },
@@ -32,10 +35,16 @@ const Dashboard = () => {
   const [newName, setNewName] = useState("");
   const [newSecteur, setNewSecteur] = useState("");
   const [newDevise, setNewDevise] = useState("FCFA (XOF)");
+  const [newClientId, setNewClientId] = useState<string>("");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
   const [search, setSearch] = useState("");
+  const filterClient = searchParams.get("client") || "";
+  const setFilterClient = (id: string) => {
+    if (id) searchParams.set("client", id); else searchParams.delete("client");
+    setSearchParams(searchParams, { replace: true });
+  };
 
   const menuRef = useClickOutside<HTMLDivElement>(() => setOpenMenuId(null));
 
@@ -51,18 +60,22 @@ const Dashboard = () => {
     }
     setFormErrors({});
     setCreating(true);
-    const ok = await createPlan(result.data.name, result.data.secteur || "", result.data.devise);
+    const ok = await createPlan(result.data.name, result.data.secteur || "", result.data.devise, newClientId || null);
     setCreating(false);
     if (ok) {
       setShowModal(false);
       setNewName("");
       setNewSecteur("");
       setNewDevise("FCFA (XOF)");
+      setNewClientId("");
     }
   };
 
+  const clientName = useCallback((id: string | null) => clients.find(c => c.id === id)?.name, [clients]);
+
   const filteredPlans = plans.filter((bp) => {
     if (filterStatus !== "all" && bp.statut !== filterStatus) return false;
+    if (filterClient && bp.client_id !== filterClient) return false;
     if (search && !bp.name.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
@@ -172,6 +185,16 @@ const Dashboard = () => {
               </button>
             ))}
           </div>
+          {limits.coachClients && clients.length > 0 && (
+            <select
+              value={filterClient}
+              onChange={(e) => setFilterClient(e.target.value)}
+              className="px-3 py-2 bg-secondary border border-border rounded-lg text-xs text-foreground outline-none focus:border-primary"
+            >
+              <option value="">{lang === "fr" ? "Tous les clients" : "All clients"}</option>
+              {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          )}
         </div>
 
         {/* Loading */}
@@ -232,7 +255,12 @@ const Dashboard = () => {
                     </div>
                   </div>
                   <div className="font-bold text-sm mb-1 truncate">{bp.name}</div>
-                  <div className="text-xs text-muted-foreground mb-3.5">{bp.secteur || "—"}</div>
+                  <div className="text-xs text-muted-foreground mb-2">{bp.secteur || "—"}</div>
+                  {bp.client_id && clientName(bp.client_id) && (
+                    <div className="inline-flex items-center gap-1 mb-3 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[0.6rem] font-bold">
+                      <Briefcase className="w-2.5 h-2.5" />{clientName(bp.client_id)}
+                    </div>
+                  )}
                   <div className="mb-3">
                     <div className="flex justify-between text-[0.65rem] text-muted-foreground mb-1.5">
                       <span>{t("dashboard.progression")}</span>
@@ -320,6 +348,21 @@ const Dashboard = () => {
                   <option>USD (Dollar US)</option>
                 </select>
               </div>
+              {limits.coachClients && clients.length > 0 && (
+                <div>
+                  <label className="block text-xs font-bold text-secondary-foreground mb-1.5">
+                    {lang === "fr" ? "Client (optionnel)" : "Client (optional)"}
+                  </label>
+                  <select
+                    value={newClientId}
+                    onChange={(e) => setNewClientId(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-secondary border border-border rounded-lg text-sm text-foreground outline-none focus:border-primary transition-colors"
+                  >
+                    <option value="">— {lang === "fr" ? "Aucun" : "None"} —</option>
+                    {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2.5 mt-6">

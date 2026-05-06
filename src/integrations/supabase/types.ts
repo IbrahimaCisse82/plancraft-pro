@@ -70,6 +70,7 @@ export type Database = {
       }
       business_plans: {
         Row: {
+          client_id: string | null
           content: Json | null
           created_at: string
           devise: string
@@ -82,6 +83,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          client_id?: string | null
           content?: Json | null
           created_at?: string
           devise?: string
@@ -94,6 +96,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          client_id?: string | null
           content?: Json | null
           created_at?: string
           devise?: string
@@ -102,6 +105,50 @@ export type Database = {
           progress?: number
           secteur?: string | null
           statut?: Database["public"]["Enums"]["bp_statut"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_plans_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
           updated_at?: string
           user_id?: string
         }
