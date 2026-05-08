@@ -29,8 +29,8 @@ const Footer = () => {
           <div>
             <h4 className="text-[0.7rem] font-bold text-secondary-foreground uppercase tracking-wider mb-3.5">{t("footer.legal")}</h4>
             <Link to="/cgu" className="block text-xs text-muted-foreground hover:text-[hsl(var(--gold-light))] transition-colors mb-2">{t("footer.terms")}</Link>
-            <Link to="/cgu#confidentialite" className="block text-xs text-muted-foreground hover:text-[hsl(var(--gold-light))] transition-colors mb-2">{t("footer.privacy")}</Link>
-            <Link to="/cgu#donnees" className="block text-xs text-muted-foreground hover:text-[hsl(var(--gold-light))] transition-colors mb-2">{t("footer.dataProtection")}</Link>
+            <Link to="/confidentialite" className="block text-xs text-muted-foreground hover:text-[hsl(var(--gold-light))] transition-colors mb-2">{t("footer.privacy")}</Link>
+            <Link to="/guide" className="block text-xs text-muted-foreground hover:text-[hsl(var(--gold-light))] transition-colors mb-2">Guide</Link>
             <a href="mailto:plancraftpro@growhubsenegal.com" className="block text-xs text-muted-foreground hover:text-[hsl(var(--gold-light))] transition-colors mb-2">{t("footer.contact")}</a>
           </div>
         </div>

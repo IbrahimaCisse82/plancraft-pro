@@ -23,6 +23,7 @@ const CGUPage = lazy(() => import("./pages/CGUPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const SharedPlanPage = lazy(() => import("./pages/SharedPlanPage"));
 const ClientsPage = lazy(() => import("./pages/ClientsPage"));
+const GuidePage = lazy(() => import("./pages/GuidePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -59,6 +60,7 @@ const App = () => (
                 } />
                 <Route path="/cgu" element={<CGUPage />} />
                 <Route path="/confidentialite" element={<PrivacyPage />} />
+                <Route path="/guide" element={<GuidePage />} />
                 <Route path="/share/:token" element={<SharedPlanPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
