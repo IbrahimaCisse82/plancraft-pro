@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import TopBar from "@/components/shared/TopBar";
 import { FullPageSpinner } from "@/components/shared/LoadingSpinner";
 import { profileSchema } from "@/lib/validation";
+import SubscriptionSection from "@/components/profile/SubscriptionSection";
 
 const ProfilePage = () => {
   const { user, profile, refreshProfile, loading } = useAuth();
@@ -101,6 +102,8 @@ const ProfilePage = () => {
             {saving ? t("profile.saving") : t("profile.save")}
           </button>
         </form>
+
+        <SubscriptionSection />
       </div>
     </div>
   );
