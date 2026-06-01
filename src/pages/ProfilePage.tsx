@@ -102,6 +102,8 @@ const ProfilePage = () => {
             {saving ? t("profile.saving") : t("profile.save")}
           </button>
         </form>
+
+        <SubscriptionSection />
       </div>
     </div>
   );
