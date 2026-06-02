@@ -13,6 +13,7 @@ import OnboardingTour from "@/components/onboarding/OnboardingTour";
 import { usePlan } from "@/hooks/usePlan";
 import { useClients } from "@/hooks/useClients";
 import { toast } from "sonner";
+import { SECTOR_TEMPLATES, getTemplate } from "@/lib/sectorTemplates";
 
 const Dashboard = () => {
   const navigate = useNavigate();
