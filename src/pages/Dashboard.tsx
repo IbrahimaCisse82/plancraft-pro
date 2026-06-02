@@ -37,6 +37,7 @@ const Dashboard = () => {
   const [newSecteur, setNewSecteur] = useState("");
   const [newDevise, setNewDevise] = useState("FCFA (XOF)");
   const [newClientId, setNewClientId] = useState<string>("");
+  const [newTemplateId, setNewTemplateId] = useState<string>("");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
