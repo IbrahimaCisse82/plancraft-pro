@@ -13,6 +13,7 @@ import OnboardingTour from "@/components/onboarding/OnboardingTour";
 import { usePlan } from "@/hooks/usePlan";
 import { useClients } from "@/hooks/useClients";
 import { toast } from "sonner";
+import { SECTOR_TEMPLATES, getTemplate } from "@/lib/sectorTemplates";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -36,6 +37,7 @@ const Dashboard = () => {
   const [newSecteur, setNewSecteur] = useState("");
   const [newDevise, setNewDevise] = useState("FCFA (XOF)");
   const [newClientId, setNewClientId] = useState<string>("");
+  const [newTemplateId, setNewTemplateId] = useState<string>("");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
@@ -60,7 +62,15 @@ const Dashboard = () => {
     }
     setFormErrors({});
     setCreating(true);
-    const ok = await createPlan(result.data.name, result.data.secteur || "", result.data.devise, newClientId || null);
+    const tpl = newTemplateId ? getTemplate(newTemplateId) : null;
+    const initialContent = tpl ? tpl.build() : null;
+    const ok = await createPlan(
+      result.data.name,
+      result.data.secteur || (tpl?.secteur ?? ""),
+      result.data.devise,
+      newClientId || null,
+      initialContent,
+    );
     setCreating(false);
     if (ok) {
       setShowModal(false);
@@ -68,6 +78,15 @@ const Dashboard = () => {
       setNewSecteur("");
       setNewDevise("FCFA (XOF)");
       setNewClientId("");
+      setNewTemplateId("");
+    }
+  };
+
+  const handlePickTemplate = (id: string) => {
+    setNewTemplateId(id);
+    if (id) {
+      const tpl = getTemplate(id);
+      if (tpl && !newSecteur) setNewSecteur(tpl.secteur);
     }
   };
 
@@ -299,11 +318,42 @@ const Dashboard = () => {
       {/* Create Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-background/75 z-[200] flex items-center justify-center" onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
-          <div className="bg-card border border-border rounded-2xl w-[480px] max-w-[95vw] p-8 shadow-[0_24px_80px_rgba(0,0,0,0.6)]">
+          <div className="bg-card border border-border rounded-2xl w-[560px] max-w-[95vw] p-8 shadow-[0_24px_80px_rgba(0,0,0,0.6)] max-h-[90vh] overflow-y-auto">
             <h3 className="font-display text-2xl font-bold mb-1.5">{t("dashboard.newBpTitle")}</h3>
             <p className="text-xs text-secondary-foreground mb-6">{t("dashboard.newBpSubtitle")}</p>
 
+            {/* Templates */}
+            <div className="mb-5">
+              <label className="block text-xs font-bold text-secondary-foreground mb-2">
+                {lang === "fr" ? "Partir d'un modèle (optionnel)" : "Start from a template (optional)"}
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handlePickTemplate("")}
+                  className={`p-3 rounded-lg border text-left transition-all ${newTemplateId === "" ? "border-primary bg-primary/5" : "border-border bg-secondary hover:border-primary/40"}`}
+                >
+                  <div className="text-lg mb-0.5">✨</div>
+                  <div className="text-[0.7rem] font-bold">{lang === "fr" ? "Vierge" : "Blank"}</div>
+                  <div className="text-[0.6rem] text-muted-foreground">{lang === "fr" ? "Sans modèle" : "No template"}</div>
+                </button>
+                {SECTOR_TEMPLATES.map((tpl) => (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    onClick={() => handlePickTemplate(tpl.id)}
+                    className={`p-3 rounded-lg border text-left transition-all ${newTemplateId === tpl.id ? "border-primary bg-primary/5" : "border-border bg-secondary hover:border-primary/40"}`}
+                  >
+                    <div className="text-lg mb-0.5">{tpl.emoji}</div>
+                    <div className="text-[0.7rem] font-bold leading-tight">{lang === "fr" ? tpl.labelFr : tpl.labelEn}</div>
+                    <div className="text-[0.6rem] text-muted-foreground leading-tight mt-0.5">{lang === "fr" ? tpl.descriptionFr : tpl.descriptionEn}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="space-y-4">
+
               <div>
                 <label className="block text-xs font-bold text-secondary-foreground mb-1.5">{t("dashboard.projectName")}</label>
                 <input

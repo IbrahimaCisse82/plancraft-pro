@@ -36,7 +36,13 @@ export function useBusinessPlans() {
     fetchPlans();
   }, [fetchPlans]);
 
-  const createPlan = useCallback(async (name: string, secteur: string, devise: string, clientId?: string | null) => {
+  const createPlan = useCallback(async (
+    name: string,
+    secteur: string,
+    devise: string,
+    clientId?: string | null,
+    initialContent?: Record<string, any> | null,
+  ) => {
     if (!user) return false;
     const { error } = await supabase.from("business_plans").insert({
       user_id: user.id,
@@ -44,6 +50,7 @@ export function useBusinessPlans() {
       secteur: secteur.trim() || null,
       devise,
       client_id: clientId || null,
+      ...(initialContent ? { content: initialContent } : {}),
     });
     if (error) {
       toast.error("Erreur : " + error.message);
