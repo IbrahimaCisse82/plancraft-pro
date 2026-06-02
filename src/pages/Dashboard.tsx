@@ -62,7 +62,15 @@ const Dashboard = () => {
     }
     setFormErrors({});
     setCreating(true);
-    const ok = await createPlan(result.data.name, result.data.secteur || "", result.data.devise, newClientId || null);
+    const tpl = newTemplateId ? getTemplate(newTemplateId) : null;
+    const initialContent = tpl ? tpl.build() : null;
+    const ok = await createPlan(
+      result.data.name,
+      result.data.secteur || (tpl?.secteur ?? ""),
+      result.data.devise,
+      newClientId || null,
+      initialContent,
+    );
     setCreating(false);
     if (ok) {
       setShowModal(false);
@@ -70,6 +78,15 @@ const Dashboard = () => {
       setNewSecteur("");
       setNewDevise("FCFA (XOF)");
       setNewClientId("");
+      setNewTemplateId("");
+    }
+  };
+
+  const handlePickTemplate = (id: string) => {
+    setNewTemplateId(id);
+    if (id) {
+      const tpl = getTemplate(id);
+      if (tpl && !newSecteur) setNewSecteur(tpl.secteur);
     }
   };
 
