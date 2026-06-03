@@ -229,6 +229,27 @@ const Dashboard = () => {
               {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           )}
+          {sectorOptions.length > 0 && (
+            <select
+              value={filterSecteur}
+              onChange={(e) => setFilterSecteur(e.target.value)}
+              className="px-3 py-2 bg-secondary border border-border rounded-lg text-xs text-foreground outline-none focus:border-primary"
+            >
+              <option value="">{t("dashboard.allSectors")}</option>
+              {sectorOptions.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          )}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+            className="px-3 py-2 bg-secondary border border-border rounded-lg text-xs text-foreground outline-none focus:border-primary"
+            aria-label={t("dashboard.sortBy")}
+          >
+            <option value="recent">{t("dashboard.sortRecent")}</option>
+            <option value="oldest">{t("dashboard.sortOldest")}</option>
+            <option value="name">{t("dashboard.sortName")}</option>
+            <option value="progress">{t("dashboard.sortProgress")}</option>
+          </select>
         </div>
 
         {/* Loading */}
