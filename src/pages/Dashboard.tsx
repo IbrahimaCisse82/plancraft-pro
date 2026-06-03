@@ -42,6 +42,8 @@ const Dashboard = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
   const [search, setSearch] = useState("");
+  const [filterSecteur, setFilterSecteur] = useState<string>("");
+  const [sortBy, setSortBy] = useState<"recent" | "oldest" | "name" | "progress">("recent");
   const filterClient = searchParams.get("client") || "";
   const setFilterClient = (id: string) => {
     if (id) searchParams.set("client", id); else searchParams.delete("client");
