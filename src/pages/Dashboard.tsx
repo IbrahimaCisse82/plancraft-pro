@@ -42,6 +42,8 @@ const Dashboard = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
   const [search, setSearch] = useState("");
+  const [filterSecteur, setFilterSecteur] = useState<string>("");
+  const [sortBy, setSortBy] = useState<"recent" | "oldest" | "name" | "progress">("recent");
   const filterClient = searchParams.get("client") || "";
   const setFilterClient = (id: string) => {
     if (id) searchParams.set("client", id); else searchParams.delete("client");
@@ -92,12 +94,25 @@ const Dashboard = () => {
 
   const clientName = useCallback((id: string | null) => clients.find(c => c.id === id)?.name, [clients]);
 
-  const filteredPlans = plans.filter((bp) => {
-    if (filterStatus !== "all" && bp.statut !== filterStatus) return false;
-    if (filterClient && bp.client_id !== filterClient) return false;
-    if (search && !bp.name.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const sectorOptions = Array.from(new Set(plans.map(p => p.secteur).filter(Boolean) as string[])).sort();
+
+  const filteredPlans = plans
+    .filter((bp) => {
+      if (filterStatus !== "all" && bp.statut !== filterStatus) return false;
+      if (filterClient && bp.client_id !== filterClient) return false;
+      if (filterSecteur && bp.secteur !== filterSecteur) return false;
+      if (search && !bp.name.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "oldest": return new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
+        case "name": return a.name.localeCompare(b.name);
+        case "progress": return b.progress - a.progress;
+        case "recent":
+        default: return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    });
 
   const dateLocale = lang === "fr" ? "fr-FR" : "en-US";
 
@@ -214,6 +229,27 @@ const Dashboard = () => {
               {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           )}
+          {sectorOptions.length > 0 && (
+            <select
+              value={filterSecteur}
+              onChange={(e) => setFilterSecteur(e.target.value)}
+              className="px-3 py-2 bg-secondary border border-border rounded-lg text-xs text-foreground outline-none focus:border-primary"
+            >
+              <option value="">{t("dashboard.allSectors")}</option>
+              {sectorOptions.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          )}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+            className="px-3 py-2 bg-secondary border border-border rounded-lg text-xs text-foreground outline-none focus:border-primary"
+            aria-label={t("dashboard.sortBy")}
+          >
+            <option value="recent">{t("dashboard.sortRecent")}</option>
+            <option value="oldest">{t("dashboard.sortOldest")}</option>
+            <option value="name">{t("dashboard.sortName")}</option>
+            <option value="progress">{t("dashboard.sortProgress")}</option>
+          </select>
         </div>
 
         {/* Loading */}
