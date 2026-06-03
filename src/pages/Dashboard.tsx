@@ -94,12 +94,25 @@ const Dashboard = () => {
 
   const clientName = useCallback((id: string | null) => clients.find(c => c.id === id)?.name, [clients]);
 
-  const filteredPlans = plans.filter((bp) => {
-    if (filterStatus !== "all" && bp.statut !== filterStatus) return false;
-    if (filterClient && bp.client_id !== filterClient) return false;
-    if (search && !bp.name.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const sectorOptions = Array.from(new Set(plans.map(p => p.secteur).filter(Boolean) as string[])).sort();
+
+  const filteredPlans = plans
+    .filter((bp) => {
+      if (filterStatus !== "all" && bp.statut !== filterStatus) return false;
+      if (filterClient && bp.client_id !== filterClient) return false;
+      if (filterSecteur && bp.secteur !== filterSecteur) return false;
+      if (search && !bp.name.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "oldest": return new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
+        case "name": return a.name.localeCompare(b.name);
+        case "progress": return b.progress - a.progress;
+        case "recent":
+        default: return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    });
 
   const dateLocale = lang === "fr" ? "fr-FR" : "en-US";
 
