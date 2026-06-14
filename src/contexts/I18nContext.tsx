@@ -124,6 +124,9 @@ const translations: Translations = {
   "section.plan_financement.title": { fr: "Plan de financement", en: "Financing Plan" },
   "section.plan_financement.hint": { fr: "Détaillez les sources de financement (apports, emprunts, subventions) face aux emplois (investissements, BFR).", en: "Detail funding sources (contributions, loans, subsidies) against uses (investments, working capital)." },
 
+  "section.bfr_detaille.title": { fr: "BFR détaillé (méthode normative)", en: "Detailed Working Capital (normative method)" },
+  "section.bfr_detaille.hint": { fr: "Calcul du Besoin en Fonds de Roulement en jours de CA. Renseignez les délais (stocks, clients, fournisseurs) ; les montants et la variation se calculent automatiquement. CA et Achats sont récupérés du compte de résultat.", en: "Working Capital Requirement in days of revenue. Fill in days (inventory, customers, suppliers); amounts and variation auto-calculate. Revenue and Purchases are fetched from the income statement." },
+
   "section.bilan_previsionnel.title": { fr: "Bilan prévisionnel", en: "Projected Balance Sheet" },
   "section.bilan_previsionnel.hint": { fr: "Projetez l'actif et le passif de votre entreprise sur 3 ans.", en: "Project your company's assets and liabilities over 3 years." },
 
