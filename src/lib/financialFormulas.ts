@@ -138,6 +138,59 @@ export const FORMULAS: FormulaMap = {
     },
   },
 
+  // ── BFR détaillé (méthode normative en jours) ──
+  bfr_detaille: {
+    "Stocks (montant)": (d, c) => {
+      const achats = num(d["Achats HT"]?.[c]);
+      const jours = num(d["Délai stocks (jours)"]?.[c]);
+      return Math.round((achats * jours) / 360);
+    },
+    "Créances clients (montant)": (d, c) => {
+      const ca = num(d["Chiffre d'affaires HT"]?.[c]);
+      const jours = num(d["Délai clients (jours)"]?.[c]);
+      // Hypothèse TTC = HT * 1.18 (TVA UEMOA standard)
+      return Math.round((ca * 1.18 * jours) / 360);
+    },
+    "Dettes fournisseurs (montant)": (d, c) => {
+      const achats = num(d["Achats HT"]?.[c]);
+      const jours = num(d["Délai fournisseurs (jours)"]?.[c]);
+      return Math.round((achats * 1.18 * jours) / 360);
+    },
+    "BFR total": (d, c) => {
+      const achats = num(d["Achats HT"]?.[c]);
+      const ca = num(d["Chiffre d'affaires HT"]?.[c]);
+      const stocks = Math.round((achats * num(d["Délai stocks (jours)"]?.[c])) / 360);
+      const creances = Math.round((ca * 1.18 * num(d["Délai clients (jours)"]?.[c])) / 360);
+      const dettes = Math.round((achats * 1.18 * num(d["Délai fournisseurs (jours)"]?.[c])) / 360);
+      return stocks + creances - dettes;
+    },
+    "BFR en jours de CA": (d, c) => {
+      const ca = num(d["Chiffre d'affaires HT"]?.[c]);
+      if (ca === 0) return 0;
+      const achats = num(d["Achats HT"]?.[c]);
+      const stocks = Math.round((achats * num(d["Délai stocks (jours)"]?.[c])) / 360);
+      const creances = Math.round((ca * 1.18 * num(d["Délai clients (jours)"]?.[c])) / 360);
+      const dettes = Math.round((achats * 1.18 * num(d["Délai fournisseurs (jours)"]?.[c])) / 360);
+      const bfr = stocks + creances - dettes;
+      return Math.round((bfr / ca) * 360);
+    },
+    "Variation du BFR": (d, c) => {
+      const years = ["Année 1", "Année 2", "Année 3"];
+      const idx = years.indexOf(c);
+      const computeBfr = (col: string) => {
+        const achats = num(d["Achats HT"]?.[col]);
+        const ca = num(d["Chiffre d'affaires HT"]?.[col]);
+        const stocks = Math.round((achats * num(d["Délai stocks (jours)"]?.[col])) / 360);
+        const creances = Math.round((ca * 1.18 * num(d["Délai clients (jours)"]?.[col])) / 360);
+        const dettes = Math.round((achats * 1.18 * num(d["Délai fournisseurs (jours)"]?.[col])) / 360);
+        return stocks + creances - dettes;
+      };
+      const current = computeBfr(c);
+      if (idx <= 0) return current; // Année 1 = BFR initial
+      return current - computeBfr(years[idx - 1]);
+    },
+  },
+
   // ── Bilan prévisionnel ──
   bilan_previsionnel: {
     "Total actif immobilisé": (d, c) =>
