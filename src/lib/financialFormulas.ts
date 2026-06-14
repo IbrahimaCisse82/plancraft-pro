@@ -323,6 +323,96 @@ export const applyCrossTableLinks = (
     }
   }
 
+  const yearCols = ["Année 1", "Année 2", "Année 3"];
+  const cr = result["compte_resultat"];
+
+  // Link: compte_resultat → bfr_detaille (auto-feed CA + Achats)
+  if (cr && typeof cr === "object") {
+    const bfr = { ...(result["bfr_detaille"] || {}) };
+    const caRow = { ...(bfr["Chiffre d'affaires HT"] || {}) };
+    const achatsRow = { ...(bfr["Achats HT"] || {}) };
+    let changed = false;
+    for (const col of yearCols) {
+      const ca = cr["Chiffre d'affaires"]?.[col];
+      const achats = cr["Achats de marchandises"]?.[col];
+      if (ca && !caRow[col]) { caRow[col] = ca; changed = true; }
+      if (achats && !achatsRow[col]) { achatsRow[col] = achats; changed = true; }
+    }
+    if (changed) {
+      bfr["Chiffre d'affaires HT"] = caRow;
+      bfr["Achats HT"] = achatsRow;
+      result["bfr_detaille"] = bfr;
+    }
+  }
+
+  // Link: compte_resultat → seuil_rentabilite (auto-feed CA + Charges variables = Achats)
+  if (cr && typeof cr === "object") {
+    const sr = { ...(result["seuil_rentabilite"] || {}) };
+    const caRow = { ...(sr["Chiffre d'affaires"] || {}) };
+    const cvRow = { ...(sr["Charges variables"] || {}) };
+    let changed = false;
+    for (const col of yearCols) {
+      const ca = cr["Chiffre d'affaires"]?.[col];
+      const achats = cr["Achats de marchandises"]?.[col];
+      if (ca && !caRow[col]) { caRow[col] = ca; changed = true; }
+      if (achats && !cvRow[col]) { cvRow[col] = achats; changed = true; }
+    }
+    if (changed) {
+      sr["Chiffre d'affaires"] = caRow;
+      sr["Charges variables"] = cvRow;
+      result["seuil_rentabilite"] = sr;
+    }
+  }
+
+  // Link: bfr_detaille.BFR total Année 1 → plan_financement.BFR
+  const bfrSec = result["bfr_detaille"];
+  if (bfrSec && typeof bfrSec === "object") {
+    // Recompute BFR Année 1 inline
+    const achats = num(bfrSec["Achats HT"]?.["Année 1"]);
+    const ca = num(bfrSec["Chiffre d'affaires HT"]?.["Année 1"]);
+    const ds = num(bfrSec["Délai stocks (jours)"]?.["Année 1"]);
+    const dc = num(bfrSec["Délai clients (jours)"]?.["Année 1"]);
+    const df = num(bfrSec["Délai fournisseurs (jours)"]?.["Année 1"]);
+    if (ca > 0 || achats > 0) {
+      const stocks = Math.round((achats * ds) / 360);
+      const creances = Math.round((ca * 1.18 * dc) / 360);
+      const dettes = Math.round((achats * 1.18 * df) / 360);
+      const bfrTotal = stocks + creances - dettes;
+      if (bfrTotal !== 0) {
+        const pf = { ...(result["plan_financement"] || {}) };
+        const row = { ...(pf["Besoin en fonds de roulement (BFR)"] || {}) };
+        row["Année 1"] = String(bfrTotal);
+        pf["Besoin en fonds de roulement (BFR)"] = row;
+        result["plan_financement"] = pf;
+      }
+    }
+  }
+
+  // Link: compte_resultat annuel → tresorerie M1-M12 (seed mensuel uniquement si vide)
+  if (cr && typeof cr === "object") {
+    const tres = { ...(result["tresorerie"] || {}) };
+    const months = ["M1","M2","M3","M4","M5","M6","M7","M8","M9","M10","M11","M12"];
+    const caAn1 = num(cr["Chiffre d'affaires"]?.["Année 1"]);
+    const achatsAn1 = num(cr["Achats de marchandises"]?.["Année 1"]);
+    const salairesAn1 = num(cr["Charges de personnel"]?.["Année 1"]);
+    const loyerAn1 = num(cr["Loyer"]?.["Année 1"]);
+
+    const seedRow = (rowName: string, monthlyVal: number) => {
+      if (monthlyVal === 0) return;
+      const existing = { ...(tres[rowName] || {}) };
+      let touched = false;
+      for (const m of months) {
+        if (!existing[m]) { existing[m] = String(monthlyVal); touched = true; }
+      }
+      if (touched) tres[rowName] = existing;
+    };
+    seedRow("Encaissements ventes", Math.round((caAn1 * 1.18) / 12));
+    seedRow("Achats", Math.round((achatsAn1 * 1.18) / 12));
+    seedRow("Salaires", Math.round(salairesAn1 / 12));
+    seedRow("Loyer", Math.round(loyerAn1 / 12));
+    if (Object.keys(tres).length > 0) result["tresorerie"] = tres;
+  }
+
   return result;
 };
 
