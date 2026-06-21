@@ -56,6 +56,15 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
             hint={resolved.hint}
           />
         );
+      case "matrix":
+        return (
+          <MatrixSection
+            section={currentSection}
+            value={content[currentSection.id] || {}}
+            onChange={(val) => onSectionChange(currentSection.id, val)}
+            hint={resolved.hint}
+          />
+        );
       case "banker_summary":
         return (
           <div>
