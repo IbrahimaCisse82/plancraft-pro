@@ -94,6 +94,16 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
         </button>
 
         <button
+          onClick={() => exportOnePagerPDF(plan, content, t)}
+          className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
+          aria-label={t("export.onePager.button")}
+          title={t("export.onePager.title")}
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">{t("export.onePager.button")}</span>
+        </button>
+
+        <button
           onClick={() => canDocx ? exportBusinessPlanDOCX(plan, content, t) : requirePro("Export Word")}
           className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
             canDocx
