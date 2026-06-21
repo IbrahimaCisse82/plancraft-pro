@@ -508,6 +508,16 @@ const translations: Translations = {
   "validation.coherenceTresoCa": { fr: "Incohérence : Somme des encaissements mensuels ≠ CA annuel (écart > 5%)", en: "Inconsistency: Sum of monthly receipts ≠ Annual revenue (gap > 5%)" },
   "validation.coherenceTresoAchats": { fr: "Incohérence : Somme des achats mensuels ≠ Achats annuels (écart > 5%)", en: "Inconsistency: Sum of monthly purchases ≠ Annual purchases (gap > 5%)" },
   "validation.coherenceBfrPlan": { fr: "Incohérence : BFR détaillé ≠ BFR du Plan de financement (Année 1)", en: "Inconsistency: Detailed BFR ≠ BFR in Funding plan (Year 1)" },
+  "export.onePager.title": { fr: "One-pager exécutif", en: "Executive one-pager" },
+  "export.onePager.button": { fr: "One-pager", en: "One-pager" },
+  "export.onePager.keyFigures": { fr: "Chiffres clés", en: "Key figures" },
+  "export.onePager.loan": { fr: "Emprunt sollicité", en: "Loan requested" },
+  "export.onePager.revenueY3": { fr: "CA Année 3", en: "Revenue Y3" },
+  "export.onePager.netResultY3": { fr: "Résultat net A3", en: "Net result Y3" },
+  "export.onePager.payback": { fr: "Cumul cash-flows A3", en: "Cumul. cash flows Y3" },
+  "export.onePager.marketStrategy": { fr: "Marché & stratégie", en: "Market & strategy" },
+  "export.onePager.fundingRequest": { fr: "Demande de financement", en: "Funding request" },
+  "export.onePager.disclaimer": { fr: "Document synthétique — voir business plan complet pour le détail des hypothèses.", en: "Summary document — see full business plan for assumption details." },
 
   // Presence
   "presence.viewing": { fr: "consulte aussi ce plan", en: "also viewing this plan" },
