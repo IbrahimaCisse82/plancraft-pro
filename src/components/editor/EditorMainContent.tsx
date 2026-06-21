@@ -3,6 +3,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import NarrativeSection from "@/components/editor/NarrativeSection";
 import FinancialSection from "@/components/editor/FinancialSection";
 import SwotSection from "@/components/editor/SwotSection";
+import MatrixSection from "@/components/editor/MatrixSection";
 import BankerSummary from "@/components/editor/BankerSummary";
 import FinancialValidation from "@/components/editor/FinancialValidation";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
@@ -55,6 +56,15 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
             hint={resolved.hint}
           />
         );
+      case "matrix":
+        return (
+          <MatrixSection
+            section={currentSection}
+            value={content[currentSection.id] || {}}
+            onChange={(val) => onSectionChange(currentSection.id, val)}
+            hint={resolved.hint}
+          />
+        );
       case "banker_summary":
         return (
           <div>
@@ -75,6 +85,8 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
 
   const sectionTypeLabel = currentSection.type === "financial"
     ? t("editor.financial")
+    : currentSection.type === "matrix"
+    ? t("editor.matrix")
     : currentSection.type === "swot"
     ? t("editor.swot")
     : currentSection.type === "banker_summary"

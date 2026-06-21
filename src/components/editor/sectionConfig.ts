@@ -1,4 +1,4 @@
-export type SectionType = "narrative" | "financial" | "swot" | "banker_summary";
+export type SectionType = "narrative" | "financial" | "swot" | "banker_summary" | "matrix";
 
 export interface SectionConfig {
   id: string;
@@ -306,6 +306,47 @@ export const BP_SECTIONS: SectionConfig[] = [
     icon: "🔄",
     type: "swot",
     hintKey: "section.swot.hint",
+  },
+  {
+    id: "garanties",
+    titleKey: "section.garanties.title",
+    icon: "🛡️",
+    type: "matrix",
+    hintKey: "section.garanties.hint",
+    rows: [
+      "Hypothèque immobilière",
+      "Nantissement fonds de commerce",
+      "Nantissement matériel / équipements",
+      "Caution personnelle dirigeant",
+      "Caution solidaire associés",
+      "Garantie bancaire (SOGAFIN, FONGIP, BPIfrance…)",
+      "Délégation d'assurance-vie",
+      "Gage espèces / dépôt à terme",
+      "Autre garantie",
+    ],
+    columns: ["Type / Description", "Valeur estimée", "Quotité retenue (%)", "Valeur retenue", "Statut"],
+  },
+  {
+    id: "matrice_risques",
+    titleKey: "section.matrice_risques.title",
+    icon: "🎯",
+    type: "matrix",
+    hintKey: "section.matrice_risques.hint",
+    rows: [
+      "Risque marché / demande",
+      "Risque concurrentiel",
+      "Risque prix matières premières",
+      "Risque taux de change",
+      "Risque client (impayés / concentration)",
+      "Risque fournisseur",
+      "Risque opérationnel / production",
+      "Risque RH / clé homme",
+      "Risque réglementaire / fiscal",
+      "Risque technologique / cyber",
+      "Risque climatique / environnemental",
+      "Risque financier / liquidité",
+    ],
+    columns: ["Probabilité (1-5)", "Impact (1-5)", "Criticité", "Mesure de mitigation", "Responsable"],
   },
   {
     id: "risques",
