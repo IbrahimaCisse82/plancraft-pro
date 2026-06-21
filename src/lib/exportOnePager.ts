@@ -132,7 +132,7 @@ export const exportOnePagerPDF = (
     { label: label("banker.dscr", "DSCR"), value: dscr > 0 ? dscr.toFixed(2) : "—", status: dscr >= 1.2 ? "ok" : dscr > 0 ? "bad" : null },
     { label: label("banker.npv", "VAN"), value: ratios ? fmtN(Math.round(ratios.van)) : "—", status: ratios ? (ratios.van > 0 ? "ok" : "bad") : null },
     { label: label("banker.irr", "TRI"), value: ratios ? `${(ratios.tri * 100).toFixed(1)}%` : "—", status: ratios ? (ratios.tri > 0.1 ? "ok" : "bad") : null },
-    { label: label("export.onePager.payback", "Retour invest."), value: ratios && ratios.payback > 0 ? `${ratios.payback.toFixed(1)} ans` : "—", status: null },
+    { label: label("export.onePager.payback", "Cumul cash-flows A3"), value: ratios ? fmtN(Math.round(ratios.cashFlows.slice(1).reduce((a, b) => a + b, 0))) : "—", status: null },
   ];
 
   const cols = 4;
