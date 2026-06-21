@@ -501,6 +501,13 @@ const translations: Translations = {
   "validation.cashNegative3m": { fr: "Trésorerie négative pendant 3+ mois", en: "Negative cash flow for 3+ months" },
   "validation.unbalancedSheet": { fr: "Bilan non équilibré (Actif ≠ Passif)", en: "Unbalanced sheet (Assets ≠ Liabilities)" },
   "validation.allGood": { fr: "Tous les indicateurs financiers sont cohérents ✓", en: "All financial indicators are consistent ✓" },
+  "validation.coherenceCaSeuil": { fr: "Incohérence : CA du Compte de résultat ≠ CA du Seuil de rentabilité (Année 1)", en: "Inconsistency: Income statement revenue ≠ Break-even revenue (Year 1)" },
+  "validation.coherenceCaBfr": { fr: "Incohérence : CA du Compte de résultat ≠ CA du BFR détaillé (Année 1)", en: "Inconsistency: Income statement revenue ≠ BFR detailed revenue (Year 1)" },
+  "validation.coherenceAchatsBfr": { fr: "Incohérence : Achats du Compte de résultat ≠ Achats du BFR détaillé (Année 1)", en: "Inconsistency: Income statement purchases ≠ BFR detailed purchases (Year 1)" },
+  "validation.coherenceChargesVarSeuil": { fr: "Incohérence : Charges variables (Seuil) ≠ Achats (Compte de résultat) — vérifiez la cohérence", en: "Inconsistency: Variable costs (Break-even) ≠ Purchases (Income statement) — please verify" },
+  "validation.coherenceTresoCa": { fr: "Incohérence : Somme des encaissements mensuels ≠ CA annuel (écart > 5%)", en: "Inconsistency: Sum of monthly receipts ≠ Annual revenue (gap > 5%)" },
+  "validation.coherenceTresoAchats": { fr: "Incohérence : Somme des achats mensuels ≠ Achats annuels (écart > 5%)", en: "Inconsistency: Sum of monthly purchases ≠ Annual purchases (gap > 5%)" },
+  "validation.coherenceBfrPlan": { fr: "Incohérence : BFR détaillé ≠ BFR du Plan de financement (Année 1)", en: "Inconsistency: Detailed BFR ≠ BFR in Funding plan (Year 1)" },
 
   // Presence
   "presence.viewing": { fr: "consulte aussi ce plan", en: "also viewing this plan" },
