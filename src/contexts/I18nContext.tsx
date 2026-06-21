@@ -152,6 +152,16 @@ const translations: Translations = {
   "section.risques.placeholder": { fr: "Identifiez les risques potentiels et les mesures d'atténuation…", en: "Identify potential risks and mitigation measures…" },
   "section.risques.hint": { fr: "Risques commerciaux, financiers, opérationnels, réglementaires. Mesures préventives.", en: "Commercial, financial, operational, regulatory risks. Preventive measures." },
 
+  "section.garanties.title": { fr: "Garanties proposées", en: "Proposed Collateral" },
+  "section.garanties.hint": { fr: "Listez les garanties offertes à la banque : nature, valeur estimée, quotité retenue. La quotité reflète la décote prudentielle (ex: hypothèque 70%, nantissement matériel 50%, caution personnelle 100%).", en: "List collateral offered to the bank: type, estimated value, retained quota. The quota reflects the prudential haircut (e.g. mortgage 70%, equipment pledge 50%, personal guarantee 100%)." },
+
+  "section.matrice_risques.title": { fr: "Matrice des risques", en: "Risk Matrix" },
+  "section.matrice_risques.hint": { fr: "Évaluez chaque risque sur 2 axes : Probabilité (1=très rare, 5=quasi certain) et Impact (1=mineur, 5=critique). La Criticité = Probabilité × Impact se calcule automatiquement. Définissez une mesure de mitigation et un responsable pour chaque risque.", en: "Rate each risk on 2 axes: Probability (1=very rare, 5=almost certain) and Impact (1=minor, 5=critical). Criticality = Probability × Impact is auto-computed. Define a mitigation measure and an owner for each risk." },
+
+  "matrix.lowRisk": { fr: "Faible (1-7)", en: "Low (1-7)" },
+  "matrix.medRisk": { fr: "Moyen (8-14)", en: "Medium (8-14)" },
+  "matrix.highRisk": { fr: "Critique (15-25)", en: "Critical (15-25)" },
+
   // Share
   "share.button": { fr: "Partager", en: "Share" },
   "share.title": { fr: "Partage public", en: "Public sharing" },
