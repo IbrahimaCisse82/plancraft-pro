@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Save, ChevronLeft, Check, Download, Menu, X, Lock } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { exportBusinessPlanPDF } from "@/lib/exportPdf";
+import { exportOnePagerPDF } from "@/lib/exportOnePager";
 import { exportBusinessPlanDOCX } from "@/lib/exportDocx";
 import { exportBusinessPlanXLSX } from "@/lib/exportXlsx";
 import VersionHistoryPanel from "@/components/editor/VersionHistoryPanel";
