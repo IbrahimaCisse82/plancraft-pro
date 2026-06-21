@@ -75,6 +75,7 @@ const translations: Translations = {
   "editor.financial": { fr: "Tableau financier", en: "Financial table" },
   "editor.narrative": { fr: "Section narrative", en: "Narrative section" },
   "editor.swot": { fr: "Matrice SWOT", en: "SWOT Matrix" },
+  "editor.matrix": { fr: "Tableau qualitatif", en: "Qualitative matrix" },
   "editor.sectionOf": { fr: "Section {current} sur {total}", en: "Section {current} of {total}" },
   "editor.searchPlan": { fr: "Rechercher dans le plan…", en: "Search in plan…" },
   "editor.sections": { fr: "Sections", en: "Sections" },
