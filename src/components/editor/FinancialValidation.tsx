@@ -121,6 +121,69 @@ const FinancialValidation = ({ content }: Props) => {
       }
     }
 
+    // ===== Coherence checks between CR / Seuil / BFR détaillé / Trésorerie =====
+    const sr_ = sr;
+    const bfrD = content["bfr_detaille"];
+    const tol = (a: number, b: number, pct = 0.02) =>
+      Math.abs(a - b) > Math.max(1, Math.max(Math.abs(a), Math.abs(b)) * pct);
+
+    // CA CR vs CA Seuil
+    if (cr && sr_) {
+      const caSeuil = num(sr_["Chiffre d'affaires"]?.["Année 1"]);
+      if (ca1 > 0 && caSeuil > 0 && tol(ca1, caSeuil)) {
+        result.push({ severity: "warning", messageKey: "validation.coherenceCaSeuil", fallback: "CA CR ≠ CA Seuil" });
+      }
+    }
+
+    // CA CR vs CA BFR détaillé
+    if (cr && bfrD) {
+      const caBfr = num(bfrD["Chiffre d'affaires HT"]?.["Année 1"]);
+      if (ca1 > 0 && caBfr > 0 && tol(ca1, caBfr)) {
+        result.push({ severity: "warning", messageKey: "validation.coherenceCaBfr", fallback: "CA CR ≠ CA BFR" });
+      }
+    }
+
+    // Achats CR vs Achats BFR détaillé
+    if (cr && bfrD) {
+      const achatsCR = num(cr["Achats de marchandises"]?.["Année 1"]);
+      const achatsBfr = num(bfrD["Achats HT"]?.["Année 1"]);
+      if (achatsCR > 0 && achatsBfr > 0 && tol(achatsCR, achatsBfr)) {
+        result.push({ severity: "warning", messageKey: "validation.coherenceAchatsBfr", fallback: "Achats CR ≠ Achats BFR" });
+      }
+    }
+
+    // Charges variables (Seuil) vs Achats (CR) — proxy
+    if (cr && sr_) {
+      const cv = num(sr_["Charges variables"]?.["Année 1"]);
+      const achatsCR = num(cr["Achats de marchandises"]?.["Année 1"]);
+      if (cv > 0 && achatsCR > 0 && tol(cv, achatsCR, 0.05)) {
+        result.push({ severity: "info", messageKey: "validation.coherenceChargesVarSeuil", fallback: "CV Seuil ≠ Achats CR" });
+      }
+    }
+
+    // Trésorerie mensuelle vs CR annuel
+    if (cr && treso) {
+      const months = ["M1","M2","M3","M4","M5","M6","M7","M8","M9","M10","M11","M12"];
+      const sumEnc = months.reduce((s, m) => s + num(treso["Encaissements ventes"]?.[m]), 0);
+      const sumAchats = months.reduce((s, m) => s + num(treso["Achats"]?.[m]), 0);
+      if (ca1 > 0 && sumEnc > 0 && tol(ca1, sumEnc, 0.05)) {
+        result.push({ severity: "warning", messageKey: "validation.coherenceTresoCa", fallback: "Σ encaissements ≠ CA annuel" });
+      }
+      const achatsCR = num(cr["Achats de marchandises"]?.["Année 1"]);
+      if (achatsCR > 0 && sumAchats > 0 && tol(achatsCR, sumAchats, 0.05)) {
+        result.push({ severity: "warning", messageKey: "validation.coherenceTresoAchats", fallback: "Σ achats mensuels ≠ Achats annuels" });
+      }
+    }
+
+    // BFR détaillé vs Plan de financement
+    if (bfrD && pf) {
+      const bfrTotal = num(bfrD["BFR total"]?.["Année 1"]);
+      const bfrPlan = num(pf["Besoin en fonds de roulement (BFR)"]?.["Année 1"]);
+      if (bfrTotal > 0 && bfrPlan > 0 && tol(bfrTotal, bfrPlan, 0.05)) {
+        result.push({ severity: "warning", messageKey: "validation.coherenceBfrPlan", fallback: "BFR détaillé ≠ BFR plan financement" });
+      }
+    }
+
     // Positive signal
     if (result.length === 0 && ca1 > 0 && rn1 > 0) {
       result.push({ severity: "info", messageKey: "validation.allGood", fallback: "Tous les indicateurs financiers sont cohérents ✓" });
