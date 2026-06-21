@@ -29,7 +29,7 @@ interface Props {
   planName: string;
   secteur?: string;
   devise?: string;
-  sectionType?: "narrative" | "financial" | "swot";
+  sectionType?: "narrative" | "financial" | "swot" | "matrix";
   onInsertText?: (text: string) => void;
 }
 
