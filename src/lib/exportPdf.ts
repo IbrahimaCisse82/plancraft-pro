@@ -80,7 +80,7 @@ export const exportBusinessPlanPDF = (
         doc.text(line, margin, y);
         y += 5.5;
       });
-    } else if (section.type === "financial" && typeof val === "object") {
+    } else if ((section.type === "financial" || section.type === "matrix") && typeof val === "object") {
       const rows = section.rows || [];
       const columns = section.columns || [];
 
