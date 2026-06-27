@@ -138,10 +138,17 @@ export const exportBusinessPlanDOCX = async (
               shading: fill ? { fill } : undefined,
             }),
             ...columns.map((col) => {
-              const cellVal = val[row]?.[col] || "";
-              const displayVal = cellVal && !isNaN(parseInt(cellVal))
-                ? parseInt(cellVal).toLocaleString("fr-FR")
-                : cellVal;
+              let cellVal = val[row]?.[col] || "";
+              if (section.id === "matrice_risques" && col === "Criticité") {
+                const p = parseInt(val[row]?.["Probabilité (1-5)"] || "", 10);
+                const im = parseInt(val[row]?.["Impact (1-5)"] || "", 10);
+                if (!isNaN(p) && !isNaN(im)) cellVal = String(p * im);
+              }
+              const displayVal = section.type === "matrix"
+                ? String(cellVal)
+                : (cellVal && !isNaN(parseInt(cellVal))
+                  ? parseInt(cellVal).toLocaleString("fr-FR")
+                  : cellVal);
               return new TableCell({
                 children: [
                   new Paragraph({
