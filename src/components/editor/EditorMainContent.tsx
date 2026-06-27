@@ -96,6 +96,8 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
     ? t("editor.financial")
     : currentSection.type === "matrix"
     ? t("editor.matrix")
+    : currentSection.type === "sensitivity"
+    ? t("editor.sensitivity")
     : currentSection.type === "swot"
     ? t("editor.swot")
     : currentSection.type === "banker_summary"
