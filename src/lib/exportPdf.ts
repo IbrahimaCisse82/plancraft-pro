@@ -125,10 +125,17 @@ export const exportBusinessPlanPDF = (
 
         doc.text(row.substring(0, 35), margin + 1, y + 1);
         columns.forEach((col, i) => {
-          const cellVal = val[row]?.[col] || "";
-          const displayVal = cellVal && !isNaN(parseInt(cellVal))
-            ? parseInt(cellVal).toLocaleString("fr-FR")
-            : cellVal;
+          let cellVal = val[row]?.[col] || "";
+          if (section.id === "matrice_risques" && col === "Criticité") {
+            const p = parseInt(val[row]?.["Probabilité (1-5)"] || "", 10);
+            const im = parseInt(val[row]?.["Impact (1-5)"] || "", 10);
+            if (!isNaN(p) && !isNaN(im)) cellVal = String(p * im);
+          }
+          const displayVal = section.type === "matrix"
+            ? String(cellVal).substring(0, 40)
+            : (cellVal && !isNaN(parseInt(cellVal))
+              ? parseInt(cellVal).toLocaleString("fr-FR")
+              : cellVal);
           doc.text(displayVal, margin + 62 + i * colWidth, y + 1);
         });
         y += computed ? 7 : 5;
