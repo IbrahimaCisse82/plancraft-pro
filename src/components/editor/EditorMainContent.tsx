@@ -66,6 +66,14 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
             hint={resolved.hint}
           />
         );
+      case "sensitivity":
+        return (
+          <SensitivitySection
+            content={content}
+            devise={plan.devise}
+            hint={resolved.hint}
+          />
+        );
       case "banker_summary":
         return (
           <div>
