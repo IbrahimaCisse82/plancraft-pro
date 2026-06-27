@@ -1,4 +1,4 @@
-export type SectionType = "narrative" | "financial" | "swot" | "banker_summary" | "matrix";
+export type SectionType = "narrative" | "financial" | "swot" | "banker_summary" | "matrix" | "sensitivity";
 
 export interface SectionConfig {
   id: string;
@@ -292,6 +292,13 @@ export const BP_SECTIONS: SectionConfig[] = [
       "Solde cumulé",
     ],
     columns: ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12"],
+  },
+  {
+    id: "sensibilite",
+    titleKey: "section.sensibilite.title",
+    icon: "🎚️",
+    type: "sensitivity",
+    hintKey: "section.sensibilite.hint",
   },
   {
     id: "synthese_banquier",
