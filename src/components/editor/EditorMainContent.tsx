@@ -4,6 +4,7 @@ import NarrativeSection from "@/components/editor/NarrativeSection";
 import FinancialSection from "@/components/editor/FinancialSection";
 import SwotSection from "@/components/editor/SwotSection";
 import MatrixSection from "@/components/editor/MatrixSection";
+import SensitivitySection from "@/components/editor/SensitivitySection";
 import BankerSummary from "@/components/editor/BankerSummary";
 import FinancialValidation from "@/components/editor/FinancialValidation";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
