@@ -5,6 +5,7 @@ import FinancialSection from "@/components/editor/FinancialSection";
 import SwotSection from "@/components/editor/SwotSection";
 import MatrixSection from "@/components/editor/MatrixSection";
 import SensitivitySection from "@/components/editor/SensitivitySection";
+import LoanScheduleSection from "@/components/editor/LoanScheduleSection";
 import BankerSummary from "@/components/editor/BankerSummary";
 import FinancialValidation from "@/components/editor/FinancialValidation";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
@@ -74,6 +75,16 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
             hint={resolved.hint}
           />
         );
+      case "loan_schedule":
+        return (
+          <LoanScheduleSection
+            section={currentSection}
+            value={content[currentSection.id] || {}}
+            onChange={(val) => onSectionChange(currentSection.id, val)}
+            devise={plan.devise}
+            hint={resolved.hint}
+          />
+        );
       case "banker_summary":
         return (
           <div>
@@ -98,6 +109,8 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
     ? t("editor.matrix")
     : currentSection.type === "sensitivity"
     ? t("editor.sensitivity")
+    : currentSection.type === "loan_schedule"
+    ? t("editor.loanSchedule")
     : currentSection.type === "swot"
     ? t("editor.swot")
     : currentSection.type === "banker_summary"
@@ -158,7 +171,7 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
         </div>
       </main>
 
-      {currentSection.type !== "banker_summary" && currentSection.type !== "sensitivity" && (
+      {currentSection.type !== "banker_summary" && currentSection.type !== "sensitivity" && currentSection.type !== "loan_schedule" && (
         <AIAssistantPanel
           key={currentSection.id}
           sectionTitle={resolved.title}
