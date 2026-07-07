@@ -190,6 +190,28 @@ const translations: Translations = {
   "sensitivity.needData": { fr: "Renseignez d'abord le Compte de résultat et les Investissements pour activer l'analyse de sensibilité.", en: "Fill the Income statement and Investments first to enable sensitivity analysis." },
   "sensitivity.footnote": { fr: "Méthodologie : CA et charges variables choqués en %, taux d'intérêt en points absolus. EBE = CA − Charges variables − Charges fixes. DSCR = (Résultat + Amortissements + Charges financières) / Service de la dette. Verdict : Robuste (DSCR ≥ 1,2 et VAN ≥ 0), Surveillé (DSCR 1-1,2 ou VAN < 0), Critique (résultat < 0 ou DSCR < 1).", en: "Methodology: Revenue and variable charges shocked in %, interest rate in absolute points. EBITDA = Revenue − Variable charges − Fixed charges. DSCR = (Net result + D&A + Interest) / Debt service. Verdict: Robust (DSCR ≥ 1.2 and NPV ≥ 0), Watch (DSCR 1-1.2 or NPV < 0), Critical (result < 0 or DSCR < 1)." },
 
+  // Loan schedule
+  "editor.loanSchedule": { fr: "Échéancier d'emprunt", en: "Loan schedule" },
+  "section.amortissement_emprunts.title": { fr: "Échéancier d'Emprunt", en: "Loan Schedule" },
+  "section.amortissement_emprunts.hint": { fr: "Saisissez capital, taux, durée et différé éventuel. L'échéancier annuel (annuité constante, méthode française) se calcule automatiquement : part capital, part intérêts et capital restant dû par année. Téléchargez le détail mois par mois pour votre dossier bancaire.", en: "Enter capital, rate, duration and optional grace period. The annual schedule (fixed annuity, French method) is computed automatically: principal, interest and remaining capital per year. Download the monthly breakdown for your banking file." },
+  "loan.capital": { fr: "Capital emprunté", en: "Loan amount" },
+  "loan.rate": { fr: "Taux annuel", en: "Annual rate" },
+  "loan.duration": { fr: "Durée", en: "Duration" },
+  "loan.grace": { fr: "Différé capital", en: "Capital grace" },
+  "loan.years": { fr: "années", en: "years" },
+  "loan.annuityConstant": { fr: "Annuité constante", en: "Fixed annuity" },
+  "loan.totalInterest": { fr: "Total intérêts", en: "Total interest" },
+  "loan.totalRepaid": { fr: "Total remboursé", en: "Total repaid" },
+  "loan.year": { fr: "Année", en: "Year" },
+  "loan.annuity": { fr: "Annuité", en: "Annuity" },
+  "loan.interest": { fr: "Intérêts", en: "Interest" },
+  "loan.principal": { fr: "Capital", en: "Principal" },
+  "loan.crd": { fr: "Capital restant dû", en: "Remaining capital" },
+  "loan.needParams": { fr: "Renseignez le capital, le taux et la durée pour générer l'échéancier.", en: "Enter capital, rate and duration to generate the schedule." },
+  "loan.footnote": { fr: "Méthode française : annuité constante = K × i / (1 − (1+i)⁻ⁿ). Pendant le différé, seuls les intérêts sont dus. Ces valeurs alimentent automatiquement la charge financière et le service de la dette du dossier.", en: "French method: fixed annuity = K × i / (1 − (1+i)⁻ⁿ). During grace period, only interest is due. These values automatically feed the interest expense and debt service in the file." },
+  "loan.downloadMonthly": { fr: "Télécharger échéancier mensuel (CSV)", en: "Download monthly schedule (CSV)" },
+  "loan.csvDownloaded": { fr: "Échéancier téléchargé", en: "Schedule downloaded" },
+
   // Share
   "share.button": { fr: "Partager", en: "Share" },
   "share.title": { fr: "Partage public", en: "Public sharing" },
