@@ -76,6 +76,16 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
             hint={resolved.hint}
           />
         );
+      case "kpi_dashboard":
+        return (
+          <KpiDashboardSection
+            content={content}
+            value={content[currentSection.id] || {}}
+            onChange={(val) => onSectionChange(currentSection.id, val)}
+            devise={plan.devise}
+            hint={resolved.hint}
+          />
+        );
       case "loan_schedule":
         return (
           <LoanScheduleSection
