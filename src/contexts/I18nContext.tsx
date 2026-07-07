@@ -134,8 +134,6 @@ const translations: Translations = {
   "section.seuil_rentabilite.title": { fr: "Seuil de rentabilité", en: "Break-Even Analysis" },
   "section.seuil_rentabilite.hint": { fr: "Calculez votre point mort : le chiffre d'affaires minimum pour couvrir toutes vos charges.", en: "Calculate your break-even point: the minimum revenue to cover all expenses." },
 
-  "section.amortissement_emprunts.title": { fr: "Tableau d'amortissement des emprunts", en: "Loan Amortization Schedule" },
-  "section.amortissement_emprunts.hint": { fr: "Détaillez le remboursement de chaque emprunt : capital, intérêts, annuités.", en: "Detail the repayment of each loan: principal, interest, installments." },
 
   "section.charges_personnel.title": { fr: "Charges du personnel", en: "Personnel Costs" },
   "section.charges_personnel.hint": { fr: "Détaillez les salaires bruts, charges sociales et coût total par poste.", en: "Detail gross salaries, social charges and total cost per position." },
