@@ -1,4 +1,4 @@
-export type SectionType = "narrative" | "financial" | "swot" | "banker_summary" | "matrix" | "sensitivity";
+export type SectionType = "narrative" | "financial" | "swot" | "banker_summary" | "matrix" | "sensitivity" | "loan_schedule";
 
 export interface SectionConfig {
   id: string;
@@ -210,7 +210,7 @@ export const BP_SECTIONS: SectionConfig[] = [
     id: "amortissement_emprunts",
     titleKey: "section.amortissement_emprunts.title",
     icon: "🏛️",
-    type: "financial",
+    type: "loan_schedule",
     hintKey: "section.amortissement_emprunts.hint",
     rows: [
       "Capital emprunté",
