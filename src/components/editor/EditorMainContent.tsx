@@ -122,6 +122,8 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
     ? t("editor.sensitivity")
     : currentSection.type === "loan_schedule"
     ? t("editor.loanSchedule")
+    : currentSection.type === "kpi_dashboard"
+    ? t("editor.kpiDashboard")
     : currentSection.type === "swot"
     ? t("editor.swot")
     : currentSection.type === "banker_summary"
@@ -182,7 +184,7 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
         </div>
       </main>
 
-      {currentSection.type !== "banker_summary" && currentSection.type !== "sensitivity" && currentSection.type !== "loan_schedule" && (
+      {currentSection.type !== "banker_summary" && currentSection.type !== "sensitivity" && currentSection.type !== "loan_schedule" && currentSection.type !== "kpi_dashboard" && (
         <AIAssistantPanel
           key={currentSection.id}
           sectionTitle={resolved.title}

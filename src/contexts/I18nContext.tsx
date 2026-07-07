@@ -210,6 +210,27 @@ const translations: Translations = {
   "loan.downloadMonthly": { fr: "Télécharger échéancier mensuel (CSV)", en: "Download monthly schedule (CSV)" },
   "loan.csvDownloaded": { fr: "Échéancier téléchargé", en: "Schedule downloaded" },
 
+  // KPI Dashboard
+  "editor.kpiDashboard": { fr: "Tableau de bord KPI", en: "KPI dashboard" },
+  "section.suivi_kpi.title": { fr: "Suivi KPI Post-Financement", en: "Post-Financing KPI Tracking" },
+  "section.suivi_kpi.hint": { fr: "Une fois le financement obtenu, saisissez chaque mois vos réalisations (CA encaissé, charges payées, trésorerie fin de mois). Le tableau compare automatiquement avec vos prévisions et surveille les covenants bancaires clés (DSCR ≥ 1,2 · Gearing ≤ 2 · Trésorerie positive · Écart CA ≥ -15%). Alertes visuelles pour anticiper toute dégradation avant le banquier.", en: "Once financing is secured, enter your monthly actuals (revenue collected, charges paid, end-of-month cash). The table auto-compares with your forecast and monitors key banking covenants (DSCR ≥ 1.2, Gearing ≤ 2, positive cash, revenue variance ≥ -15%). Visual alerts anticipate any degradation before the bank does." },
+  "kpi.ca": { fr: "Chiffre d'affaires", en: "Revenue" },
+  "kpi.charges": { fr: "Charges d'exploitation", en: "Operating charges" },
+  "kpi.tresorerie": { fr: "Trésorerie (solde)", en: "Cash (balance)" },
+  "kpi.forecast": { fr: "Prévu", en: "Forecast" },
+  "kpi.actual": { fr: "Réalisé", en: "Actual" },
+  "kpi.variance": { fr: "Écart %", en: "Variance %" },
+  "kpi.indicator": { fr: "Indicateur", en: "Indicator" },
+  "kpi.totalY1": { fr: "Total A1", en: "Total Y1" },
+  "kpi.covenantsTitle": { fr: "Covenants bancaires", en: "Banking covenants" },
+  "kpi.monthlyTitle": { fr: "Écart mensuel Prévu vs Réalisé (Année 1)", en: "Monthly forecast vs actual (Year 1)" },
+  "kpi.threshold": { fr: "Seuil", en: "Threshold" },
+  "kpi.status.ok": { fr: "OK", en: "OK" },
+  "kpi.status.warn": { fr: "Vigilance", en: "Watch" },
+  "kpi.status.ko": { fr: "Alerte", en: "Alert" },
+  "kpi.needForecast": { fr: "Les prévisions du Compte de résultat ne sont pas encore saisies — le tableau de bord s'activera dès qu'elles seront disponibles.", en: "Income statement forecasts are not yet filled — the dashboard will activate once they are available." },
+  "kpi.footnote": { fr: "Prévu CA/charges = prorata mensuel du Compte de résultat Année 1. Prévu trésorerie = Solde cumulé du plan de trésorerie. DSCR calculé sur résultat réalisé + amortissements + charges financières / annuité d'emprunt. Gearing = Emprunt bancaire / Capitaux propres.", en: "Forecast revenue/charges = monthly prorata of Y1 income statement. Forecast cash = cumulated balance of cash plan. DSCR computed on actual net result + D&A + interest / loan annuity. Gearing = Bank debt / Equity." },
+
   // Share
   "share.button": { fr: "Partager", en: "Share" },
   "share.title": { fr: "Partage public", en: "Public sharing" },
