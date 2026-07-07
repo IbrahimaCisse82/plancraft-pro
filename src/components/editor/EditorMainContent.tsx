@@ -171,7 +171,7 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
         </div>
       </main>
 
-      {currentSection.type !== "banker_summary" && currentSection.type !== "sensitivity" && (
+      {currentSection.type !== "banker_summary" && currentSection.type !== "sensitivity" && currentSection.type !== "loan_schedule" && (
         <AIAssistantPanel
           key={currentSection.id}
           sectionTitle={resolved.title}
