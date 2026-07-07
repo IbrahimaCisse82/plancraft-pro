@@ -6,6 +6,7 @@ import SwotSection from "@/components/editor/SwotSection";
 import MatrixSection from "@/components/editor/MatrixSection";
 import SensitivitySection from "@/components/editor/SensitivitySection";
 import LoanScheduleSection from "@/components/editor/LoanScheduleSection";
+import KpiDashboardSection from "@/components/editor/KpiDashboardSection";
 import BankerSummary from "@/components/editor/BankerSummary";
 import FinancialValidation from "@/components/editor/FinancialValidation";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
