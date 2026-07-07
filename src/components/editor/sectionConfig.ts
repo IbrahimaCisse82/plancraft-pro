@@ -1,4 +1,4 @@
-export type SectionType = "narrative" | "financial" | "swot" | "banker_summary" | "matrix" | "sensitivity" | "loan_schedule";
+export type SectionType = "narrative" | "financial" | "swot" | "banker_summary" | "matrix" | "sensitivity" | "loan_schedule" | "kpi_dashboard";
 
 export interface SectionConfig {
   id: string;
@@ -299,6 +299,13 @@ export const BP_SECTIONS: SectionConfig[] = [
     icon: "🎚️",
     type: "sensitivity",
     hintKey: "section.sensibilite.hint",
+  },
+  {
+    id: "suivi_kpi",
+    titleKey: "section.suivi_kpi.title",
+    icon: "📡",
+    type: "kpi_dashboard",
+    hintKey: "section.suivi_kpi.hint",
   },
   {
     id: "synthese_banquier",
