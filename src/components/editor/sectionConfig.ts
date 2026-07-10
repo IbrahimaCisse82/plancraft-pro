@@ -53,6 +53,13 @@ export const BP_SECTIONS: SectionConfig[] = [
     hintKey: "section.marche.hint",
   },
   {
+    id: "marche_tam_sam_som",
+    titleKey: "section.marche_tam_sam_som.title",
+    icon: "🎯",
+    type: "market_sizing",
+    hintKey: "section.marche_tam_sam_som.hint",
+  },
+  {
     id: "concurrence",
     titleKey: "section.concurrence.title",
     icon: "⚔️",
