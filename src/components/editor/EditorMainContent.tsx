@@ -8,6 +8,7 @@ import SensitivitySection from "@/components/editor/SensitivitySection";
 import MarketSizingSection from "@/components/editor/MarketSizingSection";
 import LoanScheduleSection from "@/components/editor/LoanScheduleSection";
 import KpiDashboardSection from "@/components/editor/KpiDashboardSection";
+import TeamCvSection from "@/components/editor/TeamCvSection";
 import BankerSummary from "@/components/editor/BankerSummary";
 import FinancialValidation from "@/components/editor/FinancialValidation";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
@@ -83,6 +84,14 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
             value={content[currentSection.id] || {}}
             onChange={(val) => onSectionChange(currentSection.id, val)}
             devise={plan.devise}
+            hint={resolved.hint}
+          />
+        );
+      case "team_cv":
+        return (
+          <TeamCvSection
+            value={content[currentSection.id] || {}}
+            onChange={(val) => onSectionChange(currentSection.id, val)}
             hint={resolved.hint}
           />
         );
