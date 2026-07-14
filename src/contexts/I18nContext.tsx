@@ -255,6 +255,30 @@ const translations: Translations = {
   "market.sourcesPlaceholder": { fr: "Citez vos sources chiffrées (INSEE, ANSD, Banque Mondiale, études sectorielles…) et les hypothèses de segmentation utilisées.", en: "Cite your data sources (INSEE, World Bank, sector studies…) and segmentation assumptions used." },
   "market.footnote": { fr: "TAM = Population × Panier moyen. SAM = TAM × %SAM. SOM = SAM × %SOM. La projection intègre la croissance du marché et une progression de +15%/an de la captation. Documentez toujours vos sources : le banquier exige des chiffres traçables.", en: "TAM = Population × Basket. SAM = TAM × %SAM. SOM = SAM × %SOM. Projection uses market growth plus +15%/year capture increase. Always document sources — bankers require traceable figures." },
 
+  // Team CVs
+  "editor.teamCv": { fr: "Équipe dirigeante", en: "Management team" },
+  "section.equipe_cv.title": { fr: "CVs de l'équipe dirigeante", en: "Management team CVs" },
+  "section.equipe_cv.hint": { fr: "Le banquier finance d'abord une équipe. Renseignez chaque membre clé : nom, rôle, formation, expérience, réalisations chiffrées. Une équipe crédible = un dossier crédible. Ajoutez au moins le dirigeant et les 2-3 personnes clés.", en: "Bankers first finance a team. Fill in each key member: name, role, education, experience, quantified achievements. A credible team means a credible deal. Include at least the CEO and 2-3 key people." },
+  "team.member": { fr: "Membre", en: "Member" },
+  "team.remove": { fr: "Supprimer", en: "Remove" },
+  "team.addMember": { fr: "Ajouter un membre", en: "Add a member" },
+  "team.name": { fr: "Nom & prénom", en: "Full name" },
+  "team.namePlaceholder": { fr: "Ex. Aminata Diallo", en: "e.g. Aminata Diallo" },
+  "team.role": { fr: "Rôle / Fonction", en: "Role / Position" },
+  "team.rolePlaceholder": { fr: "Ex. Directrice Générale, cofondatrice", en: "e.g. CEO, co-founder" },
+  "team.formation": { fr: "Formation & diplômes", en: "Education & degrees" },
+  "team.formationPlaceholder": { fr: "MBA HEC Paris (2015), Ingénieure ESP Dakar (2010)…", en: "MBA HEC Paris (2015), Engineering degree ESP Dakar (2010)…" },
+  "team.experience": { fr: "Expérience professionnelle", en: "Professional experience" },
+  "team.experiencePlaceholder": { fr: "8 ans chez Orange (Directrice Marketing) · 4 ans chez Sonatel (Chef de projet)…", en: "8 years at Orange (Marketing Director) · 4 years at Sonatel (Project manager)…" },
+  "team.achievements": { fr: "Réalisations chiffrées", en: "Quantified achievements" },
+  "team.achievementsPlaceholder": { fr: "Lancement produit 2M€ CA · Équipe de 15 personnes managée · Levée de fonds 500K€", en: "Launched product €2M revenue · Managed team of 15 · Raised €500K seed round" },
+  "team.contact": { fr: "Contact (email / LinkedIn)", en: "Contact (email / LinkedIn)" },
+  "team.contactPlaceholder": { fr: "aminata@exemple.com · linkedin.com/in/aminata-diallo", en: "aminata@example.com · linkedin.com/in/aminata-diallo" },
+  "team.governance": { fr: "Gouvernance & organisation", en: "Governance & organization" },
+  "team.governancePlaceholder": { fr: "Répartition du capital, comité de direction, conseil d'administration, advisors, expertise externe (comptable, avocat)…", en: "Capital breakdown, executive committee, board, advisors, external expertise (accountant, lawyer)…" },
+  "team.footnote": { fr: "Astuce : joignez les CVs détaillés en annexe du dossier. Ici, l'objectif est de présenter en synthèse les compétences clés qui rassurent le banquier — surtout les réalisations mesurables (CA généré, équipes managées, projets livrés).", en: "Tip: attach detailed CVs in the appendix. Here, the goal is to synthesize key competencies that reassure the banker — especially measurable achievements (revenue generated, teams managed, projects delivered)." },
+
+
   // Share
   "share.button": { fr: "Partager", en: "Share" },
   "share.title": { fr: "Partage public", en: "Public sharing" },
