@@ -145,6 +145,8 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
     ? t("editor.kpiDashboard")
     : currentSection.type === "market_sizing"
     ? t("editor.marketSizing")
+    : currentSection.type === "team_cv"
+    ? t("editor.teamCv")
     : currentSection.type === "swot"
     ? t("editor.swot")
     : currentSection.type === "banker_summary"
