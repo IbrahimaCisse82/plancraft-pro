@@ -9,6 +9,7 @@ import MarketSizingSection from "@/components/editor/MarketSizingSection";
 import LoanScheduleSection from "@/components/editor/LoanScheduleSection";
 import KpiDashboardSection from "@/components/editor/KpiDashboardSection";
 import TeamCvSection from "@/components/editor/TeamCvSection";
+import LegalAnnexesSection from "@/components/editor/LegalAnnexesSection";
 import BankerSummary from "@/components/editor/BankerSummary";
 import FinancialValidation from "@/components/editor/FinancialValidation";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";

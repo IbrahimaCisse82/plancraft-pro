@@ -384,6 +384,13 @@ export const BP_SECTIONS: SectionConfig[] = [
     placeholderKey: "section.risques.placeholder",
     hintKey: "section.risques.hint",
   },
+  {
+    id: "annexes_juridiques",
+    titleKey: "section.annexes_juridiques.title",
+    icon: "📎",
+    type: "legal_annexes",
+    hintKey: "section.annexes_juridiques.hint",
+  },
 ];
 
 /**
