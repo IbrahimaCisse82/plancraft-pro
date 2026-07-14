@@ -96,6 +96,14 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
             hint={resolved.hint}
           />
         );
+      case "legal_annexes":
+        return (
+          <LegalAnnexesSection
+            value={content[currentSection.id] || {}}
+            onChange={(val) => onSectionChange(currentSection.id, val)}
+            hint={resolved.hint}
+          />
+        );
       case "kpi_dashboard":
         return (
           <KpiDashboardSection
@@ -148,6 +156,8 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
     ? t("editor.marketSizing")
     : currentSection.type === "team_cv"
     ? t("editor.teamCv")
+    : currentSection.type === "legal_annexes"
+    ? t("editor.legalAnnexes")
     : currentSection.type === "swot"
     ? t("editor.swot")
     : currentSection.type === "banker_summary"
