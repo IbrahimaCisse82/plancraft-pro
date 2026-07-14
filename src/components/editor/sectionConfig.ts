@@ -1,4 +1,4 @@
-export type SectionType = "narrative" | "financial" | "swot" | "banker_summary" | "matrix" | "sensitivity" | "loan_schedule" | "kpi_dashboard" | "market_sizing" | "team_cv";
+export type SectionType = "narrative" | "financial" | "swot" | "banker_summary" | "matrix" | "sensitivity" | "loan_schedule" | "kpi_dashboard" | "market_sizing" | "team_cv" | "legal_annexes";
 
 export interface SectionConfig {
   id: string;
@@ -383,6 +383,13 @@ export const BP_SECTIONS: SectionConfig[] = [
     type: "narrative",
     placeholderKey: "section.risques.placeholder",
     hintKey: "section.risques.hint",
+  },
+  {
+    id: "annexes_juridiques",
+    titleKey: "section.annexes_juridiques.title",
+    icon: "📎",
+    type: "legal_annexes",
+    hintKey: "section.annexes_juridiques.hint",
   },
 ];
 
