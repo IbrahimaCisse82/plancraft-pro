@@ -8,6 +8,7 @@ import SensitivitySection from "@/components/editor/SensitivitySection";
 import MarketSizingSection from "@/components/editor/MarketSizingSection";
 import LoanScheduleSection from "@/components/editor/LoanScheduleSection";
 import KpiDashboardSection from "@/components/editor/KpiDashboardSection";
+import TeamCvSection from "@/components/editor/TeamCvSection";
 import BankerSummary from "@/components/editor/BankerSummary";
 import FinancialValidation from "@/components/editor/FinancialValidation";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
@@ -86,6 +87,14 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
             hint={resolved.hint}
           />
         );
+      case "team_cv":
+        return (
+          <TeamCvSection
+            value={content[currentSection.id] || {}}
+            onChange={(val) => onSectionChange(currentSection.id, val)}
+            hint={resolved.hint}
+          />
+        );
       case "kpi_dashboard":
         return (
           <KpiDashboardSection
@@ -136,6 +145,8 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
     ? t("editor.kpiDashboard")
     : currentSection.type === "market_sizing"
     ? t("editor.marketSizing")
+    : currentSection.type === "team_cv"
+    ? t("editor.teamCv")
     : currentSection.type === "swot"
     ? t("editor.swot")
     : currentSection.type === "banker_summary"

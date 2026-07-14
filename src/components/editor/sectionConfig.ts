@@ -1,4 +1,4 @@
-export type SectionType = "narrative" | "financial" | "swot" | "banker_summary" | "matrix" | "sensitivity" | "loan_schedule" | "kpi_dashboard" | "market_sizing";
+export type SectionType = "narrative" | "financial" | "swot" | "banker_summary" | "matrix" | "sensitivity" | "loan_schedule" | "kpi_dashboard" | "market_sizing" | "team_cv";
 
 export interface SectionConfig {
   id: string;
@@ -43,6 +43,13 @@ export const BP_SECTIONS: SectionConfig[] = [
     type: "narrative",
     placeholderKey: "section.promoteur.placeholder",
     hintKey: "section.promoteur.hint",
+  },
+  {
+    id: "equipe_cv",
+    titleKey: "section.equipe_cv.title",
+    icon: "🧑‍💼",
+    type: "team_cv",
+    hintKey: "section.equipe_cv.hint",
   },
   {
     id: "marche",
