@@ -1,4 +1,4 @@
-export type SectionType = "narrative" | "financial" | "swot" | "banker_summary" | "matrix" | "sensitivity" | "loan_schedule" | "kpi_dashboard" | "market_sizing" | "team_cv" | "legal_annexes";
+export type SectionType = "narrative" | "financial" | "swot" | "banker_summary" | "matrix" | "sensitivity" | "loan_schedule" | "kpi_dashboard" | "market_sizing" | "team_cv" | "legal_annexes" | "esg";
 
 export interface SectionConfig {
   id: string;
