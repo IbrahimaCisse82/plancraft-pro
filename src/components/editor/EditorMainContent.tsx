@@ -167,6 +167,8 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
     ? t("editor.teamCv")
     : currentSection.type === "legal_annexes"
     ? t("editor.legalAnnexes")
+    : currentSection.type === "esg"
+    ? t("editor.esg")
     : currentSection.type === "swot"
     ? t("editor.swot")
     : currentSection.type === "banker_summary"
