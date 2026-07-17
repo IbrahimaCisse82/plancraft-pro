@@ -195,6 +195,45 @@ export const exportBusinessPlanDOCX = async (
           );
         });
       });
+    } else if (section.type === "esg" && typeof val === "object") {
+      const narrative = val.narrative || {};
+      const pillars: Array<{ key: "impact_thesis" | "environment" | "social" | "governance"; labelKey: string; fallback: string }> = [
+        { key: "impact_thesis", labelKey: "esg.impactThesis", fallback: "Thèse d'impact" },
+        { key: "environment", labelKey: "esg.pillar.E", fallback: "Environnement" },
+        { key: "social", labelKey: "esg.pillar.S", fallback: "Social" },
+        { key: "governance", labelKey: "esg.pillar.G", fallback: "Gouvernance" },
+      ];
+      pillars.forEach((p) => {
+        const text = narrative[p.key];
+        if (!text) return;
+        tables.push(
+          new Paragraph({
+            heading: HeadingLevel.HEADING_2,
+            spacing: { before: 200, after: 80 },
+            children: [new TextRun({ text: t ? t(p.labelKey) : p.fallback, bold: true, size: 24, font: "Calibri" })],
+          })
+        );
+        text.split("\n").forEach((line: string) => {
+          tables.push(
+            new Paragraph({
+              spacing: { after: 80 },
+              children: [new TextRun({ text: line, size: 22, font: "Calibri" })],
+            })
+          );
+        });
+      });
+      const sdgs: string[] = val.sdgs || [];
+      if (sdgs.length) {
+        tables.push(
+          new Paragraph({
+            spacing: { before: 120, after: 80 },
+            children: [
+              new TextRun({ text: "ODD / SDGs : ", bold: true, size: 22, font: "Calibri" }),
+              new TextRun({ text: sdgs.map((s) => `ODD ${s}`).join(" · "), size: 22, font: "Calibri" }),
+            ],
+          })
+        );
+      }
     }
   });
 
