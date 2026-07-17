@@ -10,6 +10,7 @@ import LoanScheduleSection from "@/components/editor/LoanScheduleSection";
 import KpiDashboardSection from "@/components/editor/KpiDashboardSection";
 import TeamCvSection from "@/components/editor/TeamCvSection";
 import LegalAnnexesSection from "@/components/editor/LegalAnnexesSection";
+import EsgSection from "@/components/editor/EsgSection";
 import BankerSummary from "@/components/editor/BankerSummary";
 import FinancialValidation from "@/components/editor/FinancialValidation";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
@@ -104,6 +105,14 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
             hint={resolved.hint}
           />
         );
+      case "esg":
+        return (
+          <EsgSection
+            value={content[currentSection.id] || {}}
+            onChange={(val) => onSectionChange(currentSection.id, val)}
+            hint={resolved.hint}
+          />
+        );
       case "kpi_dashboard":
         return (
           <KpiDashboardSection
@@ -158,6 +167,8 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
     ? t("editor.teamCv")
     : currentSection.type === "legal_annexes"
     ? t("editor.legalAnnexes")
+    : currentSection.type === "esg"
+    ? t("editor.esg")
     : currentSection.type === "swot"
     ? t("editor.swot")
     : currentSection.type === "banker_summary"
@@ -218,7 +229,7 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
         </div>
       </main>
 
-      {currentSection.type !== "banker_summary" && currentSection.type !== "sensitivity" && currentSection.type !== "loan_schedule" && currentSection.type !== "kpi_dashboard" && currentSection.type !== "market_sizing" && currentSection.type !== "legal_annexes" && (
+      {currentSection.type !== "banker_summary" && currentSection.type !== "sensitivity" && currentSection.type !== "loan_schedule" && currentSection.type !== "kpi_dashboard" && currentSection.type !== "market_sizing" && currentSection.type !== "legal_annexes" && currentSection.type !== "esg" && (
         <AIAssistantPanel
           key={currentSection.id}
           sectionTitle={resolved.title}
