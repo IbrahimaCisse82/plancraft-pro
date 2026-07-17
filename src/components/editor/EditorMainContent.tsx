@@ -10,6 +10,7 @@ import LoanScheduleSection from "@/components/editor/LoanScheduleSection";
 import KpiDashboardSection from "@/components/editor/KpiDashboardSection";
 import TeamCvSection from "@/components/editor/TeamCvSection";
 import LegalAnnexesSection from "@/components/editor/LegalAnnexesSection";
+import EsgSection from "@/components/editor/EsgSection";
 import BankerSummary from "@/components/editor/BankerSummary";
 import FinancialValidation from "@/components/editor/FinancialValidation";
 import AIAssistantPanel from "@/components/editor/AIAssistantPanel";
@@ -99,6 +100,14 @@ const EditorMainContent = ({ plan, content, activeSection, onSectionChange, onNa
       case "legal_annexes":
         return (
           <LegalAnnexesSection
+            value={content[currentSection.id] || {}}
+            onChange={(val) => onSectionChange(currentSection.id, val)}
+            hint={resolved.hint}
+          />
+        );
+      case "esg":
+        return (
+          <EsgSection
             value={content[currentSection.id] || {}}
             onChange={(val) => onSectionChange(currentSection.id, val)}
             hint={resolved.hint}
