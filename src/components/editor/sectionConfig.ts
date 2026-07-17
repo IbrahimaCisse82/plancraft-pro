@@ -385,6 +385,13 @@ export const BP_SECTIONS: SectionConfig[] = [
     hintKey: "section.risques.hint",
   },
   {
+    id: "impact_esg",
+    titleKey: "section.impact_esg.title",
+    icon: "🌍",
+    type: "esg",
+    hintKey: "section.impact_esg.hint",
+  },
+  {
     id: "annexes_juridiques",
     titleKey: "section.annexes_juridiques.title",
     icon: "📎",
