@@ -169,6 +169,53 @@ export const exportBusinessPlanPDF = (
         });
         y += 4;
       });
+    } else if (section.type === "esg" && typeof val === "object") {
+      doc.setFontSize(10);
+      const pillars: Array<{ key: "environment" | "social" | "governance"; label: string }> = [
+        { key: "environment", label: t ? t("esg.pillar.E") : "Environnement" },
+        { key: "social", label: t ? t("esg.pillar.S") : "Social" },
+        { key: "governance", label: t ? t("esg.pillar.G") : "Gouvernance" },
+      ];
+      const narrative = val.narrative || {};
+      if (narrative.impact_thesis) {
+        checkPageBreak(15);
+        doc.setFont("helvetica", "bold");
+        doc.text(t ? t("esg.impactThesis") : "Thèse d'impact", margin, y);
+        y += 6;
+        doc.setFont("helvetica", "normal");
+        const lines = doc.splitTextToSize(narrative.impact_thesis, maxWidth);
+        lines.forEach((line: string) => {
+          checkPageBreak(6);
+          doc.text(line, margin, y);
+          y += 5.5;
+        });
+        y += 3;
+      }
+      pillars.forEach((p) => {
+        const text = narrative[p.key];
+        if (!text) return;
+        checkPageBreak(15);
+        doc.setFont("helvetica", "bold");
+        doc.text(p.label, margin, y);
+        y += 6;
+        doc.setFont("helvetica", "normal");
+        const lines = doc.splitTextToSize(text, maxWidth);
+        lines.forEach((line: string) => {
+          checkPageBreak(6);
+          doc.text(line, margin, y);
+          y += 5.5;
+        });
+        y += 3;
+      });
+      const sdgs: string[] = val.sdgs || [];
+      if (sdgs.length) {
+        checkPageBreak(10);
+        doc.setFont("helvetica", "bold");
+        doc.text("ODD / SDGs :", margin, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(sdgs.map((s) => `ODD ${s}`).join(" · "), margin + 30, y);
+        y += 7;
+      }
     }
   });
 
