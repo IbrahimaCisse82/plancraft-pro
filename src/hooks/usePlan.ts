@@ -15,14 +15,15 @@ export interface PlanLimits {
 }
 
 export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
+  // Accès gratuit temporaire : toutes les fonctionnalités débloquées
   free: {
-    maxPlans: 2,
-    aiMonthly: 10,
-    exports: ["pdf"],
-    publicSharing: false,
-    versionHistory: false,
-    bceaoSummary: false,
-    coachClients: false,
+    maxPlans: -1,
+    aiMonthly: 100000,
+    exports: ["pdf", "docx", "xlsx"],
+    publicSharing: true,
+    versionHistory: true,
+    bceaoSummary: true,
+    coachClients: true,
   },
   pro: {
     maxPlans: -1,

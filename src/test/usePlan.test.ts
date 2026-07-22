@@ -1,21 +1,22 @@
 import { describe, it, expect } from "vitest";
 import { PLAN_LIMITS } from "@/hooks/usePlan";
 
-describe("PLAN_LIMITS", () => {
-  it("Free plan caps at 2 plans and 10 AI calls", () => {
-    expect(PLAN_LIMITS.free.maxPlans).toBe(2);
-    expect(PLAN_LIMITS.free.aiMonthly).toBe(10);
-    expect(PLAN_LIMITS.free.exports).toEqual(["pdf"]);
-    expect(PLAN_LIMITS.free.publicSharing).toBe(false);
-    expect(PLAN_LIMITS.free.versionHistory).toBe(false);
+// Accès gratuit temporaire : tous les plans donnent un accès complet.
+describe("PLAN_LIMITS (free access mode)", () => {
+  it("Free plan is fully unlocked while access is free", () => {
+    expect(PLAN_LIMITS.free.maxPlans).toBe(-1);
+    expect(PLAN_LIMITS.free.exports).toEqual(["pdf", "docx", "xlsx"]);
+    expect(PLAN_LIMITS.free.publicSharing).toBe(true);
+    expect(PLAN_LIMITS.free.versionHistory).toBe(true);
+    expect(PLAN_LIMITS.free.bceaoSummary).toBe(true);
+    expect(PLAN_LIMITS.free.coachClients).toBe(true);
   });
 
-  it("Pro plan unlocks all exports + sharing + history", () => {
+  it("Pro plan keeps all premium features", () => {
     expect(PLAN_LIMITS.pro.maxPlans).toBe(-1);
     expect(PLAN_LIMITS.pro.exports).toEqual(["pdf", "docx", "xlsx"]);
     expect(PLAN_LIMITS.pro.publicSharing).toBe(true);
     expect(PLAN_LIMITS.pro.versionHistory).toBe(true);
-    expect(PLAN_LIMITS.pro.aiMonthly).toBe(100);
   });
 
   it("Business plan provides effectively unlimited AI", () => {
@@ -23,8 +24,11 @@ describe("PLAN_LIMITS", () => {
     expect(PLAN_LIMITS.business.aiMonthly).toBeGreaterThanOrEqual(10000);
   });
 
-  it("Plan tiers escalate strictly", () => {
-    expect(PLAN_LIMITS.pro.aiMonthly).toBeGreaterThan(PLAN_LIMITS.free.aiMonthly);
-    expect(PLAN_LIMITS.business.aiMonthly).toBeGreaterThan(PLAN_LIMITS.pro.aiMonthly);
+  it("All tiers expose the same premium capabilities", () => {
+    for (const tier of ["free", "pro", "business"] as const) {
+      expect(PLAN_LIMITS[tier].publicSharing).toBe(true);
+      expect(PLAN_LIMITS[tier].versionHistory).toBe(true);
+      expect(PLAN_LIMITS[tier].bceaoSummary).toBe(true);
+    }
   });
 });
