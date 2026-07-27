@@ -51,7 +51,7 @@ const AdminDashboard = () => {
   const [shareViews, setShareViews] = useState<{ plan_id: string; created_at: string }[]>([]);
   const [errorLogs, setErrorLogs] = useState<ErrorLogRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"analytics" | "plans" | "users" | "logs">("analytics");
+  const [tab, setTab] = useState<"analytics" | "plans" | "users" | "subs" | "logs">("analytics");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [logFilter, setLogFilter] = useState<"all" | "error" | "warning" | "info">("all");
 
