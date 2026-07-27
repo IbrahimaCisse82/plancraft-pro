@@ -4,11 +4,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/contexts/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Users, FileText, Eye, Trash2, TrendingUp, BarChart3, Share2, AlertTriangle } from "lucide-react";
+import { Users, FileText, Eye, Trash2, TrendingUp, BarChart3, Share2, AlertTriangle, CreditCard } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend, LineChart, Line } from "recharts";
 import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
+import SubscriptionsPanel from "@/components/admin/SubscriptionsPanel";
 
 type UserRow = {
   user_id: string;
