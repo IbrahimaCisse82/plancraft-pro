@@ -201,6 +201,7 @@ const AdminDashboard = () => {
             { key: "analytics" as const, label: t("admin.analytics"), icon: <BarChart3 className="w-3.5 h-3.5 inline mr-1.5" /> },
             { key: "plans" as const, label: t("admin.businessPlans"), icon: <FileText className="w-3.5 h-3.5 inline mr-1.5" /> },
             { key: "users" as const, label: t("admin.users"), icon: <Users className="w-3.5 h-3.5 inline mr-1.5" /> },
+            { key: "subs" as const, label: lang === "fr" ? "Abonnements" : "Subscriptions", icon: <CreditCard className="w-3.5 h-3.5 inline mr-1.5" /> },
             { key: "logs" as const, label: lang === "fr" ? "Logs" : "Logs", icon: <AlertTriangle className="w-3.5 h-3.5 inline mr-1.5" /> },
           ]).map(tabItem => (
             <button key={tabItem.key} onClick={() => setTab(tabItem.key)} className={`px-4 py-2 rounded-md text-xs font-bold transition-all relative ${tab === tabItem.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
