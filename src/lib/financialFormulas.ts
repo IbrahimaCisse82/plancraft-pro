@@ -413,6 +413,70 @@ export const applyCrossTableLinks = (
     if (Object.keys(tres).length > 0) result["tresorerie"] = tres;
   }
 
+  // Link: amortissement_emprunts → compte_resultat (intérêts) & plan_financement (capital)
+  const loan = result["amortissement_emprunts"];
+  if (loan && typeof loan === "object") {
+    const interets = loan["Part intérêts"];
+    const capital = loan["Part capital"];
+    if (interets) {
+      const cr2 = { ...(result["compte_resultat"] || {}) };
+      const row = { ...(cr2["Charges financières"] || {}) };
+      let touched = false;
+      for (const col of yearCols) {
+        if (interets[col]) { row[col] = interets[col]; touched = true; }
+      }
+      if (touched) {
+        cr2["Charges financières"] = row;
+        result["compte_resultat"] = cr2;
+      }
+    }
+    if (capital) {
+      const pf = { ...(result["plan_financement"] || {}) };
+      const row = { ...(pf["Remboursement d'emprunts"] || {}) };
+      let touched = false;
+      for (const col of yearCols) {
+        if (capital[col]) { row[col] = capital[col]; touched = true; }
+      }
+      if (touched) {
+        pf["Remboursement d'emprunts"] = row;
+        result["plan_financement"] = pf;
+      }
+    }
+  }
+
+  // Link: compte_resultat (résultat net + amortissements) → CAF → plan_financement
+  const crFinal = result["compte_resultat"];
+  if (crFinal && typeof crFinal === "object") {
+    const pf = { ...(result["plan_financement"] || {}) };
+    const cafRow = { ...(pf["Capacité d'autofinancement"] || {}) };
+    let touched = false;
+    for (const col of yearCols) {
+      const rn = crFinal["Résultat net"]?.[col];
+      const am = crFinal["Amortissements"]?.[col];
+      if (rn !== undefined || am !== undefined) {
+        const caf = num(rn) + num(am);
+        if (caf !== 0) { cafRow[col] = String(caf); touched = true; }
+      }
+    }
+    if (touched) {
+      pf["Capacité d'autofinancement"] = cafRow;
+      result["plan_financement"] = pf;
+    }
+
+    // Link: compte_resultat (résultat net) → bilan_previsionnel (capitaux propres)
+    const bilan = { ...(result["bilan_previsionnel"] || {}) };
+    const rnRow = { ...(bilan["Résultat net"] || {}) };
+    let bTouched = false;
+    for (const col of yearCols) {
+      const rn = crFinal["Résultat net"]?.[col];
+      if (rn !== undefined && rn !== "") { rnRow[col] = String(num(rn)); bTouched = true; }
+    }
+    if (bTouched) {
+      bilan["Résultat net"] = rnRow;
+      result["bilan_previsionnel"] = bilan;
+    }
+  }
+
   return result;
 };
 
