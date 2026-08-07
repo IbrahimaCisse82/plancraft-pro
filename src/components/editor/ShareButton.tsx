@@ -130,13 +130,33 @@ const ShareButton = ({ planId }: Props) => {
                     {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
                 </div>
-                <button
-                  onClick={deleteLink}
-                  className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors"
-                >
-                  <Trash2 className="w-3 h-3" />
-                  {t("share.deleteLink")}
-                </button>
+
+                <div className="flex items-center justify-between px-2 py-1.5 rounded-md bg-secondary/60 border border-border">
+                  <span className="text-[10px] text-muted-foreground">
+                    {t("share.viewsLabel")} : <strong className="text-foreground">{stats.count}</strong>
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {stats.last
+                      ? `${t("share.lastViewLabel")} ${new Date(stats.last).toLocaleDateString()}`
+                      : t("share.noView")}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={toggleActive}
+                    className="text-xs font-semibold text-primary hover:opacity-80 transition-opacity"
+                  >
+                    {shareLink.is_active ? t("share.revoke") : t("share.reactivate")}
+                  </button>
+                  <button
+                    onClick={deleteLink}
+                    className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    {t("share.deleteLink")}
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="space-y-3">
