@@ -40,6 +40,18 @@ const ClientsPage = () => {
 
   const planCountFor = (id: string) => plans.filter(p => p.client_id === id).length;
 
+  const statsFor = (id: string) => {
+    const list = plans.filter(p => p.client_id === id);
+    if (list.length === 0) return { avg: 0, last: null as string | null };
+    const avg = Math.round(list.reduce((s, p) => s + (p.progress || 0), 0) / list.length);
+    const last = list
+      .map(p => p.updated_at)
+      .filter(Boolean)
+      .sort()
+      .reverse()[0] as string | undefined;
+    return { avg, last: last ?? null };
+  };
+
   return (
     <div className="min-h-screen">
       <TopBar showDashboard showHome />
@@ -104,6 +116,25 @@ const ClientsPage = () => {
                     {c.phone && <div className="flex items-center gap-1.5"><Phone className="w-3 h-3" />{c.phone}</div>}
                   </div>
                   {c.notes && <p className="text-[0.7rem] text-muted-foreground mt-3 line-clamp-2 italic">{c.notes}</p>}
+                  {count > 0 && (() => {
+                    const s = statsFor(c.id);
+                    return (
+                      <div className="mt-3 space-y-1.5">
+                        <div className="flex items-center justify-between text-[0.65rem] text-muted-foreground">
+                          <span>{T("Progression moyenne", "Avg. progress")}</span>
+                          <span className="font-bold text-foreground">{s.avg}%</span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
+                          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${s.avg}%` }} />
+                        </div>
+                        {s.last && (
+                          <div className="text-[0.65rem] text-muted-foreground">
+                            {T("Dernière activité", "Last activity")} : {new Date(s.last).toLocaleDateString()}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                   <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-[0.7rem]">
                     <span className="flex items-center gap-1 text-muted-foreground">
                       <FileText className="w-3 h-3" /> {count} {T("plan(s)", "plan(s)")}

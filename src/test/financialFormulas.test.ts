@@ -159,3 +159,58 @@ describe("isComputedRow", () => {
     expect(isComputedRow("tresorerie", "Solde cumulé")).toBe(true);
   });
 });
+
+describe("applyCrossTableLinks - liaisons bancaires", () => {
+  it("links loan interest to compte_resultat and capital to plan_financement", () => {
+    const content = {
+      amortissement_emprunts: {
+        "Part intérêts": { "Année 1": "8000", "Année 2": "6500" },
+        "Part capital": { "Année 1": "12000", "Année 2": "13500" },
+      },
+      compte_resultat: { "Chiffre d'affaires": { "Année 1": "200000" } },
+      plan_financement: {},
+    };
+    const r = applyCrossTableLinks(content);
+    expect(r.compte_resultat["Charges financières"]["Année 1"]).toBe("8000");
+    expect(r.plan_financement["Remboursement d'emprunts"]["Année 2"]).toBe("13500");
+  });
+
+  it("computes CAF (résultat net + amortissements) into plan_financement", () => {
+    const content = {
+      compte_resultat: {
+        "Résultat net": { "Année 1": "20000" },
+        "Amortissements": { "Année 1": "5000" },
+      },
+    };
+    const r = applyCrossTableLinks(content);
+    expect(r.plan_financement["Capacité d'autofinancement"]["Année 1"]).toBe("25000");
+  });
+
+  it("links résultat net to bilan prévisionnel", () => {
+    const content = {
+      compte_resultat: { "Résultat net": { "Année 1": "20000", "Année 2": "31000" } },
+      bilan_previsionnel: {},
+    };
+    const r = applyCrossTableLinks(content);
+    expect(r.bilan_previsionnel["Résultat net"]["Année 2"]).toBe("31000");
+  });
+});
+
+describe("generateLoanSchedule", () => {
+  it("produces constant annuities and zero remaining capital", async () => {
+    const { generateLoanSchedule } = await import("@/lib/loanSchedule");
+    const s = generateLoanSchedule({ capital: 100000, tauxAnnuel: 8, dureeAnnees: 5 })!;
+    expect(s.annual).toHaveLength(5);
+    expect(Math.round(s.annual[0].annuite)).toBe(Math.round(s.annual[4].annuite));
+    expect(Math.round(s.annual[4].crd)).toBe(0);
+  });
+
+  it("pays interest only during the grace period", async () => {
+    const { generateLoanSchedule } = await import("@/lib/loanSchedule");
+    const s = generateLoanSchedule({ capital: 100000, tauxAnnuel: 10, dureeAnnees: 5, differeAnnees: 2 })!;
+    expect(s.annual[0].capital).toBe(0);
+    expect(s.annual[1].capital).toBe(0);
+    expect(s.annual[2].capital).toBeGreaterThan(0);
+    expect(Math.round(s.annual[4].crd)).toBe(0);
+  });
+});

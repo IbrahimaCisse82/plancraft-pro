@@ -12,6 +12,8 @@ interface ValidationAlert {
   severity: Severity;
   messageKey: string;
   fallback: string;
+  /** Pre-formatted message (with dynamic values) shown as-is when set. */
+  raw?: string;
 }
 
 const num = (val: string | undefined): number => {
@@ -83,6 +85,36 @@ const FinancialValidation = ({ content }: Props) => {
     }
     if (totalInvest > 0 && apport > 0 && (apport / totalInvest) < 0.1) {
       result.push({ severity: "warning", messageKey: "validation.lowContribution", fallback: "Apport personnel < 10% de l'investissement — risque de refus bancaire" });
+    } else if (totalInvest > 0 && apport > 0 && (apport / totalInvest) < 0.2) {
+      result.push({ severity: "warning", messageKey: "validation.contributionUnder20", fallback: "Apport personnel < 20% de l'investissement — seuil généralement exigé par les banques" });
+    }
+
+    // Blocking: plan de financement equilibrium (ressources ≥ emplois)
+    if (pf) {
+      for (const y of ["Année 1", "Année 2", "Année 3"]) {
+        const emplois = num(pf["Total emplois"]?.[y]);
+        const ressources = num(pf["Total ressources"]?.[y]);
+        if (emplois > 0 && ressources > 0 && ressources < emplois) {
+          const ecart = emplois - ressources;
+          result.push({
+            severity: "error",
+            messageKey: "validation.unbalancedFinancingPlan",
+            fallback: `Plan de financement déséquilibré en ${y} : ressources insuffisantes de ${ecart.toLocaleString("fr-FR")}`,
+            raw: `Plan de financement déséquilibré en ${y} : ressources insuffisantes de ${ecart.toLocaleString("fr-FR")}`,
+          });
+          break;
+        }
+      }
+    }
+
+    // Warning: marge brute négative en Année 1
+    if (cr && ca1 > 0 && margeBrute < 0) {
+      result.push({ severity: "warning", messageKey: "validation.negativeGrossMargin", fallback: "Marge brute négative en Année 1 — le coût d'achat dépasse le chiffre d'affaires" });
+    }
+
+    // Info: croissance annuelle du CA > 100 %
+    if ((ca1 > 0 && ca2 > ca1 * 2) || (ca2 > 0 && ca3 > ca2 * 2)) {
+      result.push({ severity: "info", messageKey: "validation.highGrowth", fallback: "Croissance du CA supérieure à 100% d'une année sur l'autre — justifiez les hypothèses" });
     }
 
     // BFR check
@@ -103,8 +135,13 @@ const FinancialValidation = ({ content }: Props) => {
       const negativeMonths = months.filter(m => num(treso["Solde cumulé"]?.[m]) < 0);
       if (negativeMonths.length >= 6) {
         result.push({ severity: "error", messageKey: "validation.cashNegative6m", fallback: "Trésorerie négative pendant 6+ mois — risque de cessation de paiement" });
-      } else if (negativeMonths.length >= 3) {
-        result.push({ severity: "warning", messageKey: "validation.cashNegative3m", fallback: "Trésorerie négative pendant 3+ mois" });
+      } else if (negativeMonths.length >= 1) {
+        result.push({
+          severity: "error",
+          messageKey: "validation.cashNegativeMonth",
+          fallback: `Trésorerie cumulée négative (${negativeMonths.join(", ")}) — à corriger avant présentation bancaire`,
+          raw: `Trésorerie cumulée négative (${negativeMonths.join(", ")}) — à corriger avant présentation bancaire`,
+        });
       }
     }
 
@@ -220,7 +257,9 @@ const FinancialValidation = ({ content }: Props) => {
       {sorted.map((alert, i) => (
         <div key={i} className={`flex items-start gap-2 px-3 py-2 rounded-lg border text-xs ${bgColors[alert.severity]}`}>
           {icons[alert.severity]}
-          <span className="text-foreground leading-relaxed">{t(alert.messageKey)}</span>
+          <span className="text-foreground leading-relaxed">
+            {alert.raw ?? (t(alert.messageKey) === alert.messageKey ? alert.fallback : t(alert.messageKey))}
+          </span>
         </div>
       ))}
     </div>

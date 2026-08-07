@@ -17,6 +17,8 @@ const ShareButton = ({ planId }: Props) => {
   const [shareLink, setShareLink] = useState<{ id: string; token: string; is_active: boolean } | null>(null);
   const [copied, setCopied] = useState(false);
 
+  const [stats, setStats] = useState<{ count: number; last: string | null }>({ count: 0, last: null });
+
   useEffect(() => {
     if (!open || !user) return;
     const fetchLink = async () => {
@@ -29,6 +31,14 @@ const ShareButton = ({ planId }: Props) => {
         .limit(1)
         .maybeSingle();
       setShareLink(data as any);
+
+      const { data: views, count } = await supabase
+        .from("share_views")
+        .select("created_at", { count: "exact" })
+        .eq("plan_id", planId)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      setStats({ count: count ?? 0, last: views?.[0]?.created_at ?? null });
     };
     fetchLink();
   }, [open, planId, user]);
@@ -48,6 +58,18 @@ const ShareButton = ({ planId }: Props) => {
       setShareLink(data as any);
       toast.success(t("share.linkCreated"));
     }
+  };
+
+  const toggleActive = async () => {
+    if (!shareLink) return;
+    const next = !shareLink.is_active;
+    const { error } = await supabase
+      .from("share_links")
+      .update({ is_active: next })
+      .eq("id", shareLink.id);
+    if (error) { toast.error(t("share.createError")); return; }
+    setShareLink({ ...shareLink, is_active: next });
+    toast.success(next ? t("share.reactivated") : t("share.revoked"));
   };
 
   const deleteLink = async () => {
@@ -108,13 +130,33 @@ const ShareButton = ({ planId }: Props) => {
                     {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
                 </div>
-                <button
-                  onClick={deleteLink}
-                  className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors"
-                >
-                  <Trash2 className="w-3 h-3" />
-                  {t("share.deleteLink")}
-                </button>
+
+                <div className="flex items-center justify-between px-2 py-1.5 rounded-md bg-secondary/60 border border-border">
+                  <span className="text-[10px] text-muted-foreground">
+                    {t("share.viewsLabel")} : <strong className="text-foreground">{stats.count}</strong>
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {stats.last
+                      ? `${t("share.lastViewLabel")} ${new Date(stats.last).toLocaleDateString()}`
+                      : t("share.noView")}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={toggleActive}
+                    className="text-xs font-semibold text-primary hover:opacity-80 transition-opacity"
+                  >
+                    {shareLink.is_active ? t("share.revoke") : t("share.reactivate")}
+                  </button>
+                  <button
+                    onClick={deleteLink}
+                    className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    {t("share.deleteLink")}
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="space-y-3">
