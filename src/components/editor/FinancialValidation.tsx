@@ -12,6 +12,8 @@ interface ValidationAlert {
   severity: Severity;
   messageKey: string;
   fallback: string;
+  /** Pre-formatted message (with dynamic values) shown as-is when set. */
+  raw?: string;
 }
 
 const num = (val: string | undefined): number => {
