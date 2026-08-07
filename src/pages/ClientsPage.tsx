@@ -40,6 +40,18 @@ const ClientsPage = () => {
 
   const planCountFor = (id: string) => plans.filter(p => p.client_id === id).length;
 
+  const statsFor = (id: string) => {
+    const list = plans.filter(p => p.client_id === id);
+    if (list.length === 0) return { avg: 0, last: null as string | null };
+    const avg = Math.round(list.reduce((s, p) => s + (p.progress || 0), 0) / list.length);
+    const last = list
+      .map(p => p.updated_at)
+      .filter(Boolean)
+      .sort()
+      .reverse()[0] as string | undefined;
+    return { avg, last: last ?? null };
+  };
+
   return (
     <div className="min-h-screen">
       <TopBar showDashboard showHome />
