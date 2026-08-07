@@ -66,7 +66,15 @@ export type Database = {
           plan_id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "bp_versions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "business_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       business_plans: {
         Row: {
@@ -251,7 +259,15 @@ export type Database = {
           token?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "share_links_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "business_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       share_views: {
         Row: {
@@ -278,7 +294,15 @@ export type Database = {
           viewer_ip?: string | null
           viewer_user_agent?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "share_views_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "business_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscriptions: {
         Row: {
