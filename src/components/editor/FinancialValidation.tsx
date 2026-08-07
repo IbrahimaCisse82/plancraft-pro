@@ -257,7 +257,9 @@ const FinancialValidation = ({ content }: Props) => {
       {sorted.map((alert, i) => (
         <div key={i} className={`flex items-start gap-2 px-3 py-2 rounded-lg border text-xs ${bgColors[alert.severity]}`}>
           {icons[alert.severity]}
-          <span className="text-foreground leading-relaxed">{t(alert.messageKey)}</span>
+          <span className="text-foreground leading-relaxed">
+            {alert.raw ?? (t(alert.messageKey) === alert.messageKey ? alert.fallback : t(alert.messageKey))}
+          </span>
         </div>
       ))}
     </div>
