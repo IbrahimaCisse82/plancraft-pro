@@ -116,6 +116,25 @@ const ClientsPage = () => {
                     {c.phone && <div className="flex items-center gap-1.5"><Phone className="w-3 h-3" />{c.phone}</div>}
                   </div>
                   {c.notes && <p className="text-[0.7rem] text-muted-foreground mt-3 line-clamp-2 italic">{c.notes}</p>}
+                  {count > 0 && (() => {
+                    const s = statsFor(c.id);
+                    return (
+                      <div className="mt-3 space-y-1.5">
+                        <div className="flex items-center justify-between text-[0.65rem] text-muted-foreground">
+                          <span>{T("Progression moyenne", "Avg. progress")}</span>
+                          <span className="font-bold text-foreground">{s.avg}%</span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
+                          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${s.avg}%` }} />
+                        </div>
+                        {s.last && (
+                          <div className="text-[0.65rem] text-muted-foreground">
+                            {T("Dernière activité", "Last activity")} : {new Date(s.last).toLocaleDateString()}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                   <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-[0.7rem]">
                     <span className="flex items-center gap-1 text-muted-foreground">
                       <FileText className="w-3 h-3" /> {count} {T("plan(s)", "plan(s)")}
