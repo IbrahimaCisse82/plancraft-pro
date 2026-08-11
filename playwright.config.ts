@@ -38,7 +38,7 @@ export default defineConfig({
     trace: "off",
     headless: true,
     launchOptions: {
-      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
+      executablePath: resolveChromium(),
     },
   },
   projects: [
