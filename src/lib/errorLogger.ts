@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { captureException, captureMessage, setSentryUser } from "@/lib/sentry";
 
 type Level = "error" | "warning" | "info";
 
@@ -25,6 +26,21 @@ export const logError = async (payload: LogPayload): Promise<void> => {
     lastTime = now;
 
     const { data: { user } } = await supabase.auth.getUser();
+    setSentryUser(user?.id ?? null);
+
+    // Miroir Sentry (no-op si VITE_SENTRY_DSN n'est pas défini)
+    const sentryContext = {
+      ...(payload.context || {}),
+      source: payload.source || "client",
+      route: typeof window !== "undefined" ? window.location.pathname : undefined,
+    };
+    if (payload.stack) {
+      const err = new Error(payload.message);
+      err.stack = payload.stack;
+      captureException(err, sentryContext);
+    } else {
+      captureMessage(payload.message, payload.level || "error", sentryContext);
+    }
 
     await supabase.from("error_logs").insert({
       user_id: user?.id,
