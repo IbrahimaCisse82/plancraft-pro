@@ -42,11 +42,24 @@ export default defineConfig({
     },
   },
   projects: [
+    { name: "setup", testMatch: /auth\.setup\.ts/ },
     {
       name: "chromium",
+      testIgnore: [/auth\.setup\.ts/, /.*\.auth\.spec\.ts/],
       use: { ...devices["Desktop Chrome"], channel: undefined },
     },
+    {
+      name: "chromium-auth",
+      testMatch: /.*\.auth\.spec\.ts/,
+      dependencies: ["setup"],
+      use: {
+        ...devices["Desktop Chrome"],
+        channel: undefined,
+        storageState: "e2e/.auth/user.json",
+      },
+    },
   ],
+
   webServer: process.env.E2E_BASE_URL
     ? undefined
     : {
