@@ -383,6 +383,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      plan_is_shared: { Args: { _plan_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
