@@ -129,22 +129,26 @@ test.describe("🔐 Parcours connecté", () => {
 
   test("un utilisateur non-admin est redirigé hors de /admin", async ({ page }) => {
     await page.goto("/admin");
-    await page.waitForURL(/\/dashboard|\/admin/, { timeout: 15_000 });
-    const url = page.url();
-    if (url.includes("/admin")) {
-      // Compte de test promu admin : la console doit s'afficher.
-      await expect(page.locator("body")).toContainText(/admin/i);
-    } else {
-      expect(url).toContain("/dashboard");
-    }
+    await expect(page.locator("h1").first()).toBeVisible({ timeout: 15_000 });
+    await expect
+      .poll(() => page.url(), { timeout: 15_000 })
+      .toMatch(/\/dashboard/);
   });
 
-  test("suppression du plan de test (nettoyage)", async ({ page }) => {
+  test("suppression des plans de test (nettoyage)", async ({ page }) => {
     await gotoDashboard(page);
-    const card = page.locator("div").filter({ hasText: PLAN_NAME }).last();
-    await card.getByLabel("Menu").first().click();
-    await page.getByRole("button", { name: /supprimer|delete/i }).first().click();
-    await page.getByRole("button", { name: /supprimer|delete|confirmer|confirm/i }).last().click();
+
+    // Supprime tous les plans générés par les campagnes E2E.
+    for (let i = 0; i < 20; i++) {
+      const card = page.locator("div").filter({ hasText: /^📋E2E Plan/ }).first();
+      if (!(await card.isVisible().catch(() => false))) break;
+      await card.getByLabel("Menu").first().click();
+      await page.getByRole("button", { name: /^supprimer$|^delete$/i }).first().click();
+      await page.getByRole("button", { name: /supprimer|delete|confirmer|confirm/i }).last().click();
+      await page.waitForTimeout(1200);
+    }
+
     await expect(page.getByText(PLAN_NAME)).toHaveCount(0, { timeout: 15_000 });
   });
 });
+
