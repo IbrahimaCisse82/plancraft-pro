@@ -303,6 +303,8 @@ const SubscriptionsPanel = () => {
         </table>
       </div>
 
+      <SubscriptionAuditLog />
+
       <ConfirmDialog
         open={!!resetUserId}
         onOpenChange={o => !o && setResetUserId(null)}
