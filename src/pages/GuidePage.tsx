@@ -179,8 +179,8 @@ const GuidePage = () => {
 
       <div className="border-t border-border py-8 px-5 md:px-12 max-w-[900px] mx-auto text-center text-xs text-muted-foreground">
         © 2026 Grow Hub SARL ·{" "}
-        <Link to="/cgu" className="text-[hsl(var(--gold-light))]">CGU</Link> ·{" "}
-        <Link to="/confidentialite" className="text-[hsl(var(--gold-light))]">
+        <Link to="/cgu" className="text-[hsl(var(--gold-light))] underline underline-offset-2">CGU</Link> ·{" "}
+        <Link to="/confidentialite" className="text-[hsl(var(--gold-light))] underline underline-offset-2">
           {lang === "fr" ? "Confidentialité" : "Privacy"}
         </Link>
       </div>
