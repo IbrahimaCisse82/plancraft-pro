@@ -28,7 +28,7 @@
     --secondary-foreground: 36 10% 72%;
 
     --muted: 228 15% 13%;
-    --muted-foreground: 30 7% 40%;
+    --muted-foreground: 30 8% 56%;
 
     --accent: 43 55% 54% / 0.08;
     --accent-foreground: 43 68% 66%;
@@ -65,7 +65,7 @@
   .light,
   [data-theme="light"] {
     --gold: 43 55% 44%;
-    --gold-light: 43 68% 42%;
+    --gold-light: 43 72% 30%;
     --gold-dim: 43 55% 44% / 0.06;
 
     --background: 40 20% 97%;
@@ -84,7 +84,7 @@
     --secondary-foreground: 228 10% 40%;
 
     --muted: 40 15% 93%;
-    --muted-foreground: 228 10% 50%;
+    --muted-foreground: 228 12% 38%;
 
     --accent: 43 55% 44% / 0.08;
     --accent-foreground: 43 55% 35%;
@@ -209,4 +209,14 @@ html {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Accessibilité : les liens dans un bloc de texte ne doivent pas se distinguer
+   uniquement par la couleur (WCAG 1.4.1). */
+p a,
+li a,
+footer a,
+.text-link-block a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
