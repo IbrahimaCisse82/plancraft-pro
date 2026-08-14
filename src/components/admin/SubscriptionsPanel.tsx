@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Search, RefreshCw, Download, CalendarPlus, Zap } from "lucide-react";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
+import SubscriptionAuditLog from "@/components/admin/SubscriptionAuditLog";
 
 type Plan = "free" | "pro" | "business";
 type Status = "active" | "canceled" | "past_due" | "trialing";
