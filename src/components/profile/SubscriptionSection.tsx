@@ -4,7 +4,7 @@ import { Sparkles, CheckCircle2, Clock, CreditCard, AlertCircle } from "lucide-r
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/contexts/I18nContext";
-import { usePlan, PLAN_LIMITS, type PlanTier } from "@/hooks/usePlan";
+import { usePlan, PLAN_LIMITS, isFreeAccessPeriod, type PlanTier } from "@/hooks/usePlan";
 
 interface SubRow {
   plan: PlanTier;
