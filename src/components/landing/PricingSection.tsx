@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { useEffect, useRef } from "react";
+import { Sparkles } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
+import { isFreeAccessPeriod } from "@/hooks/usePlan";
 
 const PricingSection = () => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
 
   const plans = [
