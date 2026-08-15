@@ -49,6 +49,13 @@ test.describe("🏠 Landing page", () => {
     await expect(nav.getByRole("link", { name: /connexion|login/i }).first()).toBeVisible();
     await expect(nav.getByRole("link", { name: /commencer|start for free/i }).first()).toBeVisible();
   });
+
+  test("affiche une bannière de compte à rebours pour la période gratuite", async ({ page }) => {
+    const banner = page.getByText(/Accès complet gratuit|Full access free/).first();
+    await expect(banner).toBeVisible();
+    // Le compte à rebours affiche au moins les jours et les heures
+    await expect(page.locator("[aria-label*='Compte à rebours' i], [aria-label*='Countdown' i]").first()).toBeVisible();
+  });
 });
 
 test.describe("🌍 Internationalisation (FR/EN)", () => {
