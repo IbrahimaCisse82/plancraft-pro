@@ -109,9 +109,22 @@ export function usePlan() {
     return () => window.removeEventListener("ai-quota-updated", handler);
   }, [refresh]);
 
-  const limits = PLAN_LIMITS[plan];
+  const limits = getPlanLimits(plan);
+  const freeAccess = isFreeAccessPeriod();
+  const effectiveUsage: AIUsage = freeAccess
+    ? { ...usage, limit: limits.aiMonthly }
+    : usage;
   const canCreatePlan = (currentCount: number) =>
     limits.maxPlans === -1 || currentCount < limits.maxPlans;
 
-  return { plan, limits, usage, loading, refresh, canCreatePlan };
+  return {
+    plan,
+    limits,
+    usage: effectiveUsage,
+    loading,
+    refresh,
+    canCreatePlan,
+    freeAccess,
+    freeAccessUntil: FREE_ACCESS_UNTIL,
+  };
 }
