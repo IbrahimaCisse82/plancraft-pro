@@ -617,6 +617,11 @@ const translations: Translations = {
   "pricing.onQuote": { fr: "Sur", en: "On" },
   "pricing.quote": { fr: "devis", en: "quote" },
 
+  // Countdown
+  "countdown.banner": { fr: "🎁 Accès complet gratuit jusqu'au 31 décembre 2026", en: "🎁 Full access free until December 31, 2026" },
+  "countdown.ends": { fr: "Fin de l'accès gratuit dans", en: "Free access ends in" },
+  "countdown.expired": { fr: "L'accès gratuit est terminé", en: "Free access has ended" },
+
   // Footer
   "footer.description": { fr: "La plateforme de référence pour créer des business plans bankables en Afrique francophone.", en: "The leading platform for creating bankable business plans in Francophone Africa." },
   "footer.product": { fr: "Produit", en: "Product" },

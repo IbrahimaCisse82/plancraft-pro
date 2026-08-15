@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/contexts/I18nContext";
 import { usePlan, PLAN_LIMITS, isFreeAccessPeriod, type PlanTier } from "@/hooks/usePlan";
+import { Countdown } from "@/components/shared/Countdown";
 
 interface SubRow {
   plan: PlanTier;
@@ -72,14 +73,17 @@ const SubscriptionSection = () => {
 
       <div className="rounded-xl border border-border bg-card p-6 space-y-5">
         {isFreeAccessPeriod() && (
-          <div className="flex items-start gap-2 rounded-lg border border-primary/30 bg-primary/10 p-3 text-xs">
-            <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" aria-hidden="true" />
-            <p className="text-foreground">
-              {tr(
-                "Accès complet offert : toutes les fonctionnalités premium sont débloquées gratuitement jusqu'au 31 décembre 2026.",
-                "Full access granted: every premium feature is unlocked for free until December 31, 2026.",
-              )}
-            </p>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-lg border border-primary/30 bg-primary/10 p-3">
+            <div className="flex items-start gap-2 text-xs">
+              <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" aria-hidden="true" />
+              <p className="text-foreground">
+                {tr(
+                  "Accès complet offert : toutes les fonctionnalités premium sont débloquées gratuitement jusqu'au 31 décembre 2026.",
+                  "Full access granted: every premium feature is unlocked for free until December 31, 2026.",
+                )}
+              </p>
+            </div>
+            <Countdown compact />
           </div>
         )}
         {/* Plan header */}
