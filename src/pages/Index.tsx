@@ -4,10 +4,12 @@ import HeroSection from "@/components/landing/HeroSection";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import PricingSection from "@/components/landing/PricingSection";
+import { CountdownBanner } from "@/components/shared/Countdown";
 
 const Index = () => {
   return (
     <div className="relative z-10">
+      <CountdownBanner />
       <Navbar />
       <main>
         <HeroSection />
