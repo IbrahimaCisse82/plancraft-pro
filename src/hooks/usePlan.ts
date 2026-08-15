@@ -14,16 +14,31 @@ export interface PlanLimits {
   coachClients: boolean;
 }
 
-export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
-  // Accès gratuit temporaire : toutes les fonctionnalités débloquées
+/** Période promotionnelle : accès complet gratuit jusqu'au 31 décembre 2026 inclus. */
+export const FREE_ACCESS_UNTIL = new Date("2026-12-31T23:59:59Z");
+
+export const isFreeAccessPeriod = (now: Date = new Date()) => now <= FREE_ACCESS_UNTIL;
+
+const FULL_ACCESS: PlanLimits = {
+  maxPlans: -1,
+  aiMonthly: 100000,
+  exports: ["pdf", "docx", "xlsx"],
+  publicSharing: true,
+  versionHistory: true,
+  bceaoSummary: true,
+  coachClients: true,
+};
+
+/** Limites réelles appliquées après la fin de la période gratuite. */
+export const STANDARD_PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
   free: {
-    maxPlans: -1,
-    aiMonthly: 100000,
-    exports: ["pdf", "docx", "xlsx"],
-    publicSharing: true,
-    versionHistory: true,
-    bceaoSummary: true,
-    coachClients: true,
+    maxPlans: 1,
+    aiMonthly: 10,
+    exports: ["pdf"],
+    publicSharing: false,
+    versionHistory: false,
+    bceaoSummary: false,
+    coachClients: false,
   },
   pro: {
     maxPlans: -1,
@@ -32,17 +47,18 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
     publicSharing: true,
     versionHistory: true,
     bceaoSummary: true,
-    coachClients: true,
+    coachClients: false,
   },
-  business: {
-    maxPlans: -1,
-    aiMonthly: 100000,
-    exports: ["pdf", "docx", "xlsx"],
-    publicSharing: true,
-    versionHistory: true,
-    bceaoSummary: true,
-    coachClients: true,
-  },
+  business: FULL_ACCESS,
+};
+
+export const getPlanLimits = (tier: PlanTier, now: Date = new Date()): PlanLimits =>
+  isFreeAccessPeriod(now) ? FULL_ACCESS : STANDARD_PLAN_LIMITS[tier];
+
+export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
+  free: getPlanLimits("free"),
+  pro: getPlanLimits("pro"),
+  business: getPlanLimits("business"),
 };
 
 export interface AIUsage {
@@ -93,9 +109,22 @@ export function usePlan() {
     return () => window.removeEventListener("ai-quota-updated", handler);
   }, [refresh]);
 
-  const limits = PLAN_LIMITS[plan];
+  const limits = getPlanLimits(plan);
+  const freeAccess = isFreeAccessPeriod();
+  const effectiveUsage: AIUsage = freeAccess
+    ? { ...usage, limit: limits.aiMonthly }
+    : usage;
   const canCreatePlan = (currentCount: number) =>
     limits.maxPlans === -1 || currentCount < limits.maxPlans;
 
-  return { plan, limits, usage, loading, refresh, canCreatePlan };
+  return {
+    plan,
+    limits,
+    usage: effectiveUsage,
+    loading,
+    refresh,
+    canCreatePlan,
+    freeAccess,
+    freeAccessUntil: FREE_ACCESS_UNTIL,
+  };
 }

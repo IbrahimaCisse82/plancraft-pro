@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { useEffect, useRef } from "react";
+import { Sparkles } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
+import { isFreeAccessPeriod } from "@/hooks/usePlan";
 
 const PricingSection = () => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
 
   const plans = [
@@ -81,6 +83,15 @@ const PricingSection = () => {
       <p className="text-sm text-secondary-foreground max-w-[520px] leading-relaxed">
         {t("pricing.subtitle")}
       </p>
+
+      {isFreeAccessPeriod() && (
+        <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold-dim px-4 py-2 text-xs font-bold text-gold-light">
+          <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
+          {lang === "fr"
+            ? "Accès complet gratuit pour tous jusqu'au 31 décembre 2026"
+            : "Full access free for everyone until December 31, 2026"}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-16 items-start" ref={ref}>
         {plans.map((plan) => (
