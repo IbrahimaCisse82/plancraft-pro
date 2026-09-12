@@ -108,6 +108,15 @@ const AdminLoginPage = () => {
           </button>
         </form>
 
+        {isAdmin && (
+          <button
+            onClick={() => navigate("/admin")}
+            className="mt-4 w-full px-4 py-2 rounded-md bg-secondary border border-border text-xs font-bold text-secondary-foreground hover:border-primary hover:text-primary"
+          >
+            {fr ? "Continuer vers le back-office" : "Continue to the back-office"}
+          </button>
+        )}
+
         <button
           onClick={() => navigate("/auth")}
           className="mt-5 w-full text-center text-xs text-muted-foreground underline hover:text-foreground"
