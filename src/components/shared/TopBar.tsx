@@ -50,6 +50,15 @@ const TopBar = ({ showAdmin = false, showDashboard = false, showHome = false, sh
           <span className="hidden sm:inline">{displayName}</span>
         </Link>
 
+        {user && (
+          <Link
+            to="/admin/login"
+            className="flex items-center gap-1 px-4 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
+          >
+            <Shield className="w-3 h-3" /> Backoffice
+          </Link>
+        )}
+
         {isAdmin && (
           <Link
             to="/admin"
