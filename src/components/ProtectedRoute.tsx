@@ -14,7 +14,7 @@ export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isAdmin, loading } = useAuth();
 
   if (loading) return <FullPageSpinner />;
-  if (!user) return <Navigate to="/auth" replace />;
+  if (!user) return <Navigate to="/admin/login" replace />;
   if (!isAdmin) return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 };

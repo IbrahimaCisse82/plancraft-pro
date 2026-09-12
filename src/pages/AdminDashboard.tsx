@@ -4,12 +4,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/contexts/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Users, FileText, Eye, Trash2, TrendingUp, BarChart3, Share2, AlertTriangle, CreditCard } from "lucide-react";
+import { Users, FileText, Eye, Trash2, TrendingUp, BarChart3, Share2, AlertTriangle, CreditCard, KeyRound } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend, LineChart, Line } from "recharts";
 import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import SubscriptionsPanel from "@/components/admin/SubscriptionsPanel";
+import AdminSecurityPanel from "@/components/admin/AdminSecurityPanel";
 
 type UserRow = {
   user_id: string;
@@ -51,7 +52,7 @@ const AdminDashboard = () => {
   const [shareViews, setShareViews] = useState<{ plan_id: string; created_at: string }[]>([]);
   const [errorLogs, setErrorLogs] = useState<ErrorLogRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"analytics" | "plans" | "users" | "subs" | "logs">("analytics");
+  const [tab, setTab] = useState<"analytics" | "plans" | "users" | "subs" | "logs" | "security">("analytics");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [logFilter, setLogFilter] = useState<"all" | "error" | "warning" | "info">("all");
 
@@ -203,6 +204,7 @@ const AdminDashboard = () => {
             { key: "users" as const, label: t("admin.users"), icon: <Users className="w-3.5 h-3.5 inline mr-1.5" /> },
             { key: "subs" as const, label: lang === "fr" ? "Abonnements" : "Subscriptions", icon: <CreditCard className="w-3.5 h-3.5 inline mr-1.5" /> },
             { key: "logs" as const, label: lang === "fr" ? "Logs" : "Logs", icon: <AlertTriangle className="w-3.5 h-3.5 inline mr-1.5" /> },
+            { key: "security" as const, label: lang === "fr" ? "Sécurité" : "Security", icon: <KeyRound className="w-3.5 h-3.5 inline mr-1.5" /> },
           ]).map(tabItem => (
             <button key={tabItem.key} onClick={() => setTab(tabItem.key)} className={`px-4 py-2 rounded-md text-xs font-bold transition-all relative ${tab === tabItem.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
               {tabItem.icon}{tabItem.label}
@@ -360,6 +362,8 @@ const AdminDashboard = () => {
           </div>
         ) : tab === "subs" ? (
           <SubscriptionsPanel />
+        ) : tab === "security" ? (
+          <AdminSecurityPanel />
         ) : (
           <div className="space-y-4">
             <div className="flex items-center gap-2 flex-wrap">
