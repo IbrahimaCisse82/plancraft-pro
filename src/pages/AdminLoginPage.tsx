@@ -7,7 +7,7 @@ import { ShieldCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 const AdminLoginPage = () => {
-  const { user, isAdmin, loading } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { lang } = useI18n();
   const navigate = useNavigate();
   const fr = lang === "fr";
@@ -18,8 +18,8 @@ const AdminLoginPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && user && isAdmin) navigate("/admin", { replace: true });
-  }, [loading, user, isAdmin, navigate]);
+    if (user?.email) setEmail((prev) => prev || user.email!);
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
