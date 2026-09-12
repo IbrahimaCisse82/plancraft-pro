@@ -18,6 +18,7 @@ const EmailConfirmationPage = lazy(() => import("./pages/EmailConfirmationPage")
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const BusinessPlanEditor = lazy(() => import("./pages/BusinessPlanEditor"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminLoginPage = lazy(() => import("./pages/AdminLoginPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const CGUPage = lazy(() => import("./pages/CGUPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
@@ -49,6 +50,7 @@ const App = () => (
                 <Route path="/bp/:id" element={
                   <ProtectedRoute><BusinessPlanEditor /></ProtectedRoute>
                 } />
+                <Route path="/admin/login" element={<AdminLoginPage />} />
                 <Route path="/admin" element={
                   <AdminRoute><AdminDashboard /></AdminRoute>
                 } />
