@@ -7,6 +7,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { Trash2, Archive, MoreVertical, ArchiveRestore, Search, Copy, Briefcase } from "lucide-react";
 import { createI18nSchemas } from "@/lib/validation";
 import TopBar from "@/components/shared/TopBar";
+import FreeAccessReminder from "@/components/shared/FreeAccessReminder";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import OnboardingTour from "@/components/onboarding/OnboardingTour";
@@ -124,6 +125,7 @@ const Dashboard = () => {
       <TopBar showHome />
 
       <div className="max-w-[1100px] mx-auto px-5 md:px-8 py-10">
+        <FreeAccessReminder />
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-9">
           <div>
