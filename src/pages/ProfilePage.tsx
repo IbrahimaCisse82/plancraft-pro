@@ -103,7 +103,9 @@ const ProfilePage = () => {
           </button>
         </form>
 
-        <SubscriptionSection />
+        <div id="subscription" className="scroll-mt-24">
+          <SubscriptionSection />
+        </div>
       </div>
     </div>
   );
