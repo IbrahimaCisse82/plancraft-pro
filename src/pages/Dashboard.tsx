@@ -124,6 +124,7 @@ const Dashboard = () => {
       <TopBar showHome />
 
       <div className="max-w-[1100px] mx-auto px-5 md:px-8 py-10">
+        <FreeAccessReminder />
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-9">
           <div>
