@@ -9,7 +9,6 @@ import { CountdownBanner } from "@/components/shared/Countdown";
 const Index = () => {
   return (
     <div className="relative z-10">
-      <CountdownBanner />
       <Navbar />
       <main>
         <HeroSection />
