@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Save, ChevronLeft, Check, Download, Menu, X, Lock } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useI18n } from "@/contexts/I18nContext";
 import { exportBusinessPlanPDF } from "@/lib/exportPdf";
 import { exportOnePagerPDF } from "@/lib/exportOnePager";
@@ -49,7 +50,7 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
   const canVersion = limits.versionHistory;
 
   return (
-    <div className="sticky top-0 z-50 h-[52px] bg-card border-b border-border flex items-center px-4 gap-3 shrink-0">
+    <div className="sticky top-0 z-50 h-[52px] bg-card border-b border-border flex items-center px-2 sm:px-4 gap-2 sm:gap-3 shrink-0">
       <button
         onClick={onToggleSidebar}
         className="lg:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
@@ -63,10 +64,10 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
         <span className="hidden sm:inline">Dashboard</span>
       </Link>
 
-      <div className="h-5 w-px bg-border" />
-      <h1 className="text-sm font-bold truncate max-w-[120px] sm:max-w-[300px]">{plan.name}</h1>
+      <div className="hidden sm:block h-5 w-px bg-border" />
+      <h1 className="text-sm font-bold truncate min-w-0 max-w-[80px] sm:max-w-[300px]">{plan.name}</h1>
 
-      <div className="ml-auto flex items-center gap-2 sm:gap-3">
+      <div className="ml-auto flex items-center gap-1.5 sm:gap-3 shrink-0">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           {saving && (
             <>
@@ -84,6 +85,7 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
 
         <span className="text-[0.6rem] text-muted-foreground font-mono hidden sm:inline">{plan.devise}</span>
 
+        <div className="hidden xl:flex items-center gap-3">
         <button
           onClick={() => exportBusinessPlanPDF(plan, content, t)}
           className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary transition-all"
@@ -129,6 +131,23 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
           <span className="hidden sm:inline">XLSX</span>
         </button>
 
+        </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="xl:hidden flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary" aria-label={lang === "fr" ? "Exporter" : "Export"}>
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{lang === "fr" ? "Exporter" : "Export"}</span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={() => exportBusinessPlanPDF(plan, content, t)}>PDF</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => exportOnePagerPDF(plan, content, t)}>{t("export.onePager.button")}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => canDocx ? exportBusinessPlanDOCX(plan, content, t) : requirePro("Export Word")}>{!canDocx && <Lock className="w-3 h-3 mr-2" />}DOCX</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => canXlsx ? exportBusinessPlanXLSX(plan, content, t) : requirePro("Export Excel")}>{!canXlsx && <Lock className="w-3 h-3 mr-2" />}XLSX</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <ImportExcelButton onImport={onImportSection} />
 
         {canVersion ? (
@@ -140,7 +159,7 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
             aria-label="Versions"
           >
             <Lock className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{lang === "fr" ? "Versions" : "Versions"}</span>
+            <span className="hidden xl:inline">{lang === "fr" ? "Versions" : "Versions"}</span>
           </button>
         )}
 
@@ -153,7 +172,7 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
             aria-label="Share"
           >
             <Lock className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{lang === "fr" ? "Partager" : "Share"}</span>
+            <span className="hidden xl:inline">{lang === "fr" ? "Partager" : "Share"}</span>
           </button>
         )}
 
@@ -163,7 +182,7 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
           aria-label={t("editor.save")}
         >
           <Save className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">{t("editor.save")}</span>
+          <span className="hidden xl:inline">{t("editor.save")}</span>
         </button>
       </div>
     </div>
