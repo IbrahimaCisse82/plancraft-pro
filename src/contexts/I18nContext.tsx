@@ -775,6 +775,7 @@ const translations: Translations = {
   "common.saveError": { fr: "Erreur de sauvegarde", en: "Save error" },
   "common.loadError": { fr: "Erreur lors du chargement des business plans", en: "Error loading business plans" },
   "common.notFound": { fr: "Business plan introuvable", en: "Business plan not found" },
+  "common.close": { fr: "Fermer", en: "Close" },
 };
 
 interface I18nContextType {
