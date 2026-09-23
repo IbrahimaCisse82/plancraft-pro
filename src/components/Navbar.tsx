@@ -66,7 +66,8 @@ const Navbar = () => {
               to="/auth"
               className="px-3 sm:px-5 py-2 whitespace-nowrap bg-primary rounded-lg text-xs font-bold text-primary-foreground hover:bg-gold-light hover:-translate-y-0.5 transition-all"
             >
-              {t("nav.start")}
+              <span className="sm:hidden">{t("nav.login")}</span>
+              <span className="hidden sm:inline">{t("nav.start")}</span>
             </Link>
           </>
         )}
