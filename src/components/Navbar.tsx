@@ -17,7 +17,7 @@ const Navbar = () => {
         Plan<span className="text-secondary-foreground font-normal">Craft</span> Pro
       </Link>
 
-      <div className="hidden md:flex gap-8 mx-auto">
+      <div className="hidden lg:flex gap-8 mx-auto">
         {[
           { label: t("nav.features"), href: "#fonctionnalites" },
           { label: t("nav.howItWorks"), href: "#comment" },
@@ -44,7 +44,7 @@ const Navbar = () => {
         ))}
       </div>
 
-      <div className="flex gap-1.5 sm:gap-2.5 items-center ml-auto md:ml-0 shrink-0">
+      <div className="flex gap-1.5 sm:gap-2.5 items-center ml-auto lg:ml-0 shrink-0">
         <LangToggle />
         <ThemeToggle />
         {!loading && user ? (
