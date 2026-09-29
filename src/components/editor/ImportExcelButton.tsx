@@ -202,7 +202,7 @@ const ImportExcelButton = ({ onImport }: Props) => {
         aria-label={t("import.button")}
       >
         <Upload className="w-3.5 h-3.5" />
-        <span className="hidden sm:inline">{t("import.button")}</span>
+        <span className="hidden xl:inline">{t("import.button")}</span>
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>

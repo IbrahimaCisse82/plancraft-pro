@@ -30,7 +30,7 @@ const VersionHistoryPanel = ({ planId, content, onRestore }: Props) => {
         aria-label={t("versions.title")}
       >
         <History className="w-3.5 h-3.5" />
-        <span className="hidden sm:inline">{t("versions.button")}</span>
+        <span className="hidden xl:inline">{t("versions.button")}</span>
       </button>
     );
   }

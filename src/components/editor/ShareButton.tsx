@@ -99,7 +99,7 @@ const ShareButton = ({ planId }: Props) => {
         aria-label={t("share.button")}
       >
         <Share2 className="w-3.5 h-3.5" />
-        <span className="hidden sm:inline">{t("share.button")}</span>
+        <span className="hidden xl:inline">{t("share.button")}</span>
       </button>
 
       {open && (

@@ -137,7 +137,7 @@ const EditorTopBar = ({ plan, content, saving, saved, sidebarOpen, onToggleSideb
           <DropdownMenuTrigger asChild>
             <button className="xl:hidden flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-secondary border border-border rounded-md text-xs font-semibold text-secondary-foreground hover:border-primary hover:text-primary" aria-label={lang === "fr" ? "Exporter" : "Export"}>
               <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{lang === "fr" ? "Exporter" : "Export"}</span>
+              <span className="hidden xl:inline">{lang === "fr" ? "Exporter" : "Export"}</span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
