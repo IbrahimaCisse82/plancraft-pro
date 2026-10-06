@@ -9,6 +9,7 @@ import { I18nProvider } from "@/contexts/I18nContext";
 import ProtectedRoute, { AdminRoute } from "@/components/ProtectedRoute";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 import { FullPageSpinner } from "@/components/shared/LoadingSpinner";
+import GlobalOverlays from "@/components/shared/GlobalOverlays";
 
 // Lazy loaded pages
 const Index = lazy(() => import("./pages/Index"));
@@ -66,6 +67,7 @@ const App = () => (
                 <Route path="/share/:token" element={<SharedPlanPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              <GlobalOverlays />
             </Suspense>
           </ErrorBoundary>
           </I18nProvider>

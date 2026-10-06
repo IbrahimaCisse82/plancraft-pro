@@ -4,13 +4,22 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/contexts/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Users, FileText, Eye, Trash2, TrendingUp, BarChart3, Share2, AlertTriangle, CreditCard, KeyRound } from "lucide-react";
+import { Users, FileText, Eye, Trash2, TrendingUp, BarChart3, Share2, AlertTriangle, CreditCard, KeyRound, Coins, ScrollText, Megaphone, LifeBuoy, Settings } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend, LineChart, Line } from "recharts";
 import TopBar from "@/components/shared/TopBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import SubscriptionsPanel from "@/components/admin/SubscriptionsPanel";
 import AdminSecurityPanel from "@/components/admin/AdminSecurityPanel";
+import UsersPanel from "@/components/admin/UsersPanel";
+import RevenuePanel from "@/components/admin/RevenuePanel";
+import AdminAuditPanel from "@/components/admin/AdminAuditPanel";
+import AnnouncementsPanel from "@/components/admin/AnnouncementsPanel";
+import SupportPanel from "@/components/admin/SupportPanel";
+import SettingsPanel from "@/components/admin/SettingsPanel";
+import MfaSection from "@/components/admin/MfaSection";
+import { AdminToolbar, Pager, inputCls } from "@/components/admin/AdminToolbar";
+import { downloadCsv, paginate } from "@/lib/csv";
 
 type UserRow = {
   user_id: string;
@@ -52,9 +61,13 @@ const AdminDashboard = () => {
   const [shareViews, setShareViews] = useState<{ plan_id: string; created_at: string }[]>([]);
   const [errorLogs, setErrorLogs] = useState<ErrorLogRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"analytics" | "plans" | "users" | "subs" | "logs" | "security">("analytics");
+  const [tab, setTab] = useState<"analytics" | "plans" | "users" | "subs" | "revenue" | "audit" | "announcements" | "support" | "logs" | "settings" | "security">("analytics");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [logFilter, setLogFilter] = useState<"all" | "error" | "warning" | "info">("all");
+  const [logSearch, setLogSearch] = useState("");
+  const [planSearch, setPlanSearch] = useState("");
+  const [planStatus, setPlanStatus] = useState("all");
+  const [planPage, setPlanPage] = useState(1);
 
   const dateLocale = lang === "fr" ? "fr-FR" : "en-US";
 
@@ -106,7 +119,14 @@ const AdminDashboard = () => {
     }
   };
 
-  const filteredLogs = logFilter === "all" ? errorLogs : errorLogs.filter(l => l.level === logFilter);
+  const filteredLogs = (logFilter === "all" ? errorLogs : errorLogs.filter(l => l.level === logFilter))
+    .filter(l => !logSearch.trim() || `${l.message} ${l.route ?? ""}`.toLowerCase().includes(logSearch.trim().toLowerCase()));
+  const filteredPlans = plans.filter(p => {
+    const q = planSearch.trim().toLowerCase();
+    return (planStatus === "all" || p.statut === planStatus) &&
+      (!q || `${p.name} ${p.secteur ?? ""} ${getUserName(p.user_id)}`.toLowerCase().includes(q));
+  });
+  const planPaged = paginate(filteredPlans, planPage);
   const errorCount24h = errorLogs.filter(l => l.level === "error" && Date.now() - new Date(l.created_at).getTime() < 86400000).length;
 
   const analytics = useMemo(() => {
@@ -203,7 +223,12 @@ const AdminDashboard = () => {
             { key: "plans" as const, label: t("admin.businessPlans"), icon: <FileText className="w-3.5 h-3.5 inline mr-1.5" /> },
             { key: "users" as const, label: t("admin.users"), icon: <Users className="w-3.5 h-3.5 inline mr-1.5" /> },
             { key: "subs" as const, label: lang === "fr" ? "Abonnements" : "Subscriptions", icon: <CreditCard className="w-3.5 h-3.5 inline mr-1.5" /> },
+            { key: "revenue" as const, label: lang === "fr" ? "Revenus" : "Revenue", icon: <Coins className="w-3.5 h-3.5 inline mr-1.5" /> },
+            { key: "audit" as const, label: lang === "fr" ? "Journal admin" : "Admin log", icon: <ScrollText className="w-3.5 h-3.5 inline mr-1.5" /> },
+            { key: "announcements" as const, label: lang === "fr" ? "Annonces" : "Announcements", icon: <Megaphone className="w-3.5 h-3.5 inline mr-1.5" /> },
+            { key: "support" as const, label: "Support", icon: <LifeBuoy className="w-3.5 h-3.5 inline mr-1.5" /> },
             { key: "logs" as const, label: lang === "fr" ? "Logs" : "Logs", icon: <AlertTriangle className="w-3.5 h-3.5 inline mr-1.5" /> },
+            { key: "settings" as const, label: lang === "fr" ? "Réglages" : "Settings", icon: <Settings className="w-3.5 h-3.5 inline mr-1.5" /> },
             { key: "security" as const, label: lang === "fr" ? "Sécurité" : "Security", icon: <KeyRound className="w-3.5 h-3.5 inline mr-1.5" /> },
           ]).map(tabItem => (
             <button key={tabItem.key} onClick={() => setTab(tabItem.key)} className={`px-4 py-2 rounded-md text-xs font-bold transition-all relative ${tab === tabItem.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
@@ -295,6 +320,14 @@ const AdminDashboard = () => {
             )}
           </div>
         ) : tab === "plans" ? (
+          <div>
+          <AdminToolbar search={planSearch} onSearch={(v) => { setPlanSearch(v); setPlanPage(1); }} placeholder={lang === "fr" ? "Nom, secteur, utilisateur..." : "Name, sector, user..."}
+            onExport={() => downloadCsv("business-plans.csv", ["id", "name", "user", "sector", "progress", "status", "created_at"], filteredPlans.map(p => [p.id, p.name, getUserName(p.user_id), p.secteur, p.progress, p.statut, p.created_at]))}>
+            <select aria-label="Status" value={planStatus} onChange={e => { setPlanStatus(e.target.value); setPlanPage(1); }} className={inputCls}>
+              <option value="all">{lang === "fr" ? "Tous statuts" : "All statuses"}</option>
+              <option value="brouillon">{t("admin.drafts")}</option><option value="finalise">{t("admin.finalized")}</option><option value="archive">{t("admin.archived")}</option>
+            </select>
+          </AdminToolbar>
           <div className="bg-card border border-border rounded-xl overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -308,7 +341,7 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {plans.map((bp) => (
+                {planPaged.pageItems.map((bp) => (
                   <tr key={bp.id} className="border-t border-border/50 hover:bg-secondary/30 transition-colors">
                     <td className="px-4 py-3 font-medium">{bp.name}</td>
                     <td className="px-4 py-3 text-muted-foreground text-xs">{getUserName(bp.user_id)}</td>
@@ -330,43 +363,32 @@ const AdminDashboard = () => {
               </tbody>
             </table>
           </div>
-        ) : tab === "users" ? (
-          <div className="bg-card border border-border rounded-xl overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-secondary text-xs text-muted-foreground uppercase tracking-wider">
-                  <th className="text-left px-4 py-3">{t("admin.name")}</th>
-                  <th className="text-left px-4 py-3">{t("admin.registrationDate")}</th>
-                  <th className="text-center px-4 py-3">Business Plans</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u.user_id} className="border-t border-border/50 hover:bg-secondary/30 transition-colors">
-                    <td className="px-4 py-3 font-medium flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[0.6rem] font-bold shrink-0">
-                        {(u.display_name || "?").charAt(0).toUpperCase()}
-                      </div>
-                      {u.display_name || "—"}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs">
-                      {new Date(u.created_at).toLocaleDateString(dateLocale)}
-                    </td>
-                    <td className="px-4 py-3 text-center text-xs">
-                      {plans.filter((p) => p.user_id === u.user_id).length}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <Pager page={planPaged.page} pages={planPaged.pages} total={filteredPlans.length} onPage={setPlanPage} fr={lang === "fr"} />
           </div>
+        ) : tab === "users" ? (
+          <UsersPanel />
         ) : tab === "subs" ? (
           <SubscriptionsPanel />
+        ) : tab === "revenue" ? (
+          <RevenuePanel />
+        ) : tab === "audit" ? (
+          <AdminAuditPanel />
+        ) : tab === "announcements" ? (
+          <AnnouncementsPanel />
+        ) : tab === "support" ? (
+          <SupportPanel />
+        ) : tab === "settings" ? (
+          <SettingsPanel />
         ) : tab === "security" ? (
-          <AdminSecurityPanel />
+          <div className="flex flex-col md:flex-row gap-5 items-start"><AdminSecurityPanel /><MfaSection /></div>
+
         ) : (
           <div className="space-y-4">
             <div className="flex items-center gap-2 flex-wrap">
+              <input type="search" value={logSearch} onChange={e => setLogSearch(e.target.value)} aria-label={lang === "fr" ? "Rechercher dans les logs" : "Search logs"}
+                placeholder={lang === "fr" ? "Rechercher..." : "Search..."} className={`${inputCls} min-w-[160px]`} />
+              <button onClick={() => downloadCsv("logs.csv", ["date", "level", "source", "message", "route", "user"], filteredLogs.map(l => [l.created_at, l.level, l.source, l.message, l.route, l.user_id]))}
+                className="px-2 py-1 rounded-md bg-secondary text-[0.65rem] font-bold border border-border">CSV</button>
               <span className="text-xs text-muted-foreground mr-2">{lang === "fr" ? "Filtre :" : "Filter:"}</span>
               {(["all", "error", "warning", "info"] as const).map(f => (
                 <button key={f} onClick={() => setLogFilter(f)}
