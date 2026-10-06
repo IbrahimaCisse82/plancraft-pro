@@ -16,10 +16,27 @@ const AdminLoginPage = () => {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mfaFactor, setMfaFactor] = useState<string | null>(null);
+  const [code, setCode] = useState("");
 
   useEffect(() => {
     if (user?.email) setEmail((prev) => prev || user.email!);
   }, [user]);
+
+  const needsMfa = async () => {
+    const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (data?.nextLevel === "aal2" && data.currentLevel !== "aal2") {
+      const { data: f } = await supabase.auth.mfa.listFactors();
+      const id = f?.totp?.find((x) => x.status === "verified")?.id;
+      if (id) { setMfaFactor(id); return true; }
+    }
+    return false;
+  };
+
+  useEffect(() => {
+    if (user && isAdmin) needsMfa();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isAdmin]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +61,19 @@ const AdminLoginPage = () => {
       setSubmitting(false);
       return;
     }
+    if (await needsMfa()) { setSubmitting(false); return; }
+    toast.success(fr ? "Connexion administrateur réussie" : "Admin sign-in successful");
+    navigate("/admin", { replace: true });
+  };
+
+  const handleMfa = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mfaFactor) return;
+    setSubmitting(true);
+    setError(null);
+    const { error: vErr } = await supabase.auth.mfa.challengeAndVerify({ factorId: mfaFactor, code: code.trim() });
+    setSubmitting(false);
+    if (vErr) { setError(fr ? "Code invalide." : "Invalid code."); return; }
     toast.success(fr ? "Connexion administrateur réussie" : "Admin sign-in successful");
     navigate("/admin", { replace: true });
   };
@@ -63,6 +93,21 @@ const AdminLoginPage = () => {
           </p>
         </div>
 
+        {mfaFactor ? (
+          <form onSubmit={handleMfa} className="space-y-4">
+            <label htmlFor="mfa-code" className="block text-xs font-bold text-foreground">
+              {fr ? "Code de double authentification (6 chiffres)" : "Two-factor code (6 digits)"}
+            </label>
+            <input id="mfa-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} autoFocus
+              value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+              className="w-full px-3 py-2 rounded-md bg-background border border-border text-center tracking-[0.4em] text-lg" />
+            {error && <p role="alert" className="text-xs text-destructive font-medium">{error}</p>}
+            <button type="submit" disabled={submitting || code.length !== 6}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-md bg-primary text-primary-foreground text-sm font-bold disabled:opacity-60">
+              {submitting && <Loader2 className="w-4 h-4 animate-spin" />}{fr ? "Vérifier" : "Verify"}
+            </button>
+          </form>
+        ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="admin-email" className="block text-xs font-bold mb-1.5 text-foreground">

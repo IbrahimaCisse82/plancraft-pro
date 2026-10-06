@@ -385,6 +385,10 @@ const AdminDashboard = () => {
         ) : (
           <div className="space-y-4">
             <div className="flex items-center gap-2 flex-wrap">
+              <input type="search" value={logSearch} onChange={e => setLogSearch(e.target.value)} aria-label={lang === "fr" ? "Rechercher dans les logs" : "Search logs"}
+                placeholder={lang === "fr" ? "Rechercher..." : "Search..."} className={`${inputCls} min-w-[160px]`} />
+              <button onClick={() => downloadCsv("logs.csv", ["date", "level", "source", "message", "route", "user"], filteredLogs.map(l => [l.created_at, l.level, l.source, l.message, l.route, l.user_id]))}
+                className="px-2 py-1 rounded-md bg-secondary text-[0.65rem] font-bold border border-border">CSV</button>
               <span className="text-xs text-muted-foreground mr-2">{lang === "fr" ? "Filtre :" : "Filter:"}</span>
               {(["all", "error", "warning", "info"] as const).map(f => (
                 <button key={f} onClick={() => setLogFilter(f)}
