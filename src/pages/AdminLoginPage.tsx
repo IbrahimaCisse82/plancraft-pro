@@ -152,8 +152,9 @@ const AdminLoginPage = () => {
             {fr ? "Se connecter" : "Sign in"}
           </button>
         </form>
+        )}
 
-        {isAdmin && (
+        {isAdmin && !mfaFactor && (
           <button
             onClick={() => navigate("/admin")}
             className="mt-4 w-full px-4 py-2 rounded-md bg-secondary border border-border text-xs font-bold text-secondary-foreground hover:border-primary hover:text-primary"
