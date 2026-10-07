@@ -44,14 +44,14 @@ export function Countdown({
   const { lang } = useI18n();
   const { freeAccessUntil } = useAppSettings();
   const effectiveTarget = target ?? freeAccessUntil;
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => getTimeLeft(target));
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => getTimeLeft(effectiveTarget));
 
   useEffect(() => {
-    const tick = () => setTimeLeft(getTimeLeft(target));
+    const tick = () => setTimeLeft(getTimeLeft(effectiveTarget));
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [target]);
+  }, [effectiveTarget]);
 
   const labels = useMemo(
     () => ({
@@ -106,18 +106,20 @@ export function Countdown({
 }
 
 export function CountdownBanner({
-  target = FREE_ACCESS_UNTIL,
+  target,
   className = "",
 }: Omit<CountdownProps, "compact" | "showIcon">) {
   const { t, lang } = useI18n();
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => getTimeLeft(target));
+  const { freeAccessUntil } = useAppSettings();
+  const effectiveTarget = target ?? freeAccessUntil;
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => getTimeLeft(effectiveTarget));
 
   useEffect(() => {
-    const tick = () => setTimeLeft(getTimeLeft(target));
+    const tick = () => setTimeLeft(getTimeLeft(effectiveTarget));
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [target]);
+  }, [effectiveTarget]);
 
   if (timeLeft.expired) return null;
 
@@ -129,7 +131,7 @@ export function CountdownBanner({
         <span className="font-semibold text-gold-light">
           {t("countdown.banner")}
         </span>
-        <Countdown target={target} compact showIcon={false} />
+        <Countdown target={effectiveTarget} compact showIcon={false} />
         <span className="text-muted-foreground">
           {lang === "fr" ? "avant le passage aux tarifs" : "before pricing takes effect"}
         </span>
