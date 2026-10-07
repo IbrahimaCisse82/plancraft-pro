@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useI18n } from "@/contexts/I18nContext";
-import { FREE_ACCESS_UNTIL } from "@/hooks/usePlan";
+import { useAppSettings } from "@/hooks/useAppSettings";
 import { Timer } from "lucide-react";
 
 interface TimeLeft {
@@ -36,12 +36,14 @@ interface CountdownProps {
 }
 
 export function Countdown({
-  target = FREE_ACCESS_UNTIL,
+  target,
   className = "",
   compact = false,
   showIcon = true,
 }: CountdownProps) {
   const { lang } = useI18n();
+  const { freeAccessUntil } = useAppSettings();
+  const effectiveTarget = target ?? freeAccessUntil;
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => getTimeLeft(target));
 
   useEffect(() => {
