@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAppSettings } from "@/hooks/useAppSettings";
 
 export type PlanTier = "free" | "pro" | "business";
 
@@ -17,7 +18,7 @@ export interface PlanLimits {
 /** Période promotionnelle : accès complet gratuit jusqu'au 31 décembre 2026 inclus. */
 export const FREE_ACCESS_UNTIL = new Date("2026-12-31T23:59:59Z");
 
-export const isFreeAccessPeriod = (now: Date = new Date()) => now <= FREE_ACCESS_UNTIL;
+export const isFreeAccessPeriod = (now: Date = new Date(), until: Date = FREE_ACCESS_UNTIL) => now <= until;
 
 const FULL_ACCESS: PlanLimits = {
   maxPlans: -1,
@@ -52,8 +53,8 @@ export const STANDARD_PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
   business: FULL_ACCESS,
 };
 
-export const getPlanLimits = (tier: PlanTier, now: Date = new Date()): PlanLimits =>
-  isFreeAccessPeriod(now) ? FULL_ACCESS : STANDARD_PLAN_LIMITS[tier];
+export const getPlanLimits = (tier: PlanTier, now: Date = new Date(), until: Date = FREE_ACCESS_UNTIL): PlanLimits =>
+  isFreeAccessPeriod(now, until) ? FULL_ACCESS : STANDARD_PLAN_LIMITS[tier];
 
 export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
   free: getPlanLimits("free"),
@@ -102,6 +103,8 @@ export function usePlan() {
     setLoading(false);
   }, [user]);
 
+  const { freeAccessUntil } = useAppSettings();
+
   useEffect(() => {
     refresh();
     const handler = () => refresh();
@@ -109,8 +112,8 @@ export function usePlan() {
     return () => window.removeEventListener("ai-quota-updated", handler);
   }, [refresh]);
 
-  const limits = getPlanLimits(plan);
-  const freeAccess = isFreeAccessPeriod();
+  const limits = getPlanLimits(plan, new Date(), freeAccessUntil);
+  const freeAccess = isFreeAccessPeriod(new Date(), freeAccessUntil);
   const effectiveUsage: AIUsage = freeAccess
     ? { ...usage, limit: limits.aiMonthly }
     : usage;
@@ -125,6 +128,6 @@ export function usePlan() {
     refresh,
     canCreatePlan,
     freeAccess,
-    freeAccessUntil: FREE_ACCESS_UNTIL,
+    freeAccessUntil,
   };
 }
