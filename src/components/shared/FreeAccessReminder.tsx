@@ -4,6 +4,7 @@ import { X, BellRing } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { FREE_ACCESS_UNTIL } from "@/hooks/usePlan";
+import { useAppSettings } from "@/hooks/useAppSettings";
 
 /** Seuils de rappel (en jours restants) avant la fin de l'accès gratuit. */
 export const REMINDER_THRESHOLDS = [30, 7, 1];
@@ -26,7 +27,8 @@ const FreeAccessReminder = () => {
   const { t, lang } = useI18n();
   const { user } = useAuth();
 
-  const days = useMemo(() => daysLeft(), []);
+  const { freeAccessUntil } = useAppSettings();
+  const days = useMemo(() => daysLeft(freeAccessUntil), [freeAccessUntil]);
   const threshold = activeThreshold(days);
   const key = user && threshold ? storageKey(user.id, threshold) : null;
 
