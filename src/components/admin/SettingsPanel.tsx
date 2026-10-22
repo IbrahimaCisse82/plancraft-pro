@@ -4,6 +4,8 @@ import { useI18n } from "@/contexts/I18nContext";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { inputCls } from "./AdminToolbar";
+import { refreshAppSettings } from "@/hooks/useAppSettings";
+import { Button } from "@/components/ui/button";
 
 const SettingsPanel = () => {
   const { lang } = useI18n();
@@ -30,7 +32,11 @@ const SettingsPanel = () => {
       maintenance_mode: maintenance, maintenance_message: msg.trim().slice(0, 500) || null, free_access_until: until, contact_email: c || null,
     }).eq("id", 1);
     setSaving(false);
-    if (error) toast.error(error.message); else toast.success(fr ? "Réglages enregistrés" : "Settings saved");
+    if (error) toast.error(error.message);
+    else {
+      await refreshAppSettings();
+      toast.success(fr ? "Réglages enregistrés" : "Settings saved");
+    }
   };
 
   return (
@@ -51,7 +57,7 @@ const SettingsPanel = () => {
       <label className="block text-xs font-bold">{fr ? "Email de contact" : "Contact email"}
         <input type="email" maxLength={255} value={contact} onChange={(e) => setContact(e.target.value)} className={`w-full mt-1 font-normal ${inputCls}`} />
       </label>
-      <button disabled={saving} className="w-full px-4 py-2 rounded-md bg-primary text-primary-foreground text-xs font-bold disabled:opacity-60">{fr ? "Enregistrer" : "Save"}</button>
+      <Button type="submit" disabled={saving} className="w-full text-xs font-bold">{fr ? "Enregistrer" : "Save"}</Button>
     </form>
   );
 };
