@@ -137,9 +137,9 @@ test.describe("🛡️ Routes protégées", () => {
     await page.waitForURL(/\/auth/, { timeout: 10_000 });
   });
 
-  test("redirige /admin vers /auth si non connecté", async ({ page }) => {
+  test("redirige /admin vers /admin/login si non connecté", async ({ page }) => {
     await page.goto("/admin");
-    await page.waitForURL(/\/auth/, { timeout: 10_000 });
+    await page.waitForURL(/\/admin\/login/, { timeout: 10_000 });
   });
 
   test("redirige /profile vers /auth si non connecté", async ({ page }) => {
